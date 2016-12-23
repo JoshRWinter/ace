@@ -1,0 +1,2 @@
+background.tga -o ../assets/assets
+

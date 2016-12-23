@@ -1,4 +1,4 @@
-activity=
+activity=ace
 
 all:../assets/assets
 	NDK_DEBUG=1 ndk-build -C ..
