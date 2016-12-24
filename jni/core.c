@@ -10,9 +10,13 @@ int core(struct state *state){
 }
 
 void render(struct state *state){
+	glClear(GL_COLOR_BUFFER_BIT);
 	glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
-	glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_BACKGROUND].object);
-	draw(state,&state->background);
+	/*glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_BACKGROUND].object);
+	draw(state,&state->background);*/
+
+	glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
+	draw(state,&state->player.base);
 	
 	glUniform4f(state->uniform.rgba,0.0f,0.0f,0.0f,1.0f);
 	glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
@@ -20,6 +24,8 @@ void render(struct state *state){
 }
 
 void init(struct state *state){
+	memset(state->pointer,0,sizeof(struct crosshair)*2);
+
 	state->rect.left=-8.0f;
 	state->rect.right=8.0f;
 	state->rect.bottom=4.5f;
@@ -31,7 +37,11 @@ void init(struct state *state){
 	state->background.h=state->rect.bottom*2.0f;
 	state->background.rot=0.0f;
 
-	memset(state->pointer,0,sizeof(struct crosshair)*2);
+	state->player.base.x=0.0f;
+	state->player.base.y=0.0f;
+	state->player.base.w=PLAYER_WIDTH;
+	state->player.base.h=PLAYER_HEIGHT;
+	state->player.base.rot=0.0f;
 }
 
 void reset(struct state *state){

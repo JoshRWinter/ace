@@ -9,6 +9,12 @@ struct base{
 	float x,y,w,h,rot;
 };
 
+#define PLAYER_WIDTH 1.033f
+#define PLAYER_HEIGHT 1.3f
+struct player{
+	struct base base;
+};
+
 struct state{
 	int running;
 
@@ -28,6 +34,7 @@ struct state{
 	struct jni_info jni_info;
 
 	struct base background;
+	struct player player;
 };
 
 int process(struct android_app*);

@@ -6,7 +6,8 @@ all:../assets/assets
 	adb install -r $(CURDIR)/../bin/$(activity)-debug.apk
 	adb shell am start -n joshwinter.$(activity)/android.app.NativeActivity
 	
-../assets/assets:../assets_local/build.txt ../assets_local/*.tga
+../assets/assets:../assets_local/build.txt ../assets_local/*
+	cd ../assets_local && ./convert.sh
 	cd ../assets_local/ && pack --build
 
 #../assets/uiassets:../assets_local/uibuild.txt ../assets_local/*.tga
