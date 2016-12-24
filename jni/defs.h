@@ -1,10 +1,21 @@
 #include "glesutil.h"
 
+#define distance(x1,x2,y1,y2) (sqrtf(powf((x2)-(x1),2)+powf((y2)-(y1),2)))
+
+// gameplay
 #define TID_BACKGROUND 0
 #define TID_PLAYER 1
 
+// ui
+#define TID_JOYBASE 0
+#define TID_JOYTOP 1
+
+// sounds
 #define SID_BACKGROUND 0
 
+#define JOYBASE_SIZE 2.0f
+#define JOYTOP_SIZE 1.0f
+#define JOYTOP_DIST 1.2f
 struct base{
 	float x,y,w,h,rot;
 };
@@ -33,7 +44,7 @@ struct state{
 	struct android_app *app;
 	struct jni_info jni_info;
 
-	struct base background;
+	struct base background,joy_base,joy_top;
 	struct player player;
 };
 

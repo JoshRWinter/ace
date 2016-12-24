@@ -27,7 +27,7 @@ void init_display(struct state *state){
 	eglMakeCurrent(state->display,state->surface,state->surface,state->context);
 
 	if(!loadpack(&state->assets,state->app->activity->assetManager,"assets",NULL))logcat("texture init error");
-	//if(!loadpack(&state->uiassets,state->app->activity->assetManager,"uiassets",NULL))logcat("ui texture init error");
+	if(!loadpack(&state->uiassets,state->app->activity->assetManager,"uiassets",NULL))logcat("ui texture init error");
 	
 	state->program=initshaders(vertexshader,fragmentshader);
 	glUseProgram(state->program);
@@ -67,7 +67,7 @@ void term_display(struct state *state){
 	glDeleteVertexArrays(1,&state->vao);
 	glDeleteProgram(state->program);
 	destroypack(&state->assets);
-	//destroypack(&state->uiassets);
+	destroypack(&state->uiassets);
 	eglMakeCurrent(state->display,EGL_NO_SURFACE,EGL_NO_SURFACE,EGL_NO_CONTEXT);
 	eglDestroyContext(state->display,state->context);
 	eglDestroySurface(state->display,state->surface);
@@ -78,7 +78,7 @@ int32_t inputproc(struct android_app *app, AInputEvent *event){
 	struct state *state=app->userData;
 	int32_t type=AInputEvent_getType(event);
 	if(type==AINPUT_EVENT_TYPE_MOTION){
-		return retrieve_touchscreen_input(event,state->pointer,state->screen.w,state->screen.h,state->rect.right*2.0,state->rect.bottom*2.0f);
+		return retrieve_touchscreen_input(event,state->pointer,state->device.w,state->device.h,state->rect.right*2.0,state->rect.bottom*2.0f);
 	}
 	return false;
 }
