@@ -7,9 +7,28 @@
 #include "defs.h"
 
 int core(struct state *state){
+	// clouds
+	if(!state->cloudlist||onein(140))newcloud(state);
+	for(struct cloud *cloud=state->cloudlist,*prevcloud=NULL;cloud!=NULL;){
+		if(distance(cloud->base.x+(CLOUD_SIZE/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
+		cloud->base.y+(CLOUD_SIZE/2.0f),state->player.base.y+(PLAYER_WIDTH/2.0f))>CLOUD_RMDIST){
+				cloud=deletecloud(state,cloud,prevcloud);
+				continue;
+		}
+
+		prevcloud=cloud;
+		cloud=cloud->next;
+	}
+
+	// player
+	state->player.base.x+=state->player.xv;
+	state->player.base.y+=state->player.yv;
+
 	// joysticks
 	state->joy_top.x=state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
 	state->joy_top.y=state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
+	state->player.xv=0.0f;
+	state->player.yv=0.0f;
 	for(int i=0;i<2;++i){
 		if(!state->pointer[i].active||state->pointer[i].x>0.0f)
 			continue;
@@ -25,6 +44,8 @@ int core(struct state *state){
 			state->joy_top.x=(state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f))-cosf(angle)*JOYTOP_DIST;
 			state->joy_top.y=(state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f))-sinf(angle)*JOYTOP_DIST;
 		}
+		state->player.xv=-cosf(angle)*PLAYER_SPEED;
+		state->player.yv=-sinf(angle)*PLAYER_SPEED;
 	}
 	
 	return true;
@@ -36,14 +57,24 @@ void render(struct state *state){
 	/*glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_BACKGROUND].object);
 	draw(state,&state->background);*/
 
+	// clouds
+	if(state->cloudlist){
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_CLOUD].object);
+		for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
+			draw(state,&cloud->base);
+	}
+
+	// player
 	glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
 	draw(state,&state->player.base);
 
+	// joysticks
 	glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYBASE].object);
-	draw(state,&state->joy_base);
+	uidraw(state,&state->joy_base);
 	glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYTOP].object);
-	draw(state,&state->joy_top);
+	uidraw(state,&state->joy_top);
 	
+	// text
 	glUniform4f(state->uniform.rgba,0.0f,0.0f,0.0f,1.0f);
 	glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
 	drawtext(state->font.main,state->rect.left+0.05f,state->rect.top+0.05f,"ace [alpha]");
@@ -79,8 +110,15 @@ void init(struct state *state){
 	state->player.base.w=PLAYER_WIDTH;
 	state->player.base.h=PLAYER_HEIGHT;
 	state->player.base.rot=0.0f;
+
+	state->cloudlist=NULL;
 }
 
 void reset(struct state *state){
+	for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=deletecloud(state,cloud,NULL));
+	state->cloudlist=NULL;
+	
+	state->player.xv=0.0f;
+	state->player.yv=0.0f;
 }
 
