@@ -20,8 +20,8 @@ struct base{
 	float x,y,w,h,rot;
 };
 
-#define PLAYER_WIDTH 1.033f
-#define PLAYER_HEIGHT 1.3f
+#define PLAYER_WIDTH 0.658f
+#define PLAYER_HEIGHT 0.8f
 struct player{
 	struct base base;
 };
