@@ -28,7 +28,7 @@ struct base{
 
 #define BULLET_WIDTH 0.3f
 #define BULLET_HEIGHT 0.15f
-#define BULLET_SPEED 0.2f
+#define BULLET_SPEED 0.3f
 struct bullet{
 	struct base base;
 	float xv,yv;
@@ -38,10 +38,12 @@ struct bullet{
 
 #define PLAYER_WIDTH 0.658f
 #define PLAYER_HEIGHT 0.8f
-#define PLAYER_SPEED 0.03f
-#define PLAYER_RELOAD 10
+#define PLAYER_SPEED 0.05f
+#define PLAYER_RELOAD 20
+#define PLAYER_TURN_SPEED 0.05f
 struct player{
 	struct base base;
+	float targetrot;
 	float xv,yv;
 	int reload;
 };

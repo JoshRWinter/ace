@@ -45,9 +45,10 @@ int core(struct state *state){
 	// joysticks
 	state->joy_top.x=state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
 	state->joy_top.y=state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
-	state->player.xv=0.0f;
-	state->player.yv=0.0f;
 	state->fire=false;
+	state->player.xv=-cosf(state->player.base.rot)*PLAYER_SPEED;
+	state->player.yv=-sinf(state->player.base.rot)*PLAYER_SPEED;
+	align(&state->player.base.rot,PLAYER_TURN_SPEED,state->player.targetrot);
 	for(int i=0;i<2;++i){
 		if(!state->pointer[i].active)
 			continue;
@@ -60,21 +61,18 @@ int core(struct state *state){
 		}
 		else{
 			// joystick
-
 			state->joy_top.x=state->pointer[i].x-(JOYTOP_SIZE/2.0f);
 			state->joy_top.y=state->pointer[i].y-(JOYTOP_SIZE/2.0f);
 			float angle=atan2f((state->joy_base.y+(JOYBASE_SIZE/2.0f))-(state->joy_top.y+(JOYTOP_SIZE/2.0f)),
 					(state->joy_base.x+(JOYBASE_SIZE/2.0f))-(state->joy_top.x+(JOYTOP_SIZE/2.0f)));
-			state->player.base.rot=angle;
+			state->player.targetrot=angle;
 
 			if(distance(state->joy_top.x+(JOYTOP_SIZE/2.0f),state->joy_base.x+(JOYBASE_SIZE/2.0f),
 						state->joy_top.y+(JOYTOP_SIZE/2.0f),state->joy_base.y+(JOYBASE_SIZE/2.0f))>JOYTOP_DIST){
 				state->joy_top.x=(state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f))-cosf(angle)*JOYTOP_DIST;
 				state->joy_top.y=(state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f))-sinf(angle)*JOYTOP_DIST;
 			}
-			state->player.xv=-cosf(angle)*PLAYER_SPEED;
-			state->player.yv=-sinf(angle)*PLAYER_SPEED;
-			}
+		}
 	}
 	
 	return true;
@@ -171,7 +169,8 @@ void reset(struct state *state){
 	state->player.base.x=-PLAYER_WIDTH/2.0f;
 	state->player.base.y=-PLAYER_HEIGHT/2.0f;
 	state->player.xv=0.0f;
-	state->player.yv=0.0f;
+	state->player.yv=PLAYER_SPEED;
+	state->player.targetrot=0.0f;
 	state->player.base.rot=0.0f;
 	state->player.reload=0;
 }
