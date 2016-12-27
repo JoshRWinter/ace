@@ -20,9 +20,27 @@ int core(struct state *state){
 		cloud=cloud->next;
 	}
 
+	// bullets
+	if(state->fire&&state->player.reload==0){
+		newbullet(state,&state->player.base);
+		state->player.reload=PLAYER_RELOAD;
+	}
+	for(struct bullet *bullet=state->bulletlist,*prevbullet=NULL;bullet!=NULL;){
+		if(bullet->base.x<state->player.base.x-20.0f||bullet->base.x>state->player.base.x+20.0f||
+				bullet->base.y<state->player.base.y-20.0f||state->player.base.y>state->player.base.y+20.0f){
+			bullet=deletebullet(state,bullet,prevbullet);
+			continue;
+		}
+		bullet->base.x+=bullet->xv;
+		bullet->base.y+=bullet->yv;
+		prevbullet=bullet;
+		bullet=bullet->next;
+	}
+
 	// player
 	state->player.base.x+=state->player.xv;
 	state->player.base.y+=state->player.yv;
+	if(state->player.reload>0)--state->player.reload;
 
 	// joysticks
 	state->joy_top.x=state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
@@ -73,6 +91,12 @@ void render(struct state *state){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_CLOUD].object);
 		for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
 			draw(state,&cloud->base);
+	}
+	
+	if(state->bulletlist){
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_BULLET].object);
+		for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=bullet->next)
+			draw(state,&bullet->base);
 	}
 
 	// player
@@ -134,11 +158,14 @@ void init(struct state *state){
 	state->player.base.h=PLAYER_HEIGHT;
 
 	state->cloudlist=NULL;
+	state->bulletlist=NULL;
 }
 
 void reset(struct state *state){
 	for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=deletecloud(state,cloud,NULL));
 	state->cloudlist=NULL;
+	for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=deletebullet(state,bullet,NULL));
+	state->bulletlist=NULL;
 	
 	state->fire=false;
 	state->player.base.x=-PLAYER_WIDTH/2.0f;
@@ -146,5 +173,6 @@ void reset(struct state *state){
 	state->player.xv=0.0f;
 	state->player.yv=0.0f;
 	state->player.base.rot=0.0f;
+	state->player.reload=0;
 }
 

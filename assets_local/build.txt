@@ -1,2 +1,2 @@
-background.tga p38.tga cloud.tga -o ../assets/assets
+background.tga p38.tga cloud.tga bullet.tga -o ../assets/assets
 

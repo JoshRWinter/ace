@@ -26,20 +26,24 @@ struct base{
 	float x,y,w,h,rot;
 };
 
-#define BULLET_WIDTH 0.5f
-#define BULLET_HEIGHT 0.35f
+#define BULLET_WIDTH 0.3f
+#define BULLET_HEIGHT 0.15f
+#define BULLET_SPEED 0.2f
 struct bullet{
 	struct base base;
 	float xv,yv;
+	struct base *owner;
 	struct bullet *next;
 };
 
 #define PLAYER_WIDTH 0.658f
 #define PLAYER_HEIGHT 0.8f
 #define PLAYER_SPEED 0.03f
+#define PLAYER_RELOAD 10
 struct player{
 	struct base base;
 	float xv,yv;
+	int reload;
 };
 
 #define CLOUD_SIZE 2.0f
