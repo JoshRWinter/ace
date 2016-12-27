@@ -57,7 +57,7 @@ void init_display(struct state *state){
 	glClearColor(0.3f,0.7f,0.9f,1.0f);
 
 	set_ftfont_params(state->screen.w,state->screen.h,state->rect.right*2.0f,state->rect.bottom*2.0f,state->uniform.vector,state->uniform.size,state->uniform.texcoords);
-	state->font.main=create_ftfont(state->app->activity->assetManager,0.5,"corbel.ttf");
+	state->font.main=create_ftfont(state->app->activity->assetManager,0.4f,"corbel.ttf");
 }
 
 void term_display(struct state *state){

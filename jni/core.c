@@ -116,10 +116,20 @@ void render(struct state *state){
 	glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYTOP].object);
 	uidraw(state,&state->joy_top);
 	
-	// text
-	glUniform4f(state->uniform.rgba,0.0f,0.0f,0.0f,1.0f);
-	glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
-	drawtext(state->font.main,state->rect.left+0.05f,state->rect.top+0.05f,"ace [alpha]");
+	{
+		static char statustext[50];
+		static int lasttime,fps;
+		int currenttime=time(NULL);
+		if(currenttime!=lasttime){
+			lasttime=currenttime;
+			sprintf(statustext,"[ace] %d fps",fps);
+			fps=0;
+		}
+		else ++fps;
+		glUniform4f(state->uniform.rgba,0.0f,0.0f,0.0f,1.0f);
+		glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
+		drawtext(state->font.main,state->rect.left+0.05f,state->rect.top+0.05f,statustext);
+	}
 }
 
 void init(struct state *state){
