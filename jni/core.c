@@ -29,23 +29,34 @@ int core(struct state *state){
 	state->joy_top.y=state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
 	state->player.xv=0.0f;
 	state->player.yv=0.0f;
+	state->fire=false;
 	for(int i=0;i<2;++i){
-		if(!state->pointer[i].active||state->pointer[i].x>0.0f)
+		if(!state->pointer[i].active)
 			continue;
-
-		state->joy_top.x=state->pointer[i].x-(JOYTOP_SIZE/2.0f);
-		state->joy_top.y=state->pointer[i].y-(JOYTOP_SIZE/2.0f);
-		float angle=atan2f((state->joy_base.y+(JOYBASE_SIZE/2.0f))-(state->joy_top.y+(JOYTOP_SIZE/2.0f)),
-				(state->joy_base.x+(JOYBASE_SIZE/2.0f))-(state->joy_top.x+(JOYTOP_SIZE/2.0f)));
-		state->player.base.rot=angle;
-
-		if(distance(state->joy_top.x+(JOYTOP_SIZE/2.0f),state->joy_base.x+(JOYBASE_SIZE/2.0f),
-					state->joy_top.y+(JOYTOP_SIZE/2.0f),state->joy_base.y+(JOYBASE_SIZE/2.0f))>JOYTOP_DIST){
-			state->joy_top.x=(state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f))-cosf(angle)*JOYTOP_DIST;
-			state->joy_top.y=(state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f))-sinf(angle)*JOYTOP_DIST;
+		if(state->pointer[i].x>0.0f){
+			// fire button
+			if(state->pointer[i].x>state->joy_fire.x&&state->pointer[i].x<state->joy_fire.x+JOYFIRE_SIZE&&
+					state->pointer[i].y>state->joy_fire.y&&state->pointer[i].y<state->joy_fire.y+JOYFIRE_SIZE){
+				state->fire=true;
+			}
 		}
-		state->player.xv=-cosf(angle)*PLAYER_SPEED;
-		state->player.yv=-sinf(angle)*PLAYER_SPEED;
+		else{
+			// joystick
+
+			state->joy_top.x=state->pointer[i].x-(JOYTOP_SIZE/2.0f);
+			state->joy_top.y=state->pointer[i].y-(JOYTOP_SIZE/2.0f);
+			float angle=atan2f((state->joy_base.y+(JOYBASE_SIZE/2.0f))-(state->joy_top.y+(JOYTOP_SIZE/2.0f)),
+					(state->joy_base.x+(JOYBASE_SIZE/2.0f))-(state->joy_top.x+(JOYTOP_SIZE/2.0f)));
+			state->player.base.rot=angle;
+
+			if(distance(state->joy_top.x+(JOYTOP_SIZE/2.0f),state->joy_base.x+(JOYBASE_SIZE/2.0f),
+						state->joy_top.y+(JOYTOP_SIZE/2.0f),state->joy_base.y+(JOYBASE_SIZE/2.0f))>JOYTOP_DIST){
+				state->joy_top.x=(state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f))-cosf(angle)*JOYTOP_DIST;
+				state->joy_top.y=(state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f))-sinf(angle)*JOYTOP_DIST;
+			}
+			state->player.xv=-cosf(angle)*PLAYER_SPEED;
+			state->player.yv=-sinf(angle)*PLAYER_SPEED;
+			}
 	}
 	
 	return true;
@@ -68,6 +79,15 @@ void render(struct state *state){
 	glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
 	draw(state,&state->player.base);
 
+	// fire button
+	if(state->fire)
+		glUniform4f(state->uniform.rgba,0.6f,0.6f,0.6f,1.0f);
+	else
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+	glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYFIRE].object);
+	uidraw(state,&state->joy_fire);
+
+	glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 	// joysticks
 	glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYBASE].object);
 	uidraw(state,&state->joy_base);
@@ -104,12 +124,14 @@ void init(struct state *state){
 	state->joy_top.x=state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
 	state->joy_top.y=state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
 	state->joy_top.rot=0.0f;
+	state->joy_fire.x=5.0f;
+	state->joy_fire.y=1.6f;
+	state->joy_fire.rot=0.0f;
+	state->joy_fire.w=JOYFIRE_SIZE;
+	state->joy_fire.h=JOYFIRE_SIZE;
 
-	state->player.base.x=-PLAYER_WIDTH/2.0f;
-	state->player.base.y=-PLAYER_HEIGHT/2.0f;
 	state->player.base.w=PLAYER_WIDTH;
 	state->player.base.h=PLAYER_HEIGHT;
-	state->player.base.rot=0.0f;
 
 	state->cloudlist=NULL;
 }
@@ -118,7 +140,11 @@ void reset(struct state *state){
 	for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=deletecloud(state,cloud,NULL));
 	state->cloudlist=NULL;
 	
+	state->fire=false;
+	state->player.base.x=-PLAYER_WIDTH/2.0f;
+	state->player.base.y=-PLAYER_HEIGHT/2.0f;
 	state->player.xv=0.0f;
 	state->player.yv=0.0f;
+	state->player.base.rot=0.0f;
 }
 

@@ -8,10 +8,12 @@
 #define TID_BACKGROUND 0
 #define TID_PLAYER 1
 #define TID_CLOUD 2
+#define TID_BULLET 3
 
 // ui
 #define TID_JOYBASE 0
 #define TID_JOYTOP 1
+#define TID_JOYFIRE 2
 
 // sounds
 #define SID_BACKGROUND 0
@@ -19,15 +21,17 @@
 #define JOYBASE_SIZE 2.0f
 #define JOYTOP_SIZE 1.0f
 #define JOYTOP_DIST 1.2f
+#define JOYFIRE_SIZE 1.5f
 struct base{
 	float x,y,w,h,rot;
 };
 
-#define CLOUD_SIZE 2.0f
-#define CLOUD_RMDIST 15.0f
-struct cloud{
+#define BULLET_WIDTH 0.5f
+#define BULLET_HEIGHT 0.35f
+struct bullet{
 	struct base base;
-	struct cloud *next;
+	float xv,yv;
+	struct bullet *next;
 };
 
 #define PLAYER_WIDTH 0.658f
@@ -38,8 +42,16 @@ struct player{
 	float xv,yv;
 };
 
+#define CLOUD_SIZE 2.0f
+#define CLOUD_RMDIST 15.0f
+struct cloud{
+	struct base base;
+	struct cloud *next;
+};
+
 struct state{
 	int running;
+	int fire;
 
 	int vao,vbo,program;
 	struct device device,screen;
@@ -56,8 +68,9 @@ struct state{
 	struct android_app *app;
 	struct jni_info jni_info;
 
-	struct base background,joy_base,joy_top;
+	struct base background,joy_base,joy_top,joy_fire;
 	struct player player;
+	struct bullet *bulletlist;
 	struct cloud *cloudlist;
 };
 
@@ -74,6 +87,8 @@ void reset(struct state*);
 
 void draw(struct state*,struct base*);
 void uidraw(struct state*,struct base*);
+void newbullet(struct state*,struct base*);
+struct bullet *deletebullet(struct state*,struct bullet*,struct bullet*);
 void newcloud(struct state*);
 struct cloud *deletecloud(struct state*,struct cloud*,struct cloud*);
 

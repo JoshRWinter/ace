@@ -10,7 +10,7 @@ all:../assets/assets ../assets/uiassets
 	cd ../assets_local && ./convert.sh
 	cd ../assets_local/ && pack --build
 
-../assets/uiassets:../assets_local/uibuild.txt ../assets_local/*.tga
+../assets/uiassets:../assets_local/uibuild.txt ../assets_local/*
 	cd ../assets_local && ./convert.sh
 	cd ../assets_local/ && pack --build uibuild.txt
 
