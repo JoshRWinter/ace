@@ -9,6 +9,7 @@
 #define TID_PLAYER 1
 #define TID_CLOUD 2
 #define TID_BULLET 3
+#define TID_SMOKE 2
 
 // ui
 #define TID_JOYBASE 0
@@ -36,16 +37,27 @@ struct bullet{
 	struct bullet *next;
 };
 
+#define SMOKE_FADE 0.01f
+#define SMOKE_SHRINK 0.002f
+struct smoke{
+	struct base base;
+	float alpha;
+	float xv,yv;
+	struct smoke *next;
+};
+
 #define PLAYER_WIDTH 0.658f
 #define PLAYER_HEIGHT 0.8f
 #define PLAYER_SPEED 0.05f
 #define PLAYER_RELOAD 20
 #define PLAYER_TURN_SPEED 0.05f
+#define PLAYER_SMOKE 10
 struct player{
 	struct base base;
 	float targetrot;
 	float xv,yv;
 	int reload;
+	int timer_smoke;
 };
 
 #define CLOUD_SIZE 2.0f
@@ -77,6 +89,7 @@ struct state{
 	struct base background,joy_base,joy_top,joy_fire;
 	struct player player;
 	struct bullet *bulletlist;
+	struct smoke *smokelist;
 	struct cloud *cloudlist;
 };
 
@@ -95,6 +108,8 @@ void draw(struct state*,struct base*);
 void uidraw(struct state*,struct base*);
 void newbullet(struct state*,struct base*);
 struct bullet *deletebullet(struct state*,struct bullet*,struct bullet*);
+void newsmoke(struct state*,struct base*,float,float);
+struct smoke *deletesmoke(struct state*,struct smoke*,struct smoke*);
 void newcloud(struct state*);
 struct cloud *deletecloud(struct state*,struct cloud*,struct cloud*);
 

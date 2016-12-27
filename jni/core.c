@@ -37,10 +37,32 @@ int core(struct state *state){
 		bullet=bullet->next;
 	}
 
+	// smoke
+	for(struct smoke *smoke=state->smokelist,*prevsmoke=NULL;smoke!=NULL;){
+		smoke->base.x+=smoke->xv;
+		smoke->base.y+=smoke->yv;
+		smoke->alpha-=SMOKE_FADE;
+		if(smoke->alpha<0.0f){
+			smoke=deletesmoke(state,smoke,prevsmoke);
+			continue;
+		}
+		smoke->base.w-=SMOKE_SHRINK;
+		smoke->base.h=smoke->base.w;
+		smoke->base.x+=SMOKE_SHRINK/2.0f;
+		smoke->base.y+=SMOKE_SHRINK/2.0f;
+		prevsmoke=smoke;
+		smoke=smoke->next;
+	}
+
 	// player
 	state->player.base.x+=state->player.xv;
 	state->player.base.y+=state->player.yv;
 	if(state->player.reload>0)--state->player.reload;
+	if(state->player.timer_smoke==0){
+		newsmoke(state,&state->player.base,0.4f,0.3f);
+		state->player.timer_smoke=PLAYER_SMOKE;
+	}
+	else --state->player.timer_smoke;
 
 	// joysticks
 	state->joy_top.x=state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
@@ -90,7 +112,18 @@ void render(struct state *state){
 		for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
 			draw(state,&cloud->base);
 	}
+
+	// smoke
+	if(state->smokelist){
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_SMOKE].object);
+		for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=smoke->next){
+			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,smoke->alpha);
+			draw(state,&smoke->base);
+		}
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+	}
 	
+	// bullets
 	if(state->bulletlist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_BULLET].object);
 		for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=bullet->next)
@@ -167,6 +200,7 @@ void init(struct state *state){
 
 	state->cloudlist=NULL;
 	state->bulletlist=NULL;
+	state->smokelist=NULL;
 }
 
 void reset(struct state *state){
@@ -174,6 +208,8 @@ void reset(struct state *state){
 	state->cloudlist=NULL;
 	for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=deletebullet(state,bullet,NULL));
 	state->bulletlist=NULL;
+	for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=deletesmoke(state,smoke,NULL));
+	state->smokelist=NULL;
 	
 	state->fire=false;
 	state->player.base.x=-PLAYER_WIDTH/2.0f;
@@ -183,5 +219,6 @@ void reset(struct state *state){
 	state->player.targetrot=0.0f;
 	state->player.base.rot=0.0f;
 	state->player.reload=0;
+	state->player.timer_smoke=0;
 }
 

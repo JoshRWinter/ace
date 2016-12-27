@@ -42,6 +42,28 @@ struct bullet *deletebullet(struct state *state,struct bullet *bullet,struct bul
 	return temp;
 }
 
+void newsmoke(struct state *state,struct base *base,float size,float alpha){
+	const float SMOKE_SPEED=0.01f;
+	struct smoke *smoke=malloc(sizeof(struct smoke));
+	smoke->base.w=size;
+	smoke->base.h=size;
+	smoke->base.x=base->x+(base->w/2.0f)-(size/2.0f);
+	smoke->base.y=base->y+(base->h/2.0f)-(size/2.0f);
+	smoke->base.rot=randomint(1,360)*(M_PI/180.0f);
+	smoke->alpha=alpha;
+	smoke->xv=cosf(base->rot)*SMOKE_SPEED;
+	smoke->yv=sinf(base->rot)*SMOKE_SPEED;
+	smoke->next=state->smokelist;
+	state->smokelist=smoke;
+}
+struct smoke *deletesmoke(struct state *state,struct smoke *smoke,struct smoke *prev){
+	if(prev!=NULL)prev->next=smoke->next;
+	else state->smokelist=smoke->next;
+	void *temp=smoke->next;
+	free(smoke);
+	return temp;
+}
+
 void newcloud(struct state *state){
 	int count=0;
 	for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
