@@ -5,6 +5,36 @@
 #include <math.h>
 #include "defs.h"
 
+void newenemy(struct state *state){
+	int count=0;
+	for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
+		++count;
+	if(count>2)
+		return;
+
+	struct enemy *enemy=malloc(sizeof(struct enemy));
+	enemy->base.w=ENEMY_WIDTH;
+	enemy->base.h=ENEMY_HEIGHT;
+	enemy->base.x=state->player.base.x;
+	enemy->base.y=state->player.base.y;
+	enemy->base.rot=randomint(1,360)*(M_PI/180.0f);
+	enemy->target.w=ENEMY_WIDTH;
+	enemy->target.h=ENEMY_HEIGHT;
+	enemy->target.x=enemy->base.x;
+	enemy->target.y=enemy->base.y;
+	enemy->target.rot=0.0f;
+	enemy->timer_smoke=0;
+	enemy->next=state->enemylist;
+	state->enemylist=enemy;
+}
+struct enemy *deleteenemy(struct state *state,struct enemy *enemy,struct enemy *prev){
+	if(prev!=NULL)prev->next=enemy->next;
+	else state->enemylist=enemy->next;
+	void *temp=enemy->next;
+	free(temp);
+	return temp;
+}
+
 void newbullet(struct state *state,struct base *owner){
 	const float DISPLACE=0.2f;
 	const float ANGLE_OFFSET=0.9f;

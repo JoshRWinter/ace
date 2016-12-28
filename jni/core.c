@@ -20,6 +20,30 @@ int core(struct state *state){
 		cloud=cloud->next;
 	}
 
+	// enemies
+	if(onein(140))newenemy(state);
+	for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
+		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-(enemy->target.y+(ENEMY_HEIGHT/2.0f)),
+				(enemy->base.x+(ENEMY_WIDTH/2.0f))-(enemy->target.x+(ENEMY_WIDTH/2.0f)));
+		align(&enemy->base.rot,PLAYER_TURN_SPEED,angle);
+		enemy->base.x-=cosf(enemy->base.rot)*ENEMY_SPEED;
+		enemy->base.y-=sinf(enemy->base.rot)*ENEMY_SPEED;
+
+		if(collide(&enemy->base,&enemy->target)){
+			enemy->target.x=randomint((state->player.base.x-10.0f)*10.0f,(state->player.base.x+10.0f)*10.0f)/10.0f;
+			enemy->target.y=randomint((state->player.base.y-10.0f)*10.0f,(state->player.base.y+10.0f)*10.0f)/10.0f;
+		}
+
+		if(enemy->timer_smoke==0){
+			enemy->timer_smoke=PLAYER_SMOKE;
+			newsmoke(state,&enemy->base,0.4f,0.3f);
+		}
+		else --enemy->timer_smoke;
+		
+		prevenemy=enemy;
+		enemy=enemy->next;
+	}
+
 	// bullets
 	if(state->fire&&state->player.reload==0){
 		newbullet(state,&state->player.base);
@@ -134,6 +158,13 @@ void render(struct state *state){
 	glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
 	draw(state,&state->player.base);
 
+	//enemies
+	if(state->enemylist){
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_ENEMY].object);
+		for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
+			draw(state,&enemy->base);
+	}
+
 	// fire button
 	if(state->fire)
 		glUniform4f(state->uniform.rgba,0.6f,0.6f,0.6f,1.0f);
@@ -199,6 +230,7 @@ void init(struct state *state){
 	state->player.base.h=PLAYER_HEIGHT;
 
 	state->cloudlist=NULL;
+	state->enemylist=NULL;
 	state->bulletlist=NULL;
 	state->smokelist=NULL;
 }
@@ -210,6 +242,8 @@ void reset(struct state *state){
 	state->bulletlist=NULL;
 	for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=deletesmoke(state,smoke,NULL));
 	state->smokelist=NULL;
+	for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=deleteenemy(state,enemy,NULL));
+	state->enemylist=NULL;
 	
 	state->fire=false;
 	state->player.base.x=-PLAYER_WIDTH/2.0f;

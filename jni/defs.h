@@ -10,6 +10,7 @@
 #define TID_CLOUD 2
 #define TID_BULLET 3
 #define TID_SMOKE 2
+#define TID_ENEMY 1
 
 // ui
 #define TID_JOYBASE 0
@@ -25,6 +26,30 @@
 #define JOYFIRE_SIZE 1.5f
 struct base{
 	float x,y,w,h,rot;
+};
+
+#define PLAYER_WIDTH 0.658f
+#define PLAYER_HEIGHT 0.8f
+#define PLAYER_SPEED 0.05f
+#define PLAYER_RELOAD 20
+#define PLAYER_TURN_SPEED 0.04f
+#define PLAYER_SMOKE 10
+struct player{
+	struct base base;
+	float targetrot;
+	float xv,yv;
+	int reload;
+	int timer_smoke;
+};
+
+#define ENEMY_WIDTH 1.0f
+#define ENEMY_HEIGHT 1.0f
+#define ENEMY_SPEED 0.045f
+struct enemy{
+	struct base base;
+	struct base target;
+	int timer_smoke;
+	struct enemy *next;
 };
 
 #define BULLET_WIDTH 0.3f
@@ -44,20 +69,6 @@ struct smoke{
 	float alpha;
 	float xv,yv;
 	struct smoke *next;
-};
-
-#define PLAYER_WIDTH 0.658f
-#define PLAYER_HEIGHT 0.8f
-#define PLAYER_SPEED 0.05f
-#define PLAYER_RELOAD 20
-#define PLAYER_TURN_SPEED 0.05f
-#define PLAYER_SMOKE 10
-struct player{
-	struct base base;
-	float targetrot;
-	float xv,yv;
-	int reload;
-	int timer_smoke;
 };
 
 #define CLOUD_SIZE 2.0f
@@ -88,6 +99,7 @@ struct state{
 
 	struct base background,joy_base,joy_top,joy_fire;
 	struct player player;
+	struct enemy *enemylist;
 	struct bullet *bulletlist;
 	struct smoke *smokelist;
 	struct cloud *cloudlist;
@@ -104,8 +116,12 @@ void render(struct state *state);
 void init(struct state*);
 void reset(struct state*);
 
+int collide(struct base*,struct base*);
 void draw(struct state*,struct base*);
 void uidraw(struct state*,struct base*);
+
+void newenemy(struct state*);
+struct enemy *deleteenemy(struct state*,struct enemy*,struct enemy*);
 void newbullet(struct state*,struct base*);
 struct bullet *deletebullet(struct state*,struct bullet*,struct bullet*);
 void newsmoke(struct state*,struct base*,float,float);
