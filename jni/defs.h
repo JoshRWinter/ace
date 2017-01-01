@@ -66,6 +66,7 @@ struct enemy{
 struct missile{
 	struct base base;
 	int timer_smoke;
+	int dead;
 	struct missile *next;
 };
 

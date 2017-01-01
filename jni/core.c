@@ -47,11 +47,30 @@ int core(struct state *state){
 
 	// missiles
 	for(struct missile *missile=state->missilelist,*prevmissile=NULL;missile!=NULL;){
+		if(missile->dead){
+			missile=deletemissile(state,missile,prevmissile);
+			continue;
+		}
 		float angle=atan2f((missile->base.y+(MISSILE_HEIGHT/2.0f))-(state->player.base.y+(PLAYER_HEIGHT/2.0f)),
 				(missile->base.x+(MISSILE_WIDTH/2.0f))-(state->player.base.x+(PLAYER_WIDTH/2.0f)));
 		align(&missile->base.rot,MISSILE_TURN_SPEED,angle);
 		missile->base.x-=cosf(missile->base.rot)*MISSILE_SPEED;
 		missile->base.y-=sinf(missile->base.rot)*MISSILE_SPEED;
+		// check for missiles colliding with other missiles
+		for(struct missile *missile2=state->missilelist;missile2!=NULL;missile2=missile2->next){
+			if(missile==missile2)
+				continue;
+			if(collide(&missile->base,&missile2->base,0.05f)){
+				missile2->dead=true;
+				missile->dead=true;
+				float x1=missile->base.x+(MISSILE_WIDTH/2.0f);
+				float x2=missile2->base.x+(MISSILE_WIDTH/2.0f);
+				float y1=missile->base.y+(MISSILE_HEIGHT/2.0f);
+				float y2=missile2->base.y+(MISSILE_HEIGHT/2.0f);
+				newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.3f);
+			}
+		}
+		// check for missiles colliding with player
 		if(collide(&missile->base,&state->player.base,PLAYER_TOLERANCE)){
 			newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.4f);
 			missile=deletemissile(state,missile,prevmissile);

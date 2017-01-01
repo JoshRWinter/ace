@@ -48,6 +48,7 @@ void newmissile(struct state *state,struct enemy *enemy){
 	missile->base.y=enemy->base.y+(ENEMY_HEIGHT/2.0f)-(MISSILE_HEIGHT/2.0f);
 	missile->base.rot=enemy->base.rot;
 	missile->timer_smoke=0;
+	missile->dead=false;
 	missile->next=state->missilelist;
 	state->missilelist=missile;
 }
