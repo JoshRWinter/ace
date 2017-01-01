@@ -35,6 +35,30 @@ struct enemy *deleteenemy(struct state *state,struct enemy *enemy,struct enemy *
 	return temp;
 }
 
+void newmissile(struct state *state,struct enemy *enemy){
+	int count=0;
+	for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next)
+		++count;
+	if(count>1)
+		return;
+	struct missile *missile=malloc(sizeof(struct missile));
+	missile->base.w=MISSILE_WIDTH;
+	missile->base.h=MISSILE_HEIGHT;
+	missile->base.x=enemy->base.x+(ENEMY_WIDTH/2.0f)-(MISSILE_WIDTH/2.0f);
+	missile->base.y=enemy->base.y+(ENEMY_HEIGHT/2.0f)-(MISSILE_HEIGHT/2.0f);
+	missile->base.rot=enemy->base.rot;
+	missile->timer_smoke=0;
+	missile->next=state->missilelist;
+	state->missilelist=missile;
+}
+struct missile *deletemissile(struct state *state,struct missile *missile,struct missile *prev){
+	if(prev!=NULL)prev->next=missile->next;
+	else state->missilelist=missile->next;
+	void *temp=missile->next;
+	free(missile);
+	return temp;
+}
+
 void newbullet(struct state *state,struct base *owner){
 	const float DISPLACE=0.2f;
 	const float ANGLE_OFFSET=0.9f;

@@ -23,6 +23,7 @@ int core(struct state *state){
 	// enemies
 	if(onein(140))newenemy(state);
 	for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
+		if(onein(220))newmissile(state,enemy);
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-(enemy->target.y+(ENEMY_HEIGHT/2.0f)),
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-(enemy->target.x+(ENEMY_WIDTH/2.0f)));
 		align(&enemy->base.rot,PLAYER_TURN_SPEED,angle);
@@ -42,6 +43,27 @@ int core(struct state *state){
 		
 		prevenemy=enemy;
 		enemy=enemy->next;
+	}
+
+	// missiles
+	for(struct missile *missile=state->missilelist,*prevmissile=NULL;missile!=NULL;){
+		float angle=atan2f((missile->base.y+(MISSILE_HEIGHT/2.0f))-(state->player.base.y+(PLAYER_HEIGHT/2.0f)),
+				(missile->base.x+(MISSILE_WIDTH/2.0f))-(state->player.base.x+(PLAYER_WIDTH/2.0f)));
+		align(&missile->base.rot,MISSILE_TURN_SPEED,angle);
+		missile->base.x-=cosf(missile->base.rot)*MISSILE_SPEED;
+		missile->base.y-=sinf(missile->base.rot)*MISSILE_SPEED;
+		if(collide(&missile->base,&state->player.base)){
+			missile=deletemissile(state,missile,prevmissile);
+			continue;
+		}
+		if(missile->timer_smoke==0){
+			missile->timer_smoke=MISSILE_SMOKE;
+			newsmoke(state,&missile->base,0.2f,0.3f);
+		}
+		else --missile->timer_smoke;
+
+		prevmissile=missile;
+		missile=missile->next;
 	}
 
 	// bullets
@@ -146,6 +168,13 @@ void render(struct state *state){
 		}
 		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 	}
+
+	// missiles
+	if(state->missilelist){
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_MISSILE].object);
+		for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next)
+			draw(state,&missile->base);
+	}
 	
 	// bullets
 	if(state->bulletlist){
@@ -158,7 +187,7 @@ void render(struct state *state){
 	glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
 	draw(state,&state->player.base);
 
-	//enemies
+	// enemies
 	if(state->enemylist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_ENEMY].object);
 		for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
@@ -231,6 +260,7 @@ void init(struct state *state){
 
 	state->cloudlist=NULL;
 	state->enemylist=NULL;
+	state->missilelist=NULL;
 	state->bulletlist=NULL;
 	state->smokelist=NULL;
 }
@@ -238,6 +268,8 @@ void init(struct state *state){
 void reset(struct state *state){
 	for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=deletecloud(state,cloud,NULL));
 	state->cloudlist=NULL;
+	for(struct missile *missile=state->missilelist;missile!=NULL;missile=deletemissile(state,missile,NULL));
+	state->missilelist=NULL;
 	for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=deletebullet(state,bullet,NULL));
 	state->bulletlist=NULL;
 	for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=deletesmoke(state,smoke,NULL));
