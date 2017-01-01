@@ -130,8 +130,8 @@ void newcloud(struct state *state){
 		cloud->base.w=CLOUD_SIZE;
 		cloud->base.h=CLOUD_SIZE;
 		cloud->base.rot=0.0f;
-		float xoffset=randomint(1.0f,11.0f)*(onein(2)?1.0f:-1.0f);
-		float yoffset=randomint(1.0f,11.0f)*(onein(2)?1.0f:-1.0f);
+		float xoffset=randomint(8.0f,11.0f)*(onein(2)?1.0f:-1.0f);
+		float yoffset=randomint(8.0f,11.0f)*(onein(2)?1.0f:-1.0f);
 		cloud->base.x=(state->player.base.x+(PLAYER_WIDTH/2.0f))+xoffset;
 		cloud->base.y=(state->player.base.y+(PLAYER_HEIGHT/2.0f))+yoffset;
 		cloud->next=state->cloudlist;
@@ -144,6 +144,47 @@ struct cloud *deletecloud(struct state *state,struct cloud *cloud,struct cloud *
 	else state->cloudlist=cloud->next;
 	void *temp=cloud->next;
 	free(cloud);
+	return temp;
+}
+
+void newexplosion(struct state *state,float x,float y,float size){
+	struct explosion *explosion=malloc(sizeof(struct explosion));
+	for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
+		explosion->flash[i].base.x=randomint((x-size)*10.0f,(x+size)*10.0f)/10.0f;
+		explosion->flash[i].base.y=randomint((y-size)*10.0f,(y+size)*10.0f)/10.0f;
+		explosion->flash[i].base.w=0.0f;
+		explosion->flash[i].base.h=0.0f;
+		explosion->flash[i].base.rot=0.0f;
+		explosion->flash[i].maxsize=randomint(EXPLOSION_FLASH_MIN_SIZE*10.0f,EXPLOSION_FLASH_MAX_SIZE*10.0f)/10.0f;
+		explosion->flash[i].growing=true;
+		explosion->flash[i].timer_delay=randomint(EXPLOSION_FLASH_MIN_TIMER,EXPLOSION_FLASH_MAX_TIMER);
+		int color=randomint(0,2);
+		switch(color){
+			case 0:
+				explosion->flash[i].rgb[0]=1.0f;
+				explosion->flash[i].rgb[1]=0.0f;
+				explosion->flash[i].rgb[2]=0.0f;
+				break;
+			case 1:
+				explosion->flash[i].rgb[0]=1.0f;
+				explosion->flash[i].rgb[1]=1.0f;
+				explosion->flash[i].rgb[2]=0.0f;
+				break;
+			case 2:
+				explosion->flash[i].rgb[0]=1.0f;
+				explosion->flash[i].rgb[1]=0.6f;
+				explosion->flash[i].rgb[2]=0.1f;
+				break;
+		}
+	}
+	explosion->next=state->explosionlist;
+	state->explosionlist=explosion;
+}
+struct explosion *deleteexplosion(struct state *state,struct explosion *explosion,struct explosion *prev){
+	if(prev!=NULL)prev->next=explosion->next;
+	else state->explosionlist=explosion->next;
+	void *temp=explosion->next;
+	free(explosion);
 	return temp;
 }
 

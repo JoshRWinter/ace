@@ -53,7 +53,9 @@ int core(struct state *state){
 		missile->base.x-=cosf(missile->base.rot)*MISSILE_SPEED;
 		missile->base.y-=sinf(missile->base.rot)*MISSILE_SPEED;
 		if(collide(&missile->base,&state->player.base,PLAYER_TOLERANCE)){
+			newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.4f);
 			missile=deletemissile(state,missile,prevmissile);
+			state->player.dead=true;
 			continue;
 		}
 		if(missile->timer_smoke==0){
@@ -100,15 +102,58 @@ int core(struct state *state){
 		smoke=smoke->next;
 	}
 
-	// player
-	state->player.base.x+=state->player.xv;
-	state->player.base.y+=state->player.yv;
-	if(state->player.reload>0)--state->player.reload;
-	if(state->player.timer_smoke==0){
-		newsmoke(state,&state->player.base,0.4f,0.3f);
-		state->player.timer_smoke=PLAYER_SMOKE;
+	// explosions
+	for(struct explosion *explosion=state->explosionlist,*prevexplosion=NULL;explosion!=NULL;){
+		int done=true; // explosion is ready to be deleted
+		for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
+			if(explosion->flash[i].timer_delay==0){
+				float increment=(EXPLOSION_FLASH_MAX_GROW_RATE*fabs(explosion->flash[i].maxsize-explosion->flash[i].base.w))+0.007f;
+				if(explosion->flash[i].growing){
+					done=false;
+					explosion->flash[i].base.w+=increment;
+					if(explosion->flash[i].base.w>explosion->flash[i].maxsize){
+						explosion->flash[i].base.w=explosion->flash[i].maxsize;
+						explosion->flash[i].growing=false;
+					}
+					explosion->flash[i].base.h=explosion->flash[i].base.w;
+					explosion->flash[i].base.x-=increment/2.0f;
+					explosion->flash[i].base.y-=increment/2.0f;
+				}
+				else{
+					explosion->flash[i].base.w-=increment;
+					if(explosion->flash[i].base.w>0.0f)
+						done=false;
+					else
+						explosion->flash[i].base.w=0.0f;
+					explosion->flash[i].base.h=explosion->flash[i].base.w;
+					explosion->flash[i].base.x+=increment/2.0f;
+					explosion->flash[i].base.y+=increment/2.0f;
+				}
+			}
+			else{
+				done=false;
+				--explosion->flash[i].timer_delay;
+			}
+		}
+		if(done){
+			explosion=deleteexplosion(state,explosion,prevexplosion);
+			continue;
+		}
+		prevexplosion=explosion;
+		explosion=explosion->next;
 	}
-	else --state->player.timer_smoke;
+
+	// player
+	if(!state->player.dead){
+		state->player.base.x+=state->player.xv;
+		state->player.base.y+=state->player.yv;
+		if(state->player.reload>0)--state->player.reload;
+		if(state->player.timer_smoke==0){
+			newsmoke(state,&state->player.base,0.4f,0.3f);
+			state->player.timer_smoke=PLAYER_SMOKE;
+		}
+		else --state->player.timer_smoke;
+	}
 
 	// joysticks
 	state->joy_top.x=state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
@@ -184,14 +229,26 @@ void render(struct state *state){
 	}
 
 	// player
-	glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
-	draw(state,&state->player.base);
+	if(!state->player.dead){
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
+		draw(state,&state->player.base);
+	}
 
 	// enemies
 	if(state->enemylist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_ENEMY].object);
 		for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
 			draw(state,&enemy->base);
+	}
+	
+	// explosions
+	if(state->explosionlist){
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_FLASH].object);
+		for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=explosion->next)
+			for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
+				glUniform4f(state->uniform.rgba,explosion->flash[i].rgb[0],explosion->flash[i].rgb[1],explosion->flash[i].rgb[2],1.0f);
+				draw(state,&explosion->flash[i].base);
+			}
 	}
 
 	// fire button
@@ -263,6 +320,7 @@ void init(struct state *state){
 	state->missilelist=NULL;
 	state->bulletlist=NULL;
 	state->smokelist=NULL;
+	state->explosionlist=NULL;
 }
 
 void reset(struct state *state){
@@ -276,6 +334,8 @@ void reset(struct state *state){
 	state->smokelist=NULL;
 	for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=deleteenemy(state,enemy,NULL));
 	state->enemylist=NULL;
+	for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=deleteexplosion(state,explosion,NULL));
+	state->explosionlist=NULL;
 	
 	state->fire=false;
 	state->player.base.x=-PLAYER_WIDTH/2.0f;
@@ -286,5 +346,6 @@ void reset(struct state *state){
 	state->player.base.rot=0.0f;
 	state->player.reload=0;
 	state->player.timer_smoke=0;
+	state->player.dead=false;
 }
 

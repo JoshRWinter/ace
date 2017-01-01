@@ -12,6 +12,7 @@
 #define TID_SMOKE 2
 #define TID_ENEMY 1
 #define TID_MISSILE 4
+#define TID_FLASH 5
 
 // ui
 #define TID_JOYBASE 0
@@ -41,6 +42,7 @@ struct player{
 	float targetrot;
 	float xv,yv;
 	int reload;
+	int dead;
 	int timer_smoke;
 };
 
@@ -86,6 +88,24 @@ struct smoke{
 	struct smoke *next;
 };
 
+#define EXPLOSION_FLASH_COUNT 5
+#define EXPLOSION_FLASH_MIN_TIMER 0
+#define EXPLOSION_FLASH_MAX_TIMER 4
+#define EXPLOSION_FLASH_MIN_SIZE 0.6f
+#define EXPLOSION_FLASH_MAX_SIZE 0.9f
+#define EXPLOSION_FLASH_MAX_GROW_RATE 0.05f
+struct flash{
+	struct base base;
+	float rgb[3];
+	float maxsize;
+	int growing;
+	int timer_delay;
+};
+struct explosion{
+	struct flash flash[EXPLOSION_FLASH_COUNT];
+	struct explosion *next;
+};
+
 #define CLOUD_SIZE 2.0f
 #define CLOUD_RMDIST 15.0f
 struct cloud{
@@ -119,6 +139,7 @@ struct state{
 	struct bullet *bulletlist;
 	struct smoke *smokelist;
 	struct cloud *cloudlist;
+	struct explosion *explosionlist;
 };
 
 int process(struct android_app*);
@@ -146,4 +167,6 @@ void newsmoke(struct state*,struct base*,float,float);
 struct smoke *deletesmoke(struct state*,struct smoke*,struct smoke*);
 void newcloud(struct state*);
 struct cloud *deletecloud(struct state*,struct cloud*,struct cloud*);
+void newexplosion(struct state*,float,float,float);
+struct explosion *deleteexplosion(struct state*,struct explosion*,struct explosion*);
 
