@@ -93,11 +93,27 @@ int core(struct state *state){
 		state->player.reload=PLAYER_RELOAD;
 	}
 	for(struct bullet *bullet=state->bulletlist,*prevbullet=NULL;bullet!=NULL;){
+		// delete bullets that go too far off screen
 		if(bullet->base.x<state->player.base.x-20.0f||bullet->base.x>state->player.base.x+20.0f||
 				bullet->base.y<state->player.base.y-20.0f||state->player.base.y>state->player.base.y+20.0f){
 			bullet=deletebullet(state,bullet,prevbullet);
 			continue;
 		}
+		// check for bullets colliding with missiles
+		int stop=false;
+		for(struct missile *missile=state->missilelist,*prevmissile=NULL;missile!=NULL;){
+			if(collide(&bullet->base,&missile->base,-0.02f)){
+				newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.3f);
+				missile=deletemissile(state,missile,prevmissile);
+				bullet=deletebullet(state,bullet,prevbullet);
+				stop=true;
+				break;
+			}
+			prevmissile=missile;
+			missile=missile->next;
+		}
+		if(stop)continue;
+
 		bullet->base.x+=bullet->xv;
 		bullet->base.y+=bullet->yv;
 		prevbullet=bullet;
