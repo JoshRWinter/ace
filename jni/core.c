@@ -67,12 +67,12 @@ int core(struct state *state){
 				float x2=missile2->base.x+(MISSILE_WIDTH/2.0f);
 				float y1=missile->base.y+(MISSILE_HEIGHT/2.0f);
 				float y2=missile2->base.y+(MISSILE_HEIGHT/2.0f);
-				newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.3f);
+				newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.2f);
 			}
 		}
 		// check for missiles colliding with player
 		if(collide(&missile->base,&state->player.base,PLAYER_TOLERANCE)){
-			newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.4f);
+			newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f);
 			missile=deletemissile(state,missile,prevmissile);
 			state->player.dead=true;
 			continue;
@@ -103,7 +103,7 @@ int core(struct state *state){
 		int stop=false;
 		for(struct missile *missile=state->missilelist,*prevmissile=NULL;missile!=NULL;){
 			if(collide(&bullet->base,&missile->base,-0.02f)){
-				newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.3f);
+				newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f);
 				missile=deletemissile(state,missile,prevmissile);
 				bullet=deletebullet(state,bullet,prevbullet);
 				stop=true;

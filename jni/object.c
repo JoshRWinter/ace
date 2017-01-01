@@ -156,7 +156,7 @@ void newexplosion(struct state *state,float x,float y,float size){
 		explosion->flash[i].base.w=0.0f;
 		explosion->flash[i].base.h=0.0f;
 		explosion->flash[i].base.rot=0.0f;
-		explosion->flash[i].maxsize=randomint(EXPLOSION_FLASH_MIN_SIZE*10.0f,EXPLOSION_FLASH_MAX_SIZE*10.0f)/10.0f;
+		explosion->flash[i].maxsize=randomint((size*EXPLOSION_FLASH_SIZE_MIN_MULTIPLIER)*10.0f,(size*EXPLOSION_FLASH_SIZE_MAX_MULTIPLIER)*10.0f)/10.0f;
 		explosion->flash[i].growing=true;
 		explosion->flash[i].timer_delay=randomint(EXPLOSION_FLASH_MIN_TIMER,EXPLOSION_FLASH_MAX_TIMER);
 		int color=randomint(0,2);
