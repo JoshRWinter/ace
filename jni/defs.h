@@ -31,10 +31,11 @@ struct base{
 
 #define PLAYER_WIDTH 0.658f
 #define PLAYER_HEIGHT 0.8f
-#define PLAYER_SPEED 0.09f
+#define PLAYER_SPEED 0.1f
 #define PLAYER_RELOAD 20
-#define PLAYER_TURN_SPEED 0.055f
-#define PLAYER_SMOKE 10
+#define PLAYER_TURN_SPEED 0.06f
+#define PLAYER_SMOKE 5
+#define PLAYER_TOLERANCE 0.2f // collision tolerance
 struct player{
 	struct base base;
 	float targetrot;
@@ -55,7 +56,7 @@ struct enemy{
 
 #define MISSILE_WIDTH 0.4f
 #define MISSILE_HEIGHT 0.09f
-#define MISSILE_SPEED 0.106f
+#define MISSILE_SPEED 0.116f
 #define MISSILE_TURN_SPEED 0.04f
 #define MISSILE_SMOKE 4
 #define MISSILE_MAX_BOUNDARY 0.5f
@@ -131,7 +132,7 @@ void render(struct state *state);
 void init(struct state*);
 void reset(struct state*);
 
-int collide(struct base*,struct base*);
+int collide(struct base*,struct base*,float);
 void draw(struct state*,struct base*);
 void uidraw(struct state*,struct base*);
 

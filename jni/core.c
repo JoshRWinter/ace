@@ -30,7 +30,7 @@ int core(struct state *state){
 		enemy->base.x-=cosf(enemy->base.rot)*ENEMY_SPEED;
 		enemy->base.y-=sinf(enemy->base.rot)*ENEMY_SPEED;
 
-		if(collide(&enemy->base,&enemy->target)){
+		if(collide(&enemy->base,&enemy->target,0.0f)){
 			enemy->target.x=randomint((state->player.base.x-10.0f)*10.0f,(state->player.base.x+10.0f)*10.0f)/10.0f;
 			enemy->target.y=randomint((state->player.base.y-10.0f)*10.0f,(state->player.base.y+10.0f)*10.0f)/10.0f;
 		}
@@ -52,7 +52,7 @@ int core(struct state *state){
 		align(&missile->base.rot,MISSILE_TURN_SPEED,angle);
 		missile->base.x-=cosf(missile->base.rot)*MISSILE_SPEED;
 		missile->base.y-=sinf(missile->base.rot)*MISSILE_SPEED;
-		if(collide(&missile->base,&state->player.base)){
+		if(collide(&missile->base,&state->player.base,PLAYER_TOLERANCE)){
 			missile=deletemissile(state,missile,prevmissile);
 			continue;
 		}
