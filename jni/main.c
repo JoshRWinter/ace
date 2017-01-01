@@ -80,6 +80,14 @@ int32_t inputproc(struct android_app *app, AInputEvent *event){
 	if(type==AINPUT_EVENT_TYPE_MOTION){
 		return retrieve_touchscreen_input(event,state->pointer,state->device.w,state->device.h,state->rect.right*2.0,state->rect.bottom*2.0f);
 	}
+	else if(type==AINPUT_EVENT_TYPE_KEY){
+		int action=AKeyEvent_getAction(event);
+		int key=AKeyEvent_getKeyCode(event);
+		if(action==AKEY_EVENT_ACTION_UP&&key==AKEYCODE_MENU){
+			reset(app->userData);
+			return true;
+		}
+	}
 	return false;
 }
 
