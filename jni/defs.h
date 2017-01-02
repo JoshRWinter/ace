@@ -90,9 +90,9 @@ struct smoke{
 	struct smoke *next;
 };
 
-#define EXPLOSION_FLASH_COUNT 5
-#define EXPLOSION_FLASH_MIN_TIMER 0
-#define EXPLOSION_FLASH_MAX_TIMER 4
+#define EXPLOSION_FLASH_COUNT 8
+#define EXPLOSION_FLASH_MIN_TIMER 3
+#define EXPLOSION_FLASH_MAX_TIMER 18
 #define EXPLOSION_FLASH_SIZE_MIN_MULTIPLIER 2.0f
 #define EXPLOSION_FLASH_SIZE_MAX_MULTIPLIER 1.7f
 #define EXPLOSION_FLASH_MAX_GROW_RATE 0.05f
@@ -105,6 +105,7 @@ struct flash{
 };
 struct explosion{
 	struct flash flash[EXPLOSION_FLASH_COUNT];
+	struct flash cloud; // background cloud
 	struct explosion *next;
 };
 

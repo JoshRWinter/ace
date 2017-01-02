@@ -163,13 +163,14 @@ struct cloud *deletecloud(struct state *state,struct cloud *cloud,struct cloud *
 void newexplosion(struct state *state,float x,float y,float size){
 	struct explosion *explosion=malloc(sizeof(struct explosion));
 	for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
-		explosion->flash[i].base.x=randomint((x-size)*10.0f,(x+size)*10.0f)/10.0f;
-		explosion->flash[i].base.y=randomint((y-size)*10.0f,(y+size)*10.0f)/10.0f;
+		const float SIZE_MULT=0.5f;
+		explosion->flash[i].base.x=randomint((x-(size*SIZE_MULT))*10.0f,(x+size)*10.0f)/10.0f;
+		explosion->flash[i].base.y=randomint((y-(size*SIZE_MULT))*10.0f,(y+size)*10.0f)/10.0f;
 		explosion->flash[i].base.w=0.0f;
 		explosion->flash[i].base.h=0.0f;
 		explosion->flash[i].base.rot=0.0f;
 		explosion->flash[i].base.frame=0.0f;
-		explosion->flash[i].base.count=1.0f;
+		explosion->flash[i].base.count=2.0f;
 		explosion->flash[i].maxsize=randomint((size*EXPLOSION_FLASH_SIZE_MIN_MULTIPLIER)*10.0f,(size*EXPLOSION_FLASH_SIZE_MAX_MULTIPLIER)*10.0f)/10.0f;
 		explosion->flash[i].growing=true;
 		explosion->flash[i].timer_delay=randomint(EXPLOSION_FLASH_MIN_TIMER,EXPLOSION_FLASH_MAX_TIMER);
@@ -192,6 +193,22 @@ void newexplosion(struct state *state,float x,float y,float size){
 				break;
 		}
 	}
+
+	// background cloud
+	explosion->cloud.base.w=0.0f;
+	explosion->cloud.base.h=0.0f;
+	explosion->cloud.base.x=x;
+	explosion->cloud.base.y=y;
+	explosion->cloud.base.rot=randomint(1,360)*(M_PI/180.0f);
+	explosion->cloud.base.count=2.0f;
+	explosion->cloud.base.frame=1.0f;
+	explosion->cloud.rgb[0]=1.0f;
+	explosion->cloud.rgb[1]=1.0f;
+	explosion->cloud.rgb[2]=1.0f;
+	explosion->cloud.maxsize=size*4.1f;
+	explosion->cloud.growing=true;
+	explosion->cloud.timer_delay=0;
+
 	explosion->next=state->explosionlist;
 	state->explosionlist=explosion;
 }

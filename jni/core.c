@@ -142,7 +142,7 @@ int core(struct state *state){
 		int done=true; // explosion is ready to be deleted
 		for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
 			if(explosion->flash[i].timer_delay==0){
-				float increment=(EXPLOSION_FLASH_MAX_GROW_RATE*fabs(explosion->flash[i].maxsize-explosion->flash[i].base.w))+0.007f;
+				float increment=(EXPLOSION_FLASH_MAX_GROW_RATE*fabs(explosion->flash[i].maxsize-explosion->flash[i].base.w))+0.005f;
 				if(explosion->flash[i].growing){
 					done=false;
 					explosion->flash[i].base.w+=increment;
@@ -170,8 +170,34 @@ int core(struct state *state){
 				--explosion->flash[i].timer_delay;
 			}
 		}
+		// background cloud
+		float increment=(EXPLOSION_FLASH_MAX_GROW_RATE*fabs(explosion->cloud.maxsize-explosion->cloud.base.w))+0.004f;
+		if(explosion->cloud.growing){
+			done=false;
+			const float GROWTH_MULT=1.8f;
+			explosion->cloud.base.w+=increment*GROWTH_MULT;
+			if(explosion->cloud.base.w>explosion->cloud.maxsize){
+				explosion->cloud.base.w=explosion->cloud.maxsize;
+				explosion->cloud.growing=false;
+			}
+			explosion->cloud.base.h=explosion->cloud.base.w;
+			explosion->cloud.base.x-=(increment*GROWTH_MULT)/2.0f;
+			explosion->cloud.base.y-=(increment*GROWTH_MULT)/2.0f;
+		}
+		else{
+			const float GROWTH_MULT=0.5f;
+			explosion->cloud.base.w-=increment*GROWTH_MULT;
+			if(explosion->cloud.base.w>0.0f)
+				done=false;
+			else
+				explosion->cloud.base.w=0.0f;
+			explosion->cloud.base.h=explosion->cloud.base.w;
+			explosion->cloud.base.x+=(increment*GROWTH_MULT)/2.0f;
+			explosion->cloud.base.y+=(increment*GROWTH_MULT)/2.0f;
+		}
 		if(done){
 			explosion=deleteexplosion(state,explosion,prevexplosion);
+			logcat("deleting explosion");
 			continue;
 		}
 		prevexplosion=explosion;
@@ -279,11 +305,16 @@ void render(struct state *state){
 	// explosions
 	if(state->explosionlist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_FLASH].object);
-		for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=explosion->next)
+		for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=explosion->next){
+			// draw background cloud
+			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+			draw(state,&explosion->cloud.base);
+
 			for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
 				glUniform4f(state->uniform.rgba,explosion->flash[i].rgb[0],explosion->flash[i].rgb[1],explosion->flash[i].rgb[2],1.0f);
 				draw(state,&explosion->flash[i].base);
 			}
+		}
 	}
 
 	// fire button
