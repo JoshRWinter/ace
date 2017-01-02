@@ -9,9 +9,14 @@ int collide(struct base *a,struct base *b,float tolerance){
 }
 
 void draw(struct state *state,struct base *base){
+	// texcoords
+	float size=1.0f/base->count;
+	float left=size*base->frame;
+	float right=left+size;
+
 	float x=base->x;
 	float y=base->y;
-	glUniform4f(state->uniform.texcoords,0.0f,1.0f,0.0f,1.0f);
+	glUniform4f(state->uniform.texcoords,left,right,0.0f,1.0f);
 	glUniform2f(state->uniform.vector,xcorrect(x),ycorrect(y));
 	glUniform2f(state->uniform.size,base->w,base->h);
 	glUniform1f(state->uniform.rot,base->rot);

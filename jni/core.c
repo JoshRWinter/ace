@@ -349,6 +349,7 @@ void init(struct state *state){
 
 	state->player.base.w=PLAYER_WIDTH;
 	state->player.base.h=PLAYER_HEIGHT;
+	state->player.base.count=1.0f;
 
 	state->cloudlist=NULL;
 	state->enemylist=NULL;
@@ -380,6 +381,7 @@ void reset(struct state *state){
 	state->player.targetrot=0.0f;
 	state->player.base.rot=0.0f;
 	state->player.reload=0;
+	state->player.base.frame=0;
 	state->player.timer_smoke=0;
 	state->player.dead=false;
 }

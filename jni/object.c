@@ -18,6 +18,8 @@ void newenemy(struct state *state){
 	enemy->base.x=state->player.base.x;
 	enemy->base.y=state->player.base.y;
 	enemy->base.rot=randomint(1,360)*(M_PI/180.0f);
+	enemy->base.frame=0.0f;
+	enemy->base.count=1.0f;
 	enemy->target.w=ENEMY_WIDTH;
 	enemy->target.h=ENEMY_HEIGHT;
 	enemy->target.x=enemy->base.x;
@@ -47,6 +49,8 @@ void newmissile(struct state *state,struct enemy *enemy){
 	missile->base.x=enemy->base.x+(ENEMY_WIDTH/2.0f)-(MISSILE_WIDTH/2.0f);
 	missile->base.y=enemy->base.y+(ENEMY_HEIGHT/2.0f)-(MISSILE_HEIGHT/2.0f);
 	missile->base.rot=enemy->base.rot;
+	missile->base.count=1.0f;
+	missile->base.frame=0.0f;
 	missile->timer_smoke=0;
 	missile->dead=false;
 	missile->next=state->missilelist;
@@ -72,6 +76,8 @@ void newbullet(struct state *state,struct base *owner){
 	b1->base.x=(owner->x+(owner->w/2.0f)-(BULLET_WIDTH/2.0f))-(cosf(owner->rot+ANGLE_OFFSET)*DISPLACE);
 	b1->base.y=(owner->y+(owner->h/2.0f)-(BULLET_HEIGHT/2.0f))-(sinf(owner->rot+ANGLE_OFFSET)*DISPLACE);
 	b1->base.rot=owner->rot;
+	b1->base.frame=0.0f;
+	b1->base.count=1.0f;
 	b1->xv=-cosf(owner->rot)*BULLET_SPEED;
 	b1->yv=-sinf(owner->rot)*BULLET_SPEED;
 	b1->owner=owner;
@@ -83,6 +89,8 @@ void newbullet(struct state *state,struct base *owner){
 	b2->base.x=(owner->x+(owner->w/2.0f)-(BULLET_WIDTH/2.0f))-(cosf(owner->rot-ANGLE_OFFSET)*DISPLACE);
 	b2->base.y=(owner->y+(owner->h/2.0f)-(BULLET_HEIGHT/2.0f))-(sinf(owner->rot-ANGLE_OFFSET)*DISPLACE);
 	b2->base.rot=owner->rot;
+	b2->base.frame=0.0f;
+	b2->base.count=1.0f;
 	b2->xv=-cosf(owner->rot)*BULLET_SPEED;
 	b2->yv=-sinf(owner->rot)*BULLET_SPEED;
 	b2->owner=owner;
@@ -105,6 +113,8 @@ void newsmoke(struct state *state,struct base *base,float size,float alpha){
 	smoke->base.x=base->x+(base->w/2.0f)-(size/2.0f);
 	smoke->base.y=base->y+(base->h/2.0f)-(size/2.0f);
 	smoke->base.rot=randomint(1,360)*(M_PI/180.0f);
+	smoke->base.frame=0.0f;
+	smoke->base.count=1.0f;
 	smoke->alpha=alpha;
 	smoke->xv=cosf(base->rot)*SMOKE_SPEED;
 	smoke->yv=sinf(base->rot)*SMOKE_SPEED;
@@ -131,6 +141,8 @@ void newcloud(struct state *state){
 		cloud->base.w=CLOUD_SIZE;
 		cloud->base.h=CLOUD_SIZE;
 		cloud->base.rot=0.0f;
+		cloud->base.frame=0.0f;
+		cloud->base.count=1.0f;
 		float xoffset=randomint(8.0f,11.0f)*(onein(2)?1.0f:-1.0f);
 		float yoffset=randomint(8.0f,11.0f)*(onein(2)?1.0f:-1.0f);
 		cloud->base.x=(state->player.base.x+(PLAYER_WIDTH/2.0f))+xoffset;
@@ -156,6 +168,8 @@ void newexplosion(struct state *state,float x,float y,float size){
 		explosion->flash[i].base.w=0.0f;
 		explosion->flash[i].base.h=0.0f;
 		explosion->flash[i].base.rot=0.0f;
+		explosion->flash[i].base.frame=0.0f;
+		explosion->flash[i].base.count=1.0f;
 		explosion->flash[i].maxsize=randomint((size*EXPLOSION_FLASH_SIZE_MIN_MULTIPLIER)*10.0f,(size*EXPLOSION_FLASH_SIZE_MAX_MULTIPLIER)*10.0f)/10.0f;
 		explosion->flash[i].growing=true;
 		explosion->flash[i].timer_delay=randomint(EXPLOSION_FLASH_MIN_TIMER,EXPLOSION_FLASH_MAX_TIMER);

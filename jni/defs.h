@@ -28,6 +28,7 @@
 #define JOYFIRE_SIZE 1.5f
 struct base{
 	float x,y,w,h,rot;
+	float count,frame;
 };
 
 #define PLAYER_WIDTH 0.658f
