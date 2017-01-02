@@ -51,8 +51,14 @@ int core(struct state *state){
 			missile=deletemissile(state,missile,prevmissile);
 			continue;
 		}
+		// calculate missile sway (weaving back and forth)
+		float dist=distance(missile->base.x+(MISSILE_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
+				missile->base.y+(MISSILE_HEIGHT/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f));
+		if(dist>4.0f)dist=4.0f;
+		missile->sway+=0.1f;
+		float sway=(sin(missile->sway)/15.0f)*(dist/1.5f);
 		float angle=atan2f((missile->base.y+(MISSILE_HEIGHT/2.0f))-(state->player.base.y+(PLAYER_HEIGHT/2.0f)),
-				(missile->base.x+(MISSILE_WIDTH/2.0f))-(state->player.base.x+(PLAYER_WIDTH/2.0f)));
+				(missile->base.x+(MISSILE_WIDTH/2.0f))-(state->player.base.x+(PLAYER_WIDTH/2.0f)))+sway;
 		align(&missile->base.rot,MISSILE_TURN_SPEED,angle);
 		missile->base.x-=cosf(missile->base.rot)*MISSILE_SPEED;
 		missile->base.y-=sinf(missile->base.rot)*MISSILE_SPEED;

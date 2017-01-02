@@ -53,6 +53,7 @@ void newmissile(struct state *state,struct enemy *enemy){
 	missile->base.frame=0.0f;
 	missile->timer_smoke=0;
 	missile->dead=false;
+	missile->sway=0.0f;
 	missile->next=state->missilelist;
 	state->missilelist=missile;
 }

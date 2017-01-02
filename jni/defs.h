@@ -68,6 +68,7 @@ struct missile{
 	struct base base;
 	int timer_smoke;
 	int dead;
+	float sway;
 	struct missile *next;
 };
 
