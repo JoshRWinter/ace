@@ -54,6 +54,7 @@ struct enemy{
 	struct base base;
 	struct base target;
 	int timer_smoke;
+	int dead;
 	struct enemy *next;
 };
 
@@ -62,12 +63,12 @@ struct enemy{
 #define MISSILE_SPEED 0.116f
 #define MISSILE_TURN_SPEED 0.04f
 #define MISSILE_SMOKE 4
-#define MISSILE_MAX_BOUNDARY 0.5f
-#define MISSILE_MAX_INCREMENT 0.1f
+#define MISSILE_TTL 10
 struct missile{
 	struct base base;
 	int timer_smoke;
 	int dead;
+	int ttl;
 	float sway;
 	struct missile *next;
 };

@@ -15,8 +15,9 @@ void newenemy(struct state *state){
 	struct enemy *enemy=malloc(sizeof(struct enemy));
 	enemy->base.w=ENEMY_WIDTH;
 	enemy->base.h=ENEMY_HEIGHT;
-	enemy->base.x=state->player.base.x;
-	enemy->base.y=state->player.base.y;
+	const float ENEMY_BOUNDS=10.0f;
+	enemy->base.x=state->player.base.x+(onein(2)?ENEMY_BOUNDS:-ENEMY_BOUNDS);
+	enemy->base.y=state->player.base.y+(onein(2)?ENEMY_BOUNDS:-ENEMY_BOUNDS);
 	enemy->base.rot=randomint(1,360)*(M_PI/180.0f);
 	enemy->base.frame=0.0f;
 	enemy->base.count=1.0f;
@@ -25,6 +26,7 @@ void newenemy(struct state *state){
 	enemy->target.x=enemy->base.x;
 	enemy->target.y=enemy->base.y;
 	enemy->target.rot=0.0f;
+	enemy->dead=false;
 	enemy->timer_smoke=0;
 	enemy->next=state->enemylist;
 	state->enemylist=enemy;
@@ -33,7 +35,7 @@ struct enemy *deleteenemy(struct state *state,struct enemy *enemy,struct enemy *
 	if(prev!=NULL)prev->next=enemy->next;
 	else state->enemylist=enemy->next;
 	void *temp=enemy->next;
-	free(temp);
+	free(enemy);
 	return temp;
 }
 
@@ -53,6 +55,7 @@ void newmissile(struct state *state,struct enemy *enemy){
 	missile->base.frame=0.0f;
 	missile->timer_smoke=0;
 	missile->dead=false;
+	missile->ttl=MISSILE_TTL;
 	missile->sway=0.0f;
 	missile->next=state->missilelist;
 	state->missilelist=missile;

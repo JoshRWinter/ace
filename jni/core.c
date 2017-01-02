@@ -23,6 +23,10 @@ int core(struct state *state){
 	// enemies
 	if(onein(140))newenemy(state);
 	for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
+		if(enemy->dead){
+			enemy=deleteenemy(state,enemy,prevenemy);
+			continue;
+		}
 		if(onein(220))newmissile(state,enemy);
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-(enemy->target.y+(ENEMY_HEIGHT/2.0f)),
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-(enemy->target.x+(ENEMY_WIDTH/2.0f)));
@@ -30,9 +34,36 @@ int core(struct state *state){
 		enemy->base.x-=cosf(enemy->base.rot)*ENEMY_SPEED;
 		enemy->base.y-=sinf(enemy->base.rot)*ENEMY_SPEED;
 
+		// find new random waypoint
 		if(collide(&enemy->base,&enemy->target,0.0f)){
-			enemy->target.x=randomint((state->player.base.x-10.0f)*10.0f,(state->player.base.x+10.0f)*10.0f)/10.0f;
-			enemy->target.y=randomint((state->player.base.y-10.0f)*10.0f,(state->player.base.y+10.0f)*10.0f)/10.0f;
+			enemy->target.x=randomint((state->player.base.x-15.0f)*10.0f,(state->player.base.x+15.0f)*10.0f)/10.0f;
+			enemy->target.y=randomint((state->player.base.y-15.0f)*10.0f,(state->player.base.y+15.0f)*10.0f)/10.0f;
+		}
+
+		// check for enemies colliding with player
+		if(collide(&state->player.base,&enemy->base,0.3f)){
+			state->player.dead=true;
+			float x1=state->player.base.x+(PLAYER_WIDTH/2.0f);
+			float x2=enemy->base.x+(ENEMY_WIDTH/2.0f);
+			float y1=state->player.base.y+(PLAYER_HEIGHT/2.0f);
+			float y2=enemy->base.y+(ENEMY_HEIGHT/2.0f);
+			newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.5f);
+			enemy=deleteenemy(state,enemy,prevenemy);
+			continue;
+		}
+		// check for enemies colliding with other enemies
+		for(struct enemy *enemy2=state->enemylist;enemy2!=NULL;enemy2=enemy2->next){
+			if(enemy==enemy2)
+				continue;
+			if(collide(&enemy->base,&enemy2->base,0.3f)){
+				enemy->dead=true;
+				enemy2->dead=true;
+				float x1=enemy2->base.x+(ENEMY_WIDTH/2.0f);
+				float x2=enemy->base.x+(ENEMY_WIDTH/2.0f);
+				float y1=enemy2->base.y+(ENEMY_HEIGHT/2.0f);
+				float y2=enemy->base.y+(ENEMY_HEIGHT/2.0f);
+				newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.5f);
+			}
 		}
 
 		if(enemy->timer_smoke==0){
@@ -50,6 +81,8 @@ int core(struct state *state){
 		if(missile->dead){
 			missile=deletemissile(state,missile,prevmissile);
 			continue;
+		}
+		if(--missile->ttl==0){
 		}
 		// calculate missile sway (weaving back and forth)
 		float dist=distance(missile->base.x+(MISSILE_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
@@ -83,6 +116,21 @@ int core(struct state *state){
 			state->player.dead=true;
 			continue;
 		}
+		// check for missiles colliding with enemies
+		int stop=false;
+		if(MISSILE_TTL-missile->ttl>20)
+			for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
+				if(collide(&missile->base,&enemy->base,0.1f)){
+					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.3f);
+					enemy=deleteenemy(state,enemy,prevenemy);
+					missile=deletemissile(state,missile,prevmissile);
+					stop=true;
+					break;
+				}
+				prevenemy=enemy;
+				enemy=enemy->next;
+			}
+		if(stop)continue;
 		if(missile->timer_smoke==0){
 			missile->timer_smoke=MISSILE_SMOKE;
 			newsmoke(state,&missile->base,0.2f,0.3f);
