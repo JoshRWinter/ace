@@ -63,9 +63,10 @@ struct enemy{
 #define MISSILE_SPEED 0.116f
 #define MISSILE_TURN_SPEED 0.04f
 #define MISSILE_SMOKE 4
-#define MISSILE_TTL 10
+#define MISSILE_TTL 800
 struct missile{
 	struct base base;
+	float xv,yv;
 	int timer_smoke;
 	int dead;
 	int ttl;

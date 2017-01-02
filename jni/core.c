@@ -27,7 +27,7 @@ int core(struct state *state){
 			enemy=deleteenemy(state,enemy,prevenemy);
 			continue;
 		}
-		if(onein(220))newmissile(state,enemy);
+		if(onein(220)&&!state->player.dead)newmissile(state,enemy);
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-(enemy->target.y+(ENEMY_HEIGHT/2.0f)),
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-(enemy->target.x+(ENEMY_WIDTH/2.0f)));
 		align(&enemy->base.rot,PLAYER_TURN_SPEED,angle);
@@ -41,7 +41,7 @@ int core(struct state *state){
 		}
 
 		// check for enemies colliding with player
-		if(collide(&state->player.base,&enemy->base,0.3f)){
+		if(!state->player.dead&&collide(&state->player.base,&enemy->base,0.3f)){
 			state->player.dead=true;
 			float x1=state->player.base.x+(PLAYER_WIDTH/2.0f);
 			float x2=enemy->base.x+(ENEMY_WIDTH/2.0f);
@@ -82,7 +82,10 @@ int core(struct state *state){
 			missile=deletemissile(state,missile,prevmissile);
 			continue;
 		}
-		if(--missile->ttl==0){
+		if(--missile->ttl==-65){
+			newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f);
+			missile=deletemissile(state,missile,prevmissile);
+			continue;
 		}
 		// calculate missile sway (weaving back and forth)
 		float dist=distance(missile->base.x+(MISSILE_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
@@ -90,11 +93,29 @@ int core(struct state *state){
 		if(dist>4.0f)dist=4.0f;
 		missile->sway+=0.1f;
 		float sway=(sin(missile->sway)/15.0f)*(dist/1.5f);
-		float angle=atan2f((missile->base.y+(MISSILE_HEIGHT/2.0f))-(state->player.base.y+(PLAYER_HEIGHT/2.0f)),
+		float angle;
+		if(state->player.dead){
+			if(missile->ttl>0)missile->ttl=-25;
+			angle=missile->base.rot+(M_PI/2.0f);
+			missile->xv=-cosf(missile->base.rot)*MISSILE_SPEED;
+			missile->yv=-sinf(missile->base.rot)*MISSILE_SPEED;
+			logcat("yes");
+		}
+		else if(missile->ttl>0){
+			angle=atan2f((missile->base.y+(MISSILE_HEIGHT/2.0f))-(state->player.base.y+(PLAYER_HEIGHT/2.0f)),
 				(missile->base.x+(MISSILE_WIDTH/2.0f))-(state->player.base.x+(PLAYER_WIDTH/2.0f)))+sway;
+			missile->xv=-cosf(missile->base.rot)*MISSILE_SPEED;
+			missile->yv=-sinf(missile->base.rot)*MISSILE_SPEED;
+		}
+		else{
+			// missile timed out
+			angle=missile->base.rot;
+			missile->xv/=1.02f;
+			missile->yv/=1.02f;
+		}
 		align(&missile->base.rot,MISSILE_TURN_SPEED,angle);
-		missile->base.x-=cosf(missile->base.rot)*MISSILE_SPEED;
-		missile->base.y-=sinf(missile->base.rot)*MISSILE_SPEED;
+		missile->base.x+=missile->xv;
+		missile->base.y+=missile->yv;
 		// check for missiles colliding with other missiles
 		for(struct missile *missile2=state->missilelist;missile2!=NULL;missile2=missile2->next){
 			if(missile==missile2)
@@ -110,7 +131,7 @@ int core(struct state *state){
 			}
 		}
 		// check for missiles colliding with player
-		if(collide(&missile->base,&state->player.base,PLAYER_TOLERANCE)){
+		if(!state->player.dead&&collide(&missile->base,&state->player.base,PLAYER_TOLERANCE)){
 			newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f);
 			missile=deletemissile(state,missile,prevmissile);
 			state->player.dead=true;
