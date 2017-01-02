@@ -203,7 +203,6 @@ int core(struct state *state){
 		}
 		if(done){
 			explosion=deleteexplosion(state,explosion,prevexplosion);
-			logcat("deleting explosion");
 			continue;
 		}
 		prevexplosion=explosion;
