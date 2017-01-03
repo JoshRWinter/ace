@@ -1,8 +1,8 @@
 #include "glesutil.h"
 
 #define distance(x1,x2,y1,y2) (sqrtf(powf((x2)-(x1),2)+powf((y2)-(y1),2)))
-#define xcorrect(x) ((x)-(state->player.base.x+(PLAYER_WIDTH/2.0f)))
-#define ycorrect(y) ((y)-(state->player.base.y+(PLAYER_HEIGHT/2.0f)))
+#define xcorrect(a) ((a)-(state->player.base.x+(PLAYER_WIDTH/2.0f)))
+#define ycorrect(b) ((b)-(state->player.base.y+(PLAYER_HEIGHT/2.0f)))
 
 // gameplay
 #define TID_BACKGROUND 0
@@ -13,6 +13,7 @@
 #define TID_ENEMY 1
 #define TID_MISSILE 4
 #define TID_FLASH 5
+#define TID_INDICATOR 6
 
 // ui
 #define TID_JOYBASE 0
@@ -31,6 +32,10 @@ struct base{
 	float count,frame;
 };
 
+#define PLAYER_LEFT_BOUNDARY ((state->player.base.x+(PLAYER_WIDTH/2.0f))-state->rect.right)
+#define PLAYER_RIGHT_BOUNDARY ((state->player.base.x+(PLAYER_WIDTH/2.0f))+state->rect.right)
+#define PLAYER_BOTTOM_BOUNDARY ((state->player.base.y+(PLAYER_HEIGHT/2.0f))+state->rect.bottom)
+#define PLAYER_TOP_BOUNDARY ((state->player.base.y+(PLAYER_HEIGHT/2.0f))-state->rect.bottom)
 #define PLAYER_WIDTH 0.658f
 #define PLAYER_HEIGHT 0.8f
 #define PLAYER_SPEED 0.1f
@@ -58,12 +63,14 @@ struct enemy{
 	struct enemy *next;
 };
 
-#define MISSILE_WIDTH 0.4f
-#define MISSILE_HEIGHT 0.09f
+#define MISSILE_WIDTH 0.3083f
+#define MISSILE_HEIGHT 0.1083f
+#define INDICATOR_WIDTH 0.7f
+#define INDICATOR_HEIGHT 0.55f
 #define MISSILE_SPEED 0.116f
 #define MISSILE_TURN_SPEED 0.04f
 #define MISSILE_SMOKE 4
-#define MISSILE_TTL 800
+#define MISSILE_TTL 1400
 struct missile{
 	struct base base;
 	float xv,yv;

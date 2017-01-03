@@ -99,7 +99,6 @@ int core(struct state *state){
 			angle=missile->base.rot+(M_PI/2.0f);
 			missile->xv=-cosf(missile->base.rot)*MISSILE_SPEED;
 			missile->yv=-sinf(missile->base.rot)*MISSILE_SPEED;
-			logcat("yes");
 		}
 		else if(missile->ttl>0){
 			angle=atan2f((missile->base.y+(MISSILE_HEIGHT/2.0f))-(state->player.base.y+(PLAYER_HEIGHT/2.0f)),
@@ -354,6 +353,24 @@ void render(struct state *state){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_MISSILE].object);
 		for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next)
 			draw(state,&missile->base);
+
+		// indicators
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_INDICATOR].object);
+		for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next){
+			if(missile->base.x+MISSILE_WIDTH<PLAYER_LEFT_BOUNDARY||missile->base.x>PLAYER_RIGHT_BOUNDARY||
+					missile->base.y+MISSILE_HEIGHT<PLAYER_TOP_BOUNDARY||missile->base.y>PLAYER_BOTTOM_BOUNDARY){
+				float x=missile->base.x+(MISSILE_WIDTH/2.0f)-(INDICATOR_WIDTH/2.0f);
+				float y=missile->base.y+(MISSILE_HEIGHT/2.0f)-(INDICATOR_HEIGHT/2.0f);
+				if(missile->base.x+MISSILE_WIDTH<PLAYER_LEFT_BOUNDARY)x=PLAYER_LEFT_BOUNDARY;
+				else if(missile->base.x>PLAYER_RIGHT_BOUNDARY)x=PLAYER_RIGHT_BOUNDARY-INDICATOR_WIDTH;
+				if(missile->base.y+MISSILE_HEIGHT<PLAYER_TOP_BOUNDARY)y=PLAYER_TOP_BOUNDARY;
+				else if(missile->base.y>PLAYER_BOTTOM_BOUNDARY)y=PLAYER_BOTTOM_BOUNDARY-INDICATOR_HEIGHT;
+				float angle=atan2f((y+(INDICATOR_HEIGHT/2.0f))-(missile->base.y+(MISSILE_HEIGHT/2.0f)),
+						(x+(INDICATOR_WIDTH/2.0f))-(missile->base.x+(MISSILE_WIDTH/2.0f)));
+				struct base indicator={x,y,INDICATOR_WIDTH,INDICATOR_HEIGHT,angle,1.0f,0.0f};
+				draw(state,&indicator);
+			}
+		}
 	}
 	
 	// bullets
