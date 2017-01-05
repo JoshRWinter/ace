@@ -54,7 +54,7 @@ struct player{
 
 #define ENEMY_WIDTH 1.0f
 #define ENEMY_HEIGHT 1.0f
-#define ENEMY_SPEED 0.045f
+#define ENEMY_SPEED (PLAYER_SPEED-0.003f)
 struct enemy{
 	struct base base;
 	struct base target;

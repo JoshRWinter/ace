@@ -187,6 +187,19 @@ int core(struct state *state){
 			missile=missile->next;
 		}
 		if(stop)continue;
+		// check for bullets colliding with enemies
+		for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
+			if(collide(&bullet->base,&enemy->base,0.1f)){
+				newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
+				bullet=deletebullet(state,bullet,prevbullet);
+				//enemy=deleteenemey(state,enemy,prevenemy);
+				stop=true;
+				break;
+			}
+			prevenemy=enemy;
+			enemy=enemy->next;
+		}
+		if(stop)continue;
 
 		bullet->base.x+=bullet->xv;
 		bullet->base.y+=bullet->yv;
