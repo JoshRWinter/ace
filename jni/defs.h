@@ -60,6 +60,7 @@ struct enemy{
 	struct base target;
 	int timer_smoke;
 	int dead;
+	int health;
 	struct enemy *next;
 };
 
@@ -82,6 +83,7 @@ struct missile{
 };
 
 #define BULLET_WIDTH 0.3f
+#define BULLET_DMG 9,16
 #define BULLET_HEIGHT 0.15f
 #define BULLET_SPEED 0.3f
 struct bullet{

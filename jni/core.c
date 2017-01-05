@@ -192,7 +192,10 @@ int core(struct state *state){
 			if(collide(&bullet->base,&enemy->base,0.1f)){
 				newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
 				bullet=deletebullet(state,bullet,prevbullet);
-				//enemy=deleteenemey(state,enemy,prevenemy);
+				if((enemy->health-=randomint(BULLET_DMG))<1){
+					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.32f);
+					enemy=deleteenemy(state,enemy,prevenemy);
+				}
 				stop=true;
 				break;
 			}

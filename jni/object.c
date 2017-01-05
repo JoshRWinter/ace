@@ -28,6 +28,7 @@ void newenemy(struct state *state){
 	enemy->target.y=enemy->base.y;
 	enemy->target.rot=0.0f;
 	enemy->dead=false;
+	enemy->health=100;
 	enemy->timer_smoke=0;
 	enemy->next=state->enemylist;
 	state->enemylist=enemy;
