@@ -2,6 +2,7 @@
 #include <GLES2/gl2.h>
 #include <android_native_app_glue.h>
 #include <stdlib.h>
+#include <strings.h>
 #include <math.h>
 #include "defs.h"
 
@@ -221,6 +222,33 @@ struct explosion *deleteexplosion(struct state *state,struct explosion *explosio
 	else state->explosionlist=explosion->next;
 	void *temp=explosion->next;
 	free(explosion);
+	return temp;
+}
+
+void newmessage(struct state *state,char *msg){
+	struct message *message=malloc(sizeof(struct message));
+	message->ttl=MESSAGE_TTL;
+	int len=strlen(msg);
+	int i;
+	for(i=0;i<len&&i<MESSAGE_MAX;++i)
+		message->text[i]=msg[i];
+	message->text[i]=0;
+	// messages have to get inserted at the end of the list
+	message->next=NULL;
+	struct message *m=state->messagelist;
+	if(m==NULL)
+		state->messagelist=message;
+	else{
+		while(m->next!=NULL)
+			m=m->next;
+		m->next=message;
+	}
+}
+struct message *deletemessage(struct state *state,struct message *message,struct message *prev){
+	if(prev!=NULL)prev->next=message->next;
+	else state->messagelist=message->next;
+	void *temp=message->next;
+	free(message);
 	return temp;
 }
 

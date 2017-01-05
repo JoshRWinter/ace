@@ -289,6 +289,13 @@ int core(struct state *state){
 		else --state->player.timer_smoke;
 	}
 
+	// messages
+	if(state->messagelist){
+		if(--state->messagelist->ttl==-30){
+			deletemessage(state,state->messagelist,NULL);
+		}
+	}
+
 	// joysticks
 	state->joy_top.x=state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
 	state->joy_top.y=state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
@@ -422,6 +429,29 @@ void render(struct state *state){
 	uidraw(state,&state->joy_base);
 	glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYTOP].object);
 	uidraw(state,&state->joy_top);
+
+	// messages
+	if(state->messagelist&&state->messagelist->ttl>0){
+		glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
+		float alpha;
+		float y;
+		// fading out (ttl approaching zero)
+		if(state->messagelist->ttl<MESSAGE_PINCH){
+			alpha=(float)state->messagelist->ttl/MESSAGE_PINCH;
+			y=MESSAGE_Y+(0.3f/state->messagelist->ttl);
+		}
+		// fading in
+		else if(MESSAGE_TTL-state->messagelist->ttl<MESSAGE_PINCH){
+			alpha=((float)MESSAGE_TTL-state->messagelist->ttl)/MESSAGE_PINCH;
+			y=MESSAGE_Y-(0.3f/(MESSAGE_TTL-state->messagelist->ttl));
+		}
+		else{
+			alpha=1.0f;
+			y=MESSAGE_Y;
+		}
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,0.8f,alpha);
+		drawtextcentered(state->font.main,0.0f,y,state->messagelist->text);
+	}
 	
 	{
 		static char statustext[50];
@@ -479,6 +509,7 @@ void init(struct state *state){
 	state->bulletlist=NULL;
 	state->smokelist=NULL;
 	state->explosionlist=NULL;
+	state->messagelist=NULL;
 }
 
 void reset(struct state *state){
@@ -494,6 +525,8 @@ void reset(struct state *state){
 	state->enemylist=NULL;
 	for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=deleteexplosion(state,explosion,NULL));
 	state->explosionlist=NULL;
+	for(struct message *message=state->messagelist;message!=NULL;message=deletemessage(state,message,NULL));
+	state->messagelist=NULL;
 	
 	state->fire=false;
 	state->player.base.x=-PLAYER_WIDTH/2.0f;

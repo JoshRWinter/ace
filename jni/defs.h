@@ -126,6 +126,16 @@ struct cloud{
 	struct cloud *next;
 };
 
+#define MESSAGE_TTL 50
+#define MESSAGE_MAX 50
+#define MESSAGE_PINCH 10
+#define MESSAGE_Y 3.0f
+struct message{
+	int ttl;
+	char text[MESSAGE_MAX+1];
+	struct message *next;
+};
+
 struct state{
 	int running;
 	int fire;
@@ -153,6 +163,7 @@ struct state{
 	struct smoke *smokelist;
 	struct cloud *cloudlist;
 	struct explosion *explosionlist;
+	struct message *messagelist;
 };
 
 int process(struct android_app*);
@@ -182,4 +193,6 @@ void newcloud(struct state*);
 struct cloud *deletecloud(struct state*,struct cloud*,struct cloud*);
 void newexplosion(struct state*,float,float,float);
 struct explosion *deleteexplosion(struct state*,struct explosion*,struct explosion*);
+void newmessage(struct state*,char*);
+struct message *deletemessage(struct state*,struct message*,struct message*);
 
