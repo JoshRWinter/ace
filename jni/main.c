@@ -26,9 +26,11 @@ void init_display(struct state *state){
 
 	eglMakeCurrent(state->display,state->surface,state->surface,state->context);
 
+	// texture packs
 	if(!loadpack(&state->assets,state->app->activity->assetManager,"assets",NULL))logcat("texture init error");
 	if(!loadpack(&state->uiassets,state->app->activity->assetManager,"uiassets",NULL))logcat("ui texture init error");
 	
+	// set up shaders
 	state->program=initshaders(vertexshader,fragmentshader);
 	glUseProgram(state->program);
 	state->uniform.vector=glGetUniformLocation(state->program,"vector");
@@ -43,6 +45,7 @@ void init_display(struct state *state){
 	initortho(matrix,state->rect.left,state->rect.right,state->rect.bottom,state->rect.top,-1.0f,1.0f);
 	glUniformMatrix4fv(state->uniform.projection,1,false,matrix);
 	
+	// VBOs and VAOs
 	glGenVertexArrays(1,&state->vao);
 	glGenBuffers(1,&state->vbo);
 	glBindVertexArray(state->vao);
@@ -56,6 +59,7 @@ void init_display(struct state *state){
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.3f,0.7f,0.9f,1.0f);
 
+	// set up fonts
 	set_ftfont_params(state->screen.w,state->screen.h,state->rect.right*2.0f,state->rect.bottom*2.0f,state->uniform.vector,state->uniform.size,state->uniform.texcoords);
 	state->font.main=create_ftfont(state->app->activity->assetManager,0.4f,"corbel.ttf");
 }
