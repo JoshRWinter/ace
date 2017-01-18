@@ -177,7 +177,7 @@ int core(struct state *state){
 	}
 
 	// proc bullets
-	if(state->fire&&state->player.reload==0){
+	if(state->fire&&state->player.reload==0&&!state->player.dead){
 		newbullet(state,&state->player.base);
 		state->player.reload=PLAYER_RELOAD;
 	}
