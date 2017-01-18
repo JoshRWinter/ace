@@ -7,6 +7,8 @@
 #include "defs.h"
 
 int core(struct state *state){
+	char msg[MESSAGE_MAX+1]; // used in various places to show a message
+
 	// clouds
 	if(!state->cloudlist||onein(140))newcloud(state);
 	for(struct cloud *cloud=state->cloudlist,*prevcloud=NULL;cloud!=NULL;){
@@ -106,6 +108,13 @@ int core(struct state *state){
 			missile->xv=-cosf(missile->base.rot)*MISSILE_SPEED;
 			missile->yv=-sinf(missile->base.rot)*MISSILE_SPEED;
 		}
+		else if(missile->ttl==0){
+			if(!state->player.dead){
+				sprintf(msg,"+%d missile evaded",POINTS_MISSILE_EVADED);
+				newmessage(state,msg);
+				state->points+=POINTS_MISSILE_EVADED;
+			}
+		}
 		else{
 			// missile timed out
 			angle=missile->base.rot;
@@ -120,6 +129,12 @@ int core(struct state *state){
 			if(missile==missile2)
 				continue;
 			if(collide(&missile->base,&missile2->base,0.05f)){
+				if(!state->player.dead){
+					sprintf(msg,"+%d missiles collided",POINTS_MISSILES_COLLIDE);
+					newmessage(state,msg);
+					state->points+=POINTS_MISSILES_COLLIDE;
+				}
+
 				missile2->dead=true;
 				missile->dead=true;
 				float x1=missile->base.x+(MISSILE_WIDTH/2.0f);
@@ -177,6 +192,12 @@ int core(struct state *state){
 		int stop=false;
 		for(struct missile *missile=state->missilelist,*prevmissile=NULL;missile!=NULL;){
 			if(collide(&bullet->base,&missile->base,-0.02f)){
+				if(!state->player.dead){
+					sprintf(msg,"+%d missile shot down",POINTS_MISSILE_SHOT_DOWN);
+					newmessage(state,msg);
+					state->points+=POINTS_MISSILE_SHOT_DOWN;
+				}
+
 				newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f);
 				missile=deletemissile(state,missile,prevmissile);
 				bullet=deletebullet(state,bullet,prevbullet);
@@ -193,6 +214,12 @@ int core(struct state *state){
 				newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
 				bullet=deletebullet(state,bullet,prevbullet);
 				if((enemy->health-=randomint(BULLET_DMG))<1){
+					if(!state->player.dead){
+						sprintf(msg,"+%d enemy shot down",POINTS_ENEMY_SHOT_DOWN);
+						newmessage(state,msg);
+						state->points+=POINTS_ENEMY_SHOT_DOWN;
+					}
+
 					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.32f);
 					enemy=deleteenemy(state,enemy,prevenemy);
 				}
@@ -447,8 +474,8 @@ void render(struct state *state){
 	uidraw(state,&state->joy_top);
 
 	// messages
+	glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
 	if(state->messagelist&&state->messagelist->ttl>0){
-		glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
 		float alpha;
 		float y;
 		// fading out (ttl approaching zero)
@@ -468,7 +495,13 @@ void render(struct state *state){
 		glUniform4f(state->uniform.rgba,1.0f,1.0f,0.8f,alpha);
 		drawtextcentered(state->font.main,0.0f,y,state->messagelist->text);
 	}
+	glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+
+	char pointsmessage[20];
+	sprintf(pointsmessage,"%d",(int)state->points);
+	drawtextcentered(state->font.main,0.0f,state->rect.bottom-state->font.main->fontsize-0.1f,pointsmessage);
 	
+	// fps counter
 	{
 		static char statustext[50];
 		static int lasttime,fps;
@@ -545,6 +578,7 @@ void reset(struct state *state){
 	state->messagelist=NULL;
 	
 	state->fire=false;
+	state->points=0.0f;
 	state->player.base.x=-PLAYER_WIDTH/2.0f;
 	state->player.base.y=-PLAYER_HEIGHT/2.0f;
 	state->player.xv=0.0f;

@@ -23,6 +23,12 @@
 // sounds
 #define SID_BACKGROUND 0
 
+// point values
+#define POINTS_MISSILES_COLLIDE 10
+#define POINTS_MISSILE_SHOT_DOWN 12
+#define POINTS_MISSILE_EVADED 15
+#define POINTS_ENEMY_SHOT_DOWN 25
+
 #define JOYBASE_SIZE 2.0f
 #define JOYTOP_SIZE 1.0f
 #define JOYTOP_DIST 1.2f
@@ -128,7 +134,7 @@ struct cloud{
 	struct cloud *next;
 };
 
-#define MESSAGE_TTL 50
+#define MESSAGE_TTL 120
 #define MESSAGE_MAX 50
 #define MESSAGE_PINCH 10
 #define MESSAGE_Y 3.0f
@@ -141,6 +147,7 @@ struct message{
 struct state{
 	int running;
 	int fire;
+	float points;
 
 	int vao,vbo,program;
 	struct device device,screen;
