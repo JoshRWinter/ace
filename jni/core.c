@@ -9,7 +9,7 @@
 int core(struct state *state){
 	char msg[MESSAGE_MAX+1]; // used in various places to show a message
 
-	// clouds
+	// proc clouds
 	if(!state->cloudlist||onein(140))newcloud(state);
 	for(struct cloud *cloud=state->cloudlist,*prevcloud=NULL;cloud!=NULL;){
 		if(distance(cloud->base.x+(CLOUD_SIZE/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
@@ -22,7 +22,7 @@ int core(struct state *state){
 		cloud=cloud->next;
 	}
 
-	// enemies
+	// proc enemies
 	if(onein(140))newenemy(state);
 	for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
 		if(enemy->dead){
@@ -78,7 +78,7 @@ int core(struct state *state){
 		enemy=enemy->next;
 	}
 
-	// missiles
+	// proc missiles
 	for(struct missile *missile=state->missilelist,*prevmissile=NULL;missile!=NULL;){
 		if(missile->dead){
 			missile=deletemissile(state,missile,prevmissile);
@@ -176,7 +176,7 @@ int core(struct state *state){
 		missile=missile->next;
 	}
 
-	// bullets
+	// proc bullets
 	if(state->fire&&state->player.reload==0){
 		newbullet(state,&state->player.base);
 		state->player.reload=PLAYER_RELOAD;
@@ -237,7 +237,7 @@ int core(struct state *state){
 		bullet=bullet->next;
 	}
 
-	// smoke
+	// proc smoke
 	for(struct smoke *smoke=state->smokelist,*prevsmoke=NULL;smoke!=NULL;){
 		smoke->base.x+=smoke->xv;
 		smoke->base.y+=smoke->yv;
@@ -254,7 +254,7 @@ int core(struct state *state){
 		smoke=smoke->next;
 	}
 
-	// explosions
+	// proc explosions
 	for(struct explosion *explosion=state->explosionlist,*prevexplosion=NULL;explosion!=NULL;){
 		int done=true; // explosion is ready to be deleted
 		for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
@@ -320,7 +320,7 @@ int core(struct state *state){
 		explosion=explosion->next;
 	}
 
-	// player
+	// proc player
 	if(!state->player.dead){
 		state->player.base.x+=state->player.xv;
 		state->player.base.y+=state->player.yv;
@@ -332,7 +332,7 @@ int core(struct state *state){
 		else --state->player.timer_smoke;
 	}
 
-	// messages
+	// proc messages
 	if(state->messagelist){
 		if(--state->messagelist->ttl==-30){
 			deletemessage(state,state->messagelist,NULL);
@@ -381,14 +381,14 @@ void render(struct state *state){
 	/*glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_BACKGROUND].object);
 	draw(state,&state->background);*/
 
-	// clouds
+	// render clouds
 	if(state->cloudlist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_CLOUD].object);
 		for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
 			draw(state,&cloud->base);
 	}
 
-	// smoke
+	// render smoke
 	if(state->smokelist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_SMOKE].object);
 		for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=smoke->next){
@@ -398,7 +398,7 @@ void render(struct state *state){
 		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 	}
 
-	// missiles
+	// render missiles
 	if(state->missilelist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_MISSILE].object);
 		for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next)
@@ -423,27 +423,27 @@ void render(struct state *state){
 		}
 	}
 	
-	// bullets
+	// render bullets
 	if(state->bulletlist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_BULLET].object);
 		for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=bullet->next)
 			draw(state,&bullet->base);
 	}
 
-	// player
+	// render player
 	if(!state->player.dead){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
 		draw(state,&state->player.base);
 	}
 
-	// enemies
+	// render enemies
 	if(state->enemylist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_ENEMY].object);
 		for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
 			draw(state,&enemy->base);
 	}
 	
-	// explosions
+	// render explosions
 	if(state->explosionlist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_FLASH].object);
 		for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=explosion->next){
@@ -473,7 +473,7 @@ void render(struct state *state){
 	glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYTOP].object);
 	uidraw(state,&state->joy_top);
 
-	// messages
+	// render messages
 	glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
 	if(state->messagelist&&state->messagelist->ttl>0){
 		float alpha;
