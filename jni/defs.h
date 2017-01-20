@@ -31,6 +31,8 @@
 #define POINTS_MISSILE_EVADED 15
 #define POINTS_ENEMY_SHOT_DOWN 25
 
+#define GAMEOVER_DELAY 70
+
 #define JOYBASE_SIZE 2.0f
 #define JOYTOP_SIZE 1.0f
 #define JOYTOP_DIST 1.2f
@@ -158,7 +160,7 @@ struct message{
 
 struct state{
 	int running,showmenu;
-	int fire;
+	int fire,gameoverdelay;
 	float points;
 
 	int vao,vbo,program;
@@ -197,6 +199,7 @@ int button_process(struct crosshair*,struct button*);
 void button_draw(struct state*,struct button*);
 
 int menu_main(struct state*);
+int menu_end(struct state*);
 int menu_message(struct state*,const char*,const char*);
 
 int core(struct state *state);

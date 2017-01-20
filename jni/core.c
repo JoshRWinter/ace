@@ -336,6 +336,11 @@ int core(struct state *state){
 		}
 		else --state->player.timer_smoke;
 	}
+	else if(!--state->gameoverdelay){
+		if(!menu_end(state))
+			return false;
+		return core(state);
+	}
 
 	// proc messages
 	if(state->messagelist){
@@ -584,6 +589,7 @@ void reset(struct state *state){
 	state->messagelist=NULL;
 	
 	state->fire=false;
+	state->gameoverdelay=GAMEOVER_DELAY;
 	state->points=0.0f;
 	state->player.base.x=-PLAYER_WIDTH/2.0f;
 	state->player.base.y=-PLAYER_HEIGHT/2.0f;
