@@ -20,6 +20,7 @@
 #define TID_JOYTOP 1
 #define TID_JOYFIRE 2
 #define TID_TITLE 3
+#define TID_BUTTON 4
 
 // sounds
 #define SID_BACKGROUND 0
@@ -37,6 +38,16 @@
 struct base{
 	float x,y,w,h,rot;
 	float count,frame;
+};
+
+#define BUTTON_WIDTH 3.0f
+#define BUTTON_HEIGHT 1.19166f
+#define BUTTON_PRESS 1
+#define BUTTON_ACTIVATE 2
+struct button{
+	struct base base;
+	char *label;
+	int active;
 };
 
 #define PLAYER_LEFT_BOUNDARY ((state->player.base.x+(PLAYER_WIDTH/2.0f))-state->rect.right)
@@ -155,7 +166,7 @@ struct state{
 	struct pack assets,uiassets;
 	struct apack aassets;
 	struct{float left,right,bottom,top;}rect;
-	struct{ftfont *main;}font;
+	struct{ftfont *main,*button,*header;}font;
 	struct{int vector,size,texcoords,rot,rgba,projection;}uniform;
 	struct crosshair pointer[2];
 	
@@ -182,7 +193,11 @@ void cmdproc(struct android_app*,int32_t);
 void init_display(struct state*);
 void term_display(struct state*);
 
+int button_process(struct crosshair*,struct button*);
+void button_draw(struct state*,struct button*);
+
 int menu_main(struct state*);
+int menu_message(struct state*,const char*,const char*);
 
 int core(struct state *state);
 void render(struct state *state);
