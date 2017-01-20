@@ -8,6 +8,11 @@
 
 int core(struct state *state){
 	char msg[MESSAGE_MAX+1]; // used in various places to show a message
+	if(state->showmenu){
+		state->showmenu=false;
+		if(!menu_main(state))
+			return false;
+	}
 
 	// proc clouds
 	if(!state->cloudlist||onein(140))newcloud(state);
@@ -520,6 +525,7 @@ void render(struct state *state){
 
 void init(struct state *state){
 	memset(state->pointer,0,sizeof(struct crosshair)*2);
+	state->showmenu=true;
 
 	state->rect.left=-8.0f;
 	state->rect.right=8.0f;

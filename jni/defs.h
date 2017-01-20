@@ -19,6 +19,7 @@
 #define TID_JOYBASE 0
 #define TID_JOYTOP 1
 #define TID_JOYFIRE 2
+#define TID_TITLE 3
 
 // sounds
 #define SID_BACKGROUND 0
@@ -145,7 +146,7 @@ struct message{
 };
 
 struct state{
-	int running;
+	int running,showmenu;
 	int fire;
 	float points;
 
@@ -180,6 +181,8 @@ int32_t inputproc(struct android_app*,AInputEvent*);
 void cmdproc(struct android_app*,int32_t);
 void init_display(struct state*);
 void term_display(struct state*);
+
+int menu_main(struct state*);
 
 int core(struct state *state);
 void render(struct state *state);
