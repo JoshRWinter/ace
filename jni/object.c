@@ -34,6 +34,7 @@ void newenemy(struct state *state){
 	state->enemylist=enemy;
 }
 struct enemy *deleteenemy(struct state *state,struct enemy *enemy,struct enemy *prev){
+	if(enemy==state->focused_enemy)state->focused_enemy=NULL;
 	if(prev!=NULL)prev->next=enemy->next;
 	else state->enemylist=enemy->next;
 	void *temp=enemy->next;

@@ -28,23 +28,42 @@ int core(struct state *state){
 	}
 
 	// proc enemies
-	if(onein(140))newenemy(state);
+	if(onein(140)||state->enemylist==NULL)newenemy(state);
+	if(onein(200)&&state->focused_enemy==NULL){
+		// choose an enemy at random to be the "focused" enemy
+		while(state->focused_enemy==NULL){
+			for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next){
+				if(onein(5)){
+					state->focused_enemy=enemy;
+					break;
+				}
+			}
+		}
+	}
 	for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
 		if(enemy->dead){
 			enemy=deleteenemy(state,enemy,prevenemy);
 			continue;
 		}
-		if(onein(220)&&!state->player.dead)newmissile(state,enemy);
-		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-(enemy->target.y+(ENEMY_HEIGHT/2.0f)),
-				(enemy->base.x+(ENEMY_WIDTH/2.0f))-(enemy->target.x+(ENEMY_WIDTH/2.0f)));
+		if((state->missilelist==NULL?onein(520):onein(800))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
+		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-enemy->target.y,
+				(enemy->base.x+(ENEMY_WIDTH/2.0f))-enemy->target.x);
 		align(&enemy->base.rot,PLAYER_TURN_SPEED,angle);
-		enemy->base.x-=cosf(enemy->base.rot)*ENEMY_SPEED;
-		enemy->base.y-=sinf(enemy->base.rot)*ENEMY_SPEED;
+		enemy->base.x-=cosf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.01f:ENEMY_SPEED);
+		enemy->base.y-=sinf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.01f:ENEMY_SPEED);
 
-		// find new random waypoint
-		if(collide(&enemy->base,&enemy->target,0.0f)){
-			enemy->target.x=randomint((state->player.base.x-15.0f)*10.0f,(state->player.base.x+15.0f)*10.0f)/10.0f;
-			enemy->target.y=randomint((state->player.base.y-15.0f)*10.0f,(state->player.base.y+15.0f)*10.0f)/10.0f;
+		if(enemy!=state->focused_enemy){
+			// find new random waypoint
+			if(collide(&enemy->base,&enemy->target,0.0f)){
+				enemy->target.x=randomint((state->player.base.x-15.0f)*10.0f,(state->player.base.x+15.0f)*10.0f)/10.0f;
+				enemy->target.y=randomint((state->player.base.y-15.0f)*10.0f,(state->player.base.y+15.0f)*10.0f)/10.0f;
+			}
+		}
+		else{
+			// chase the player in a dogfight
+			enemy->target.x=state->player.base.x+(PLAYER_WIDTH/2.0f);
+			enemy->target.y=state->player.base.y+(PLAYER_HEIGHT/2.0f);
+			if(onein(300))state->focused_enemy=NULL;
 		}
 
 		// check for enemies colliding with player
@@ -58,6 +77,7 @@ int core(struct state *state){
 			enemy=deleteenemy(state,enemy,prevenemy);
 			continue;
 		}
+
 		// check for enemies colliding with other enemies
 		for(struct enemy *enemy2=state->enemylist;enemy2!=NULL;enemy2=enemy2->next){
 			if(enemy==enemy2)
@@ -94,6 +114,8 @@ int core(struct state *state){
 			missile=deletemissile(state,missile,prevmissile);
 			continue;
 		}
+		// unfocus any enemies
+		state->focused_enemy=NULL;
 		// calculate missile sway (weaving back and forth)
 		float dist=distance(missile->base.x+(MISSILE_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
 				missile->base.y+(MISSILE_HEIGHT/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f));
@@ -588,6 +610,7 @@ void reset(struct state *state){
 	for(struct message *message=state->messagelist;message!=NULL;message=deletemessage(state,message,NULL));
 	state->messagelist=NULL;
 	
+	state->focused_enemy=NULL;
 	state->fire=false;
 	state->gameoverdelay=GAMEOVER_DELAY;
 	state->points=0.0f;

@@ -75,6 +75,9 @@ struct player{
 #define ENEMY_WIDTH 1.0f
 #define ENEMY_HEIGHT 1.0f
 #define ENEMY_SPEED (PLAYER_SPEED-0.003f)
+#define ENEMY_MODE_NONE 0
+#define ENEMY_MODE_MISSILES 1
+#define ENEMY_MODE_DOGFIGHT 2
 struct enemy{
 	struct base base;
 	struct base target;
@@ -180,7 +183,7 @@ struct state{
 
 	struct base background,joy_base,joy_top,joy_fire;
 	struct player player;
-	struct enemy *enemylist;
+	struct enemy *enemylist,*focused_enemy;
 	struct missile *missilelist;
 	struct bullet *bulletlist;
 	struct smoke *smokelist;
