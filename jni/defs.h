@@ -78,10 +78,13 @@ struct player{
 #define ENEMY_MODE_NONE 0
 #define ENEMY_MODE_MISSILES 1
 #define ENEMY_MODE_DOGFIGHT 2
+#define ENEMY_CONE 0.75f
+#define ENEMY_FIRE_DIST 5.0f
 struct enemy{
 	struct base base;
 	struct base target;
 	int timer_smoke;
+	int timer_reload;
 	int dead;
 	int health;
 	struct enemy *next;

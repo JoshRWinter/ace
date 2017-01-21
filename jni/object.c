@@ -30,6 +30,7 @@ void newenemy(struct state *state){
 	enemy->dead=false;
 	enemy->health=100;
 	enemy->timer_smoke=0;
+	enemy->timer_reload=0;
 	enemy->next=state->enemylist;
 	state->enemylist=enemy;
 }

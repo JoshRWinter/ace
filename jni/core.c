@@ -49,8 +49,27 @@ int core(struct state *state){
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-enemy->target.y,
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-enemy->target.x);
 		align(&enemy->base.rot,PLAYER_TURN_SPEED,angle);
-		enemy->base.x-=cosf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.01f:ENEMY_SPEED);
-		enemy->base.y-=sinf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.01f:ENEMY_SPEED);
+		enemy->base.x-=cosf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED);
+		enemy->base.y-=sinf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED);
+
+		// decide whether to fire upon the player
+		if(state->missilelist==NULL&&distance(enemy->base.x+(ENEMY_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
+					enemy->base.y+(ENEMY_HEIGHT/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f))<ENEMY_FIRE_DIST){
+			float cone=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-(state->player.base.y+(PLAYER_HEIGHT/2.0f)),
+					(enemy->base.x+(ENEMY_WIDTH/2.0f))-(state->player.base.x+(PLAYER_WIDTH/2.0f)));
+			while(cone<0.0f)cone+=M_PI*2.0f;
+			while(cone>M_PI*2.0f)cone-=M_PI*2.0f;
+			while(enemy->base.rot<0.0f)enemy->base.rot+=M_PI*2.0f;
+			while(enemy->base.rot>M_PI*2.0f)enemy->base.rot-=M_PI*2;
+			float diff=enemy->base.rot-cone;
+			if(diff>M_PI)diff=(M_PI*2.0f)-diff;
+			if(fabs(diff)<ENEMY_CONE&&enemy->timer_reload==0){
+				newbullet(state,&enemy->base);
+				enemy->timer_reload=PLAYER_RELOAD;
+			}
+		}
+		if(enemy->timer_reload)
+			--enemy->timer_reload;
 
 		if(enemy!=state->focused_enemy){
 			// find new random waypoint
@@ -237,7 +256,7 @@ int core(struct state *state){
 		if(stop)continue;
 		// check for bullets colliding with enemies
 		for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
-			if(collide(&bullet->base,&enemy->base,0.1f)){
+			if(bullet->owner!=&enemy->base&&collide(&bullet->base,&enemy->base,0.1f)){
 				newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
 				bullet=deletebullet(state,bullet,prevbullet);
 				if((enemy->health-=randomint(BULLET_DMG))<1){
@@ -257,6 +276,12 @@ int core(struct state *state){
 			enemy=enemy->next;
 		}
 		if(stop)continue;
+		// check for bullets colliding with player
+		if(collide(&bullet->base,&state->player.base,0.1f)){
+			newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
+			bullet=deletebullet(state,bullet,prevbullet);
+			continue;
+		}
 
 		bullet->base.x+=bullet->xv;
 		bullet->base.y+=bullet->yv;
