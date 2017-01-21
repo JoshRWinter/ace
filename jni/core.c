@@ -545,16 +545,16 @@ void init(struct state *state){
 
 	state->joy_base.w=JOYBASE_SIZE;
 	state->joy_base.h=JOYBASE_SIZE;
-	state->joy_base.x=-6.5f;
-	state->joy_base.y=1.25f;
+	state->joy_base.x=-7.0f;
+	state->joy_base.y=1.75f;
 	state->joy_base.rot=0.0f;
 	state->joy_top.w=JOYTOP_SIZE;
 	state->joy_top.h=JOYTOP_SIZE;
 	state->joy_top.x=state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
 	state->joy_top.y=state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
 	state->joy_top.rot=0.0f;
-	state->joy_fire.x=5.0f;
-	state->joy_fire.y=1.6f;
+	state->joy_fire.x=5.5f;
+	state->joy_fire.y=2.1f;
 	state->joy_fire.rot=0.0f;
 	state->joy_fire.w=JOYFIRE_SIZE;
 	state->joy_fire.h=JOYFIRE_SIZE;
