@@ -217,8 +217,19 @@ void newexplosion(struct state *state,float x,float y,float size){
 	explosion->cloud.growing=true;
 	explosion->cloud.timer_delay=0;
 
-	explosion->next=state->explosionlist;
-	state->explosionlist=explosion;
+	// explosions are best inserted at the back of the list
+	explosion->next=NULL;
+	if(state->explosionlist==NULL){
+		state->explosionlist=explosion;
+	}
+	else{
+		for(struct explosion *e=state->explosionlist;;e=e->next){
+			if(e->next==NULL){
+				e->next=explosion;
+				break;
+			}
+		}
+	}
 }
 struct explosion *deleteexplosion(struct state *state,struct explosion *explosion,struct explosion *prev){
 	if(prev!=NULL)prev->next=explosion->next;
