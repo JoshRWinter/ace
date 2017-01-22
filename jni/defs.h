@@ -10,10 +10,10 @@
 #define TID_CLOUD 2
 #define TID_BULLET 3
 #define TID_SMOKE 2
-#define TID_ENEMY 1
 #define TID_MISSILE 4
 #define TID_FLASH 5
 #define TID_INDICATOR 6
+#define TID_ENEMY 7
 
 // ui
 #define TID_JOYBASE 0
@@ -72,8 +72,8 @@ struct player{
 	int timer_smoke;
 };
 
-#define ENEMY_WIDTH 1.0f
-#define ENEMY_HEIGHT 1.0f
+#define ENEMY_WIDTH 0.633f
+#define ENEMY_HEIGHT 0.7f
 #define ENEMY_SPEED (PLAYER_SPEED-0.003f)
 #define ENEMY_MODE_NONE 0
 #define ENEMY_MODE_MISSILES 1
