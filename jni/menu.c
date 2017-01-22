@@ -56,7 +56,8 @@ int menu_end(struct state *state){
 	// make every object slide downwards
 	const float vd=0.01f;
 	float slide=vd;
-	while(process(state->app)&&slide<0.5f){
+	float yoff=state->rect.top*2.0f;
+	while(process(state->app)){
 		for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
 			enemy->base.y+=slide;
 		for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next)
@@ -76,48 +77,43 @@ int menu_end(struct state *state){
 		slide+=vd;
 
 		render(state);
-		eglSwapBuffers(state->display,state->surface);
-	}
-	if(state->app->destroyRequested)
-		return false;
-	reset(state);
-	float yoff=state->rect.top*2.0f;
-	while(process(state->app)){
-		glClear(GL_COLOR_BUFFER_BIT);
 
-		buttonnew.base.y=yoff+3.0f;
-		buttonstop.base.y=yoff+3.0f;
+		if(slide>0.5f){
+			buttonnew.base.y=yoff+3.0f;
+			buttonstop.base.y=yoff+3.0f;
 
-		if(yoff!=0.0f){
-			yoff-=(yoff/10.0f);
-			if(yoff>-0.005)
-				yoff=0.0f;
-		}
-
-		// header
-		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
-		glBindTexture(GL_TEXTURE_2D,state->font.header->atlas);
-		drawtextcentered(state->font.header,0.0f,yoff+-3.0f,"Game Over");
-
-		// end game stats
-		glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
-		drawtextcentered(state->font.main,0.0f,yoff,info);
-
-		// buttons
-		if(yoff==0.0f){
-			if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){
-				return true;
+			if(yoff!=0.0f){
+				yoff-=(yoff/10.0f);
+				if(yoff>-0.005)
+					yoff=0.0f;
 			}
-			if(button_process(state->pointer,&buttonstop)==BUTTON_ACTIVATE){
-				state->showmenu=true;
-				return true;
+
+			// header
+			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+			glBindTexture(GL_TEXTURE_2D,state->font.header->atlas);
+			drawtextcentered(state->font.header,0.0f,yoff+-3.0f,"Game Over");
+
+			// end game stats
+			glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
+			drawtextcentered(state->font.main,0.0f,yoff,info);
+
+			// buttons
+			if(yoff==0.0f){
+				if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){
+					reset(state);
+					return true;
+				}
+				if(button_process(state->pointer,&buttonstop)==BUTTON_ACTIVATE){
+					reset(state);
+					state->showmenu=true;
+					return true;
+				}
 			}
+
+			// draw buttons
+			button_draw(state,&buttonnew);
+			button_draw(state,&buttonstop);
 		}
-
-		// draw buttons
-		button_draw(state,&buttonnew);
-		button_draw(state,&buttonstop);
-
 		eglSwapBuffers(state->display,state->surface);
 	}
 	return false;
