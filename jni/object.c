@@ -177,6 +177,13 @@ struct cloud *deletecloud(struct state *state,struct cloud *cloud,struct cloud *
 }
 
 void newexplosion(struct state *state,float x,float y,float size){
+	// don't generate explosion if it would be offscreen
+	float xdiff=fabs(x-(state->player.base.x+(PLAYER_WIDTH/2.0f)));
+	if(xdiff>state->rect.right)
+		return;
+	float ydiff=fabs(y-(state->player.base.y+(PLAYER_HEIGHT/2.0f)));
+	if(ydiff>state->rect.bottom)
+		return;
 	struct explosion *explosion=malloc(sizeof(struct explosion));
 	for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
 		const float SIZE_MULT=0.5f;
