@@ -68,6 +68,7 @@ struct player{
 	float targetrot;
 	float xv,yv;
 	int reload;
+	int health;
 	int dead;
 	float timer_smoke;
 };
@@ -110,6 +111,7 @@ struct missile{
 
 #define BULLET_WIDTH 0.3f
 #define BULLET_DMG 16,26
+#define BULLET_ENEMY_DMG 10,15
 #define BULLET_HEIGHT 0.05f
 #define BULLET_SPEED 0.4f
 struct bullet{

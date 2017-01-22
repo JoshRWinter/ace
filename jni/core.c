@@ -278,6 +278,11 @@ int core(struct state *state){
 		if(stop)continue;
 		// check for bullets colliding with player
 		if(!state->player.dead&&bullet->owner!=&state->player.base&&collide(&bullet->base,&state->player.base,0.1f)){
+			state->player.health-=randomint(BULLET_ENEMY_DMG);
+			if(state->player.health<1){
+				newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f);
+				state->player.dead=true;
+			}
 			newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
 			bullet=deletebullet(state,bullet,prevbullet);
 			continue;
@@ -647,6 +652,7 @@ void reset(struct state *state){
 	state->fire=false;
 	state->gameoverdelay=GAMEOVER_DELAY;
 	state->points=0.0f;
+	state->player.health=100;
 	state->player.base.x=-PLAYER_WIDTH/2.0f;
 	state->player.base.y=-PLAYER_HEIGHT/2.0f;
 	state->player.xv=0.0f;
