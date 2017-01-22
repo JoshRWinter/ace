@@ -90,8 +90,8 @@ struct enemy{
 	struct enemy *next;
 };
 
-#define MISSILE_WIDTH 0.3083f
-#define MISSILE_HEIGHT 0.1083f
+#define MISSILE_WIDTH 0.25f
+#define MISSILE_HEIGHT 0.0833f
 #define INDICATOR_WIDTH 0.7f
 #define INDICATOR_HEIGHT 0.55f
 #define MISSILE_SPEED 0.116f
