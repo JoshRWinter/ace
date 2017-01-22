@@ -445,6 +445,21 @@ void render(struct state *state){
 			draw(state,&cloud->base);
 	}
 
+	// render explosions
+	if(state->explosionlist){
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_FLASH].object);
+		for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=explosion->next){
+			// draw background cloud
+			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+			draw(state,&explosion->cloud.base);
+
+			for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
+				glUniform4f(state->uniform.rgba,explosion->flash[i].rgb[0],explosion->flash[i].rgb[1],explosion->flash[i].rgb[2],1.0f);
+				draw(state,&explosion->flash[i].base);
+			}
+		}
+	}
+
 	// render smoke
 	if(state->smokelist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_SMOKE].object);
@@ -500,21 +515,6 @@ void render(struct state *state){
 			draw(state,&enemy->base);
 	}
 	
-	// render explosions
-	if(state->explosionlist){
-		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_FLASH].object);
-		for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=explosion->next){
-			// draw background cloud
-			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
-			draw(state,&explosion->cloud.base);
-
-			for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
-				glUniform4f(state->uniform.rgba,explosion->flash[i].rgb[0],explosion->flash[i].rgb[1],explosion->flash[i].rgb[2],1.0f);
-				draw(state,&explosion->flash[i].base);
-			}
-		}
-	}
-
 	// fire button
 	if(state->fire)
 		glUniform4f(state->uniform.rgba,0.6f,0.6f,0.6f,1.0f);
