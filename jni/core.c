@@ -258,9 +258,8 @@ int core(struct state *state){
 		for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
 			if(bullet->owner!=&enemy->base&&collide(&bullet->base,&enemy->base,0.1f)){
 				newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
-				bullet=deletebullet(state,bullet,prevbullet);
 				if((enemy->health-=randomint(BULLET_DMG))<1){
-					if(!state->player.dead){
+					if(!state->player.dead&&bullet->owner==&state->player.base){
 						sprintf(msg,"+%d enemy shot down",POINTS_ENEMY_SHOT_DOWN);
 						newmessage(state,msg);
 						state->points+=POINTS_ENEMY_SHOT_DOWN;
@@ -269,6 +268,7 @@ int core(struct state *state){
 					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.32f);
 					enemy=deleteenemy(state,enemy,prevenemy);
 				}
+				bullet=deletebullet(state,bullet,prevbullet);
 				stop=true;
 				break;
 			}
