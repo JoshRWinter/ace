@@ -56,8 +56,8 @@ struct button{
 #define PLAYER_RIGHT_BOUNDARY ((state->player.base.x+(PLAYER_WIDTH/2.0f))+state->rect.right)
 #define PLAYER_BOTTOM_BOUNDARY ((state->player.base.y+(PLAYER_HEIGHT/2.0f))+state->rect.bottom)
 #define PLAYER_TOP_BOUNDARY ((state->player.base.y+(PLAYER_HEIGHT/2.0f))-state->rect.bottom)
-#define PLAYER_WIDTH 0.575f
-#define PLAYER_HEIGHT 0.7f
+#define PLAYER_WIDTH 0.59166f
+#define PLAYER_HEIGHT 0.75f
 #define PLAYER_SPEED 0.1f
 #define PLAYER_RELOAD 20
 #define PLAYER_TURN_SPEED 0.06f
