@@ -110,7 +110,7 @@ struct missile{
 
 #define BULLET_WIDTH 0.3f
 #define BULLET_DMG 9,16
-#define BULLET_HEIGHT 0.15f
+#define BULLET_HEIGHT 0.05f
 #define BULLET_SPEED 0.3f
 struct bullet{
 	struct base base;
