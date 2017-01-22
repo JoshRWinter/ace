@@ -81,8 +81,14 @@ void newbullet(struct state *state,struct base *owner){
 
 	b1->base.w=BULLET_WIDTH;
 	b1->base.h=BULLET_HEIGHT;
-	b1->base.x=(owner->x+(owner->w/2.0f)-(BULLET_WIDTH/2.0f))-(cosf(owner->rot+ANGLE_OFFSET)*DISPLACE);
-	b1->base.y=(owner->y+(owner->h/2.0f)-(BULLET_HEIGHT/2.0f))-(sinf(owner->rot+ANGLE_OFFSET)*DISPLACE);
+	if(owner==&state->player.base){
+		b1->base.x=(owner->x+(owner->w/2.0f)-(BULLET_WIDTH/2.0f))-(cosf(owner->rot+ANGLE_OFFSET)*DISPLACE);
+		b1->base.y=(owner->y+(owner->h/2.0f)-(BULLET_HEIGHT/2.0f))-(sinf(owner->rot+ANGLE_OFFSET)*DISPLACE);
+	}
+	else{
+		b1->base.x=owner->x+(ENEMY_WIDTH/2.0f)-(BULLET_WIDTH/2.0f);
+		b1->base.y=owner->y+(ENEMY_HEIGHT/2.0f)-(BULLET_HEIGHT/2.0f);
+	}
 	b1->base.rot=owner->rot;
 	b1->base.frame=0.0f;
 	b1->base.count=1.0f;
@@ -92,18 +98,20 @@ void newbullet(struct state *state,struct base *owner){
 	b1->next=state->bulletlist;
 	state->bulletlist=b1;
 
-	b2->base.w=BULLET_WIDTH;
-	b2->base.h=BULLET_HEIGHT;
-	b2->base.x=(owner->x+(owner->w/2.0f)-(BULLET_WIDTH/2.0f))-(cosf(owner->rot-ANGLE_OFFSET)*DISPLACE);
-	b2->base.y=(owner->y+(owner->h/2.0f)-(BULLET_HEIGHT/2.0f))-(sinf(owner->rot-ANGLE_OFFSET)*DISPLACE);
-	b2->base.rot=owner->rot;
-	b2->base.frame=0.0f;
-	b2->base.count=1.0f;
-	b2->xv=-cosf(owner->rot)*BULLET_SPEED;
-	b2->yv=-sinf(owner->rot)*BULLET_SPEED;
-	b2->owner=owner;
-	b2->next=state->bulletlist;
-	state->bulletlist=b2;
+	if(owner==&state->player.base){
+		b2->base.w=BULLET_WIDTH;
+		b2->base.h=BULLET_HEIGHT;
+		b2->base.x=(owner->x+(owner->w/2.0f)-(BULLET_WIDTH/2.0f))-(cosf(owner->rot-ANGLE_OFFSET)*DISPLACE);
+		b2->base.y=(owner->y+(owner->h/2.0f)-(BULLET_HEIGHT/2.0f))-(sinf(owner->rot-ANGLE_OFFSET)*DISPLACE);
+		b2->base.rot=owner->rot;
+		b2->base.frame=0.0f;
+		b2->base.count=1.0f;
+		b2->xv=-cosf(owner->rot)*BULLET_SPEED;
+		b2->yv=-sinf(owner->rot)*BULLET_SPEED;
+		b2->owner=owner;
+		b2->next=state->bulletlist;
+		state->bulletlist=b2;
+	}
 }
 struct bullet *deletebullet(struct state *state,struct bullet *bullet,struct bullet *prev){
 	if(prev!=NULL)prev->next=bullet->next;
