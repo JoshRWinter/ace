@@ -516,19 +516,22 @@ void render(struct state *state){
 	}
 	
 	// fire button
-	if(state->fire)
-		glUniform4f(state->uniform.rgba,0.6f,0.6f,0.6f,1.0f);
-	else
-		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
-	glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYFIRE].object);
-	uidraw(state,&state->joy_fire);
+	if(!state->player.dead){
+		if(state->fire)
+			glUniform4f(state->uniform.rgba,0.6f,0.6f,0.6f,1.0f);
+		else
+			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYFIRE].object);
+		uidraw(state,&state->joy_fire);
 
-	glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
-	// joysticks
-	glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYBASE].object);
-	uidraw(state,&state->joy_base);
-	glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYTOP].object);
-	uidraw(state,&state->joy_top);
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+		// joysticks
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYBASE].object);
+		uidraw(state,&state->joy_base);
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYTOP].object);
+		uidraw(state,&state->joy_top);
+	}
+	else glUniform1f(state->uniform.rot,0.0f);
 
 	// render messages
 	glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);

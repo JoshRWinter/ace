@@ -42,35 +42,76 @@ int menu_end(struct state *state){
 	char info[100];
 	sprintf(info,"You scored %d points!",(int)state->points);
 	// show the slow motion death of the player
-	state->gamespeed=0.4f;
-	while(process(state->app)&&state->gamespeed>0.0f){
-		state->gamespeed-=0.002f;
+	state->gamespeed=1.0f;
+	while(process(state->app)&&state->gamespeed>0.005f){
+		state->gamespeed/=1.05f;
 		if(!core(state))
 			return false;
 
 		render(state);
 		eglSwapBuffers(state->display,state->surface);
 	}
+	if(state->app->destroyRequested)
+		return false;
+	// make every object slide downwards
+	const float vd=0.01f;
+	float slide=vd;
+	while(process(state->app)&&slide<0.5f){
+		for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
+			enemy->base.y+=slide;
+		for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next)
+			missile->base.y+=slide;
+		for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=bullet->next)
+			bullet->base.y+=slide;
+		for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=smoke->next)
+			smoke->base.y+=slide;
+		for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
+			cloud->base.y+=slide;
+		for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=explosion->next){
+			explosion->cloud.base.y+=slide;
+			for(int i=0;i<EXPLOSION_FLASH_COUNT;++i)
+				explosion->flash[i].base.y+=slide;
+		}
+
+		slide+=vd;
+
+		render(state);
+		eglSwapBuffers(state->display,state->surface);
+	}
+	if(state->app->destroyRequested)
+		return false;
 	reset(state);
+	float yoff=state->rect.top*2.0f;
 	while(process(state->app)){
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		buttonnew.base.y=yoff+3.0f;
+		buttonstop.base.y=yoff+3.0f;
+
+		if(yoff!=0.0f){
+			yoff-=(yoff/10.0f);
+			if(yoff>-0.005)
+				yoff=0.0f;
+		}
 
 		// header
 		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 		glBindTexture(GL_TEXTURE_2D,state->font.header->atlas);
-		drawtextcentered(state->font.header,0.0f,-3.0f,"Game Over");
+		drawtextcentered(state->font.header,0.0f,yoff+-3.0f,"Game Over");
 
 		// end game stats
 		glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
-		drawtextcentered(state->font.main,0.0f,0.0f,info);
+		drawtextcentered(state->font.main,0.0f,yoff,info);
 
 		// buttons
-		if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){
-			return true;
-		}
-		if(button_process(state->pointer,&buttonstop)==BUTTON_ACTIVATE){
-			state->showmenu=true;
-			return true;
+		if(yoff==0.0f){
+			if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){
+				return true;
+			}
+			if(button_process(state->pointer,&buttonstop)==BUTTON_ACTIVATE){
+				state->showmenu=true;
+				return true;
+			}
 		}
 
 		// draw buttons
