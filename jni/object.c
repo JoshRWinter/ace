@@ -57,7 +57,7 @@ void newmissile(struct state *state,struct enemy *enemy){
 	missile->base.rot=enemy->base.rot;
 	missile->base.count=1.0f;
 	missile->base.frame=0.0f;
-	missile->timer_smoke=0;
+	missile->timer_smoke=0.0f;
 	missile->dead=false;
 	missile->ttl=MISSILE_TTL;
 	missile->sway=0.0f;

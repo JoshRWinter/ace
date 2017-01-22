@@ -41,6 +41,16 @@ int menu_end(struct state *state){
 	struct button buttonstop={{-2.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Menu",false};
 	char info[100];
 	sprintf(info,"You scored %d points!",(int)state->points);
+	// show the slow motion death of the player
+	state->gamespeed=0.4f;
+	while(process(state->app)&&state->gamespeed>0.0f){
+		state->gamespeed-=0.002f;
+		if(!core(state))
+			return false;
+
+		render(state);
+		eglSwapBuffers(state->display,state->surface);
+	}
 	reset(state);
 	while(process(state->app)){
 		glClear(GL_COLOR_BUFFER_BIT);

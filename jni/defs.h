@@ -31,7 +31,7 @@
 #define POINTS_MISSILE_EVADED 15
 #define POINTS_ENEMY_SHOT_DOWN 25
 
-#define GAMEOVER_DELAY 70
+#define GAMEOVER_DELAY 1
 
 #define JOYBASE_SIZE 2.0f
 #define JOYTOP_SIZE 1.0f
@@ -69,7 +69,7 @@ struct player{
 	float xv,yv;
 	int reload;
 	int dead;
-	int timer_smoke;
+	float timer_smoke;
 };
 
 #define ENEMY_WIDTH 0.633f
@@ -83,8 +83,8 @@ struct player{
 struct enemy{
 	struct base base;
 	struct base target;
-	int timer_smoke;
-	int timer_reload;
+	float timer_smoke;
+	float timer_reload;
 	int dead;
 	int health;
 	struct enemy *next;
@@ -101,9 +101,9 @@ struct enemy{
 struct missile{
 	struct base base;
 	float xv,yv;
-	int timer_smoke;
+	float timer_smoke;
 	int dead;
-	int ttl;
+	float ttl;
 	float sway;
 	struct missile *next;
 };
@@ -139,7 +139,7 @@ struct flash{
 	float rgb[3];
 	float maxsize;
 	int growing;
-	int timer_delay;
+	float timer_delay;
 };
 struct explosion{
 	struct flash flash[EXPLOSION_FLASH_COUNT];
@@ -167,7 +167,7 @@ struct message{
 struct state{
 	int running,showmenu;
 	int fire,gameoverdelay;
-	float points;
+	float points,gamespeed;
 
 	int vao,vbo,program;
 	struct device device,screen;

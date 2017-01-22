@@ -48,9 +48,9 @@ int core(struct state *state){
 		if((state->missilelist==NULL?onein(520):onein(800))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-enemy->target.y,
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-enemy->target.x);
-		align(&enemy->base.rot,PLAYER_TURN_SPEED,angle);
-		enemy->base.x-=cosf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED);
-		enemy->base.y-=sinf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED);
+		align(&enemy->base.rot,PLAYER_TURN_SPEED*state->gamespeed,angle);
+		enemy->base.x-=(cosf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED))*state->gamespeed;
+		enemy->base.y-=(sinf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED))*state->gamespeed;
 
 		// decide whether to fire upon the player
 		if(state->missilelist==NULL&&distance(enemy->base.x+(ENEMY_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
@@ -63,13 +63,13 @@ int core(struct state *state){
 			while(enemy->base.rot>M_PI*2.0f)enemy->base.rot-=M_PI*2;
 			float diff=enemy->base.rot-cone;
 			if(diff>M_PI)diff=(M_PI*2.0f)-diff;
-			if(fabs(diff)<ENEMY_CONE&&enemy->timer_reload==0){
+			if(fabs(diff)<ENEMY_CONE&&enemy->timer_reload<=0.0f){
 				newbullet(state,&enemy->base);
 				enemy->timer_reload=PLAYER_RELOAD;
 			}
 		}
-		if(enemy->timer_reload)
-			--enemy->timer_reload;
+		if(enemy->timer_reload>0.0f)
+			enemy->timer_reload-=state->gamespeed;
 
 		if(enemy!=state->focused_enemy){
 			// find new random waypoint
@@ -112,11 +112,11 @@ int core(struct state *state){
 			}
 		}
 
-		if(enemy->timer_smoke==0){
+		if(enemy->timer_smoke<=0.0f){
 			enemy->timer_smoke=PLAYER_SMOKE;
 			newsmoke(state,&enemy->base,0.4f,0.3f);
 		}
-		else --enemy->timer_smoke;
+		else enemy->timer_smoke-=state->gamespeed;
 		
 		prevenemy=enemy;
 		enemy=enemy->next;
@@ -128,7 +128,7 @@ int core(struct state *state){
 			missile=deletemissile(state,missile,prevmissile);
 			continue;
 		}
-		if(--missile->ttl==-65){
+		if((missile->ttl-=state->gamespeed)<-65.0f){
 			newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f);
 			missile=deletemissile(state,missile,prevmissile);
 			continue;
@@ -139,7 +139,7 @@ int core(struct state *state){
 		float dist=distance(missile->base.x+(MISSILE_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
 				missile->base.y+(MISSILE_HEIGHT/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f));
 		if(dist>4.0f)dist=4.0f;
-		missile->sway+=0.1f;
+		missile->sway+=0.1f*state->gamespeed;
 		float sway=(sin(missile->sway)/15.0f)*(dist/1.5f);
 		float angle;
 		if(state->player.dead){
@@ -167,9 +167,9 @@ int core(struct state *state){
 			missile->xv/=1.02f;
 			missile->yv/=1.02f;
 		}
-		align(&missile->base.rot,MISSILE_TURN_SPEED,angle);
-		missile->base.x+=missile->xv;
-		missile->base.y+=missile->yv;
+		align(&missile->base.rot,MISSILE_TURN_SPEED*state->gamespeed,angle);
+		missile->base.x+=missile->xv*state->gamespeed;
+		missile->base.y+=missile->yv*state->gamespeed;
 		// check for missiles colliding with other missiles
 		for(struct missile *missile2=state->missilelist;missile2!=NULL;missile2=missile2->next){
 			if(missile==missile2)
@@ -212,18 +212,18 @@ int core(struct state *state){
 				enemy=enemy->next;
 			}
 		if(stop)continue;
-		if(missile->timer_smoke==0){
+		if(missile->timer_smoke<=0.0f){
 			missile->timer_smoke=MISSILE_SMOKE;
 			newsmoke(state,&missile->base,0.2f,0.3f);
 		}
-		else --missile->timer_smoke;
+		else missile->timer_smoke-=state->gamespeed;
 
 		prevmissile=missile;
 		missile=missile->next;
 	}
 
 	// proc bullets
-	if(state->fire&&state->player.reload==0&&!state->player.dead){
+	if(state->fire&&state->player.reload<=0&&!state->player.dead){
 		newbullet(state,&state->player.base);
 		state->player.reload=PLAYER_RELOAD;
 	}
@@ -283,18 +283,18 @@ int core(struct state *state){
 			continue;
 		}
 
-		bullet->base.x+=bullet->xv;
-		bullet->base.y+=bullet->yv;
+		bullet->base.x+=bullet->xv*state->gamespeed;
+		bullet->base.y+=bullet->yv*state->gamespeed;
 		prevbullet=bullet;
 		bullet=bullet->next;
 	}
 
 	// proc smoke
 	for(struct smoke *smoke=state->smokelist,*prevsmoke=NULL;smoke!=NULL;){
-		smoke->base.x+=smoke->xv;
-		smoke->base.y+=smoke->yv;
-		smoke->alpha-=SMOKE_FADE;
-		if(smoke->alpha<0.0f){
+		smoke->base.x+=smoke->xv*state->gamespeed;
+		smoke->base.y+=smoke->yv*state->gamespeed;
+		smoke->alpha-=SMOKE_FADE*state->gamespeed;
+		if(smoke->alpha<=0.0f){
 			smoke=deletesmoke(state,smoke,prevsmoke);
 			continue;
 		}
@@ -310,8 +310,8 @@ int core(struct state *state){
 	for(struct explosion *explosion=state->explosionlist,*prevexplosion=NULL;explosion!=NULL;){
 		int done=true; // explosion is ready to be deleted
 		for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
-			if(explosion->flash[i].timer_delay==0){
-				float increment=(EXPLOSION_FLASH_MAX_GROW_RATE*fabs(explosion->flash[i].maxsize-explosion->flash[i].base.w))+0.005f;
+			if(explosion->flash[i].timer_delay<=0.0f){
+				float increment=((EXPLOSION_FLASH_MAX_GROW_RATE*fabs(explosion->flash[i].maxsize-explosion->flash[i].base.w))+0.005f)*state->gamespeed;
 				if(explosion->flash[i].growing){
 					done=false;
 					explosion->flash[i].base.w+=increment;
@@ -336,11 +336,11 @@ int core(struct state *state){
 			}
 			else{
 				done=false;
-				--explosion->flash[i].timer_delay;
+				explosion->flash[i].timer_delay-=state->gamespeed;
 			}
 		}
 		// background cloud
-		float increment=(EXPLOSION_FLASH_MAX_GROW_RATE*fabs(explosion->cloud.maxsize-explosion->cloud.base.w))+0.004f;
+		float increment=((EXPLOSION_FLASH_MAX_GROW_RATE*fabs(explosion->cloud.maxsize-explosion->cloud.base.w))+0.004f)*state->gamespeed;
 		if(explosion->cloud.growing){
 			done=false;
 			const float GROWTH_MULT=1.8f;
@@ -374,14 +374,14 @@ int core(struct state *state){
 
 	// proc player
 	if(!state->player.dead){
-		state->player.base.x+=state->player.xv;
-		state->player.base.y+=state->player.yv;
-		if(state->player.reload>0)--state->player.reload;
-		if(state->player.timer_smoke==0){
+		state->player.base.x+=state->player.xv*state->gamespeed;
+		state->player.base.y+=state->player.yv*state->gamespeed;
+		if(state->player.reload>0.0f)state->player.reload-=state->gamespeed;
+		if(state->player.timer_smoke<=0.0f){
 			newsmoke(state,&state->player.base,0.4f,0.3f);
 			state->player.timer_smoke=PLAYER_SMOKE;
 		}
-		else --state->player.timer_smoke;
+		else state->player.timer_smoke-=state->gamespeed;
 	}
 	else if(!--state->gameoverdelay){
 		if(!menu_end(state))
@@ -402,7 +402,7 @@ int core(struct state *state){
 	state->fire=false;
 	state->player.xv=-cosf(state->player.base.rot)*PLAYER_SPEED;
 	state->player.yv=-sinf(state->player.base.rot)*PLAYER_SPEED;
-	align(&state->player.base.rot,PLAYER_TURN_SPEED,state->player.targetrot);
+	align(&state->player.base.rot,PLAYER_TURN_SPEED*state->gamespeed,state->player.targetrot);
 	for(int i=0;i<2;++i){
 		if(!state->pointer[i].active)
 			continue;
@@ -636,6 +636,7 @@ void reset(struct state *state){
 	state->messagelist=NULL;
 	
 	state->focused_enemy=NULL;
+	state->gamespeed=1.0f;
 	state->fire=false;
 	state->gameoverdelay=GAMEOVER_DELAY;
 	state->points=0.0f;
