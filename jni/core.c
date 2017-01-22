@@ -298,10 +298,10 @@ int core(struct state *state){
 			smoke=deletesmoke(state,smoke,prevsmoke);
 			continue;
 		}
-		smoke->base.w-=SMOKE_SHRINK;
+		smoke->base.w-=SMOKE_SHRINK*state->gamespeed;
 		smoke->base.h=smoke->base.w;
-		smoke->base.x+=SMOKE_SHRINK/2.0f;
-		smoke->base.y+=SMOKE_SHRINK/2.0f;
+		smoke->base.x+=(SMOKE_SHRINK*state->gamespeed)/2.0f;
+		smoke->base.y+=(SMOKE_SHRINK*state->gamespeed)/2.0f;
 		prevsmoke=smoke;
 		smoke=smoke->next;
 	}
