@@ -121,7 +121,7 @@ struct bullet *deletebullet(struct state *state,struct bullet *bullet,struct bul
 	return temp;
 }
 
-void newsmoke(struct state *state,struct base *base,float size,float alpha){
+void newsmoke(struct state *state,struct base *base,float size,float alpha,float gray){
 	const float SMOKE_SPEED=0.01f;
 	struct smoke *smoke=malloc(sizeof(struct smoke));
 	smoke->base.w=size;
@@ -132,6 +132,7 @@ void newsmoke(struct state *state,struct base *base,float size,float alpha){
 	smoke->base.frame=0.0f;
 	smoke->base.count=1.0f;
 	smoke->alpha=alpha;
+	smoke->gray=gray;
 	smoke->xv=cosf(base->rot)*SMOKE_SPEED;
 	smoke->yv=sinf(base->rot)*SMOKE_SPEED;
 	smoke->next=state->smokelist;

@@ -125,6 +125,7 @@ struct bullet{
 #define SMOKE_SHRINK 0.002f
 struct smoke{
 	struct base base;
+	float gray;
 	float alpha;
 	float xv,yv;
 	struct smoke *next;
@@ -225,7 +226,7 @@ void newmissile(struct state*,struct enemy*);
 struct missile *deletemissile(struct state*,struct missile*,struct missile*);
 void newbullet(struct state*,struct base*);
 struct bullet *deletebullet(struct state*,struct bullet*,struct bullet*);
-void newsmoke(struct state*,struct base*,float,float);
+void newsmoke(struct state*,struct base*,float,float,float);
 struct smoke *deletesmoke(struct state*,struct smoke*,struct smoke*);
 void newcloud(struct state*);
 struct cloud *deletecloud(struct state*,struct cloud*,struct cloud*);

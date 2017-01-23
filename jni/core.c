@@ -114,7 +114,7 @@ int core(struct state *state){
 
 		if(enemy->timer_smoke<=0.0f){
 			enemy->timer_smoke=PLAYER_SMOKE;
-			newsmoke(state,&enemy->base,0.4f,0.3f);
+			newsmoke(state,&enemy->base,0.4f,0.3f,enemy->health/100.0f);
 		}
 		else enemy->timer_smoke-=state->gamespeed;
 		
@@ -214,7 +214,7 @@ int core(struct state *state){
 		if(stop)continue;
 		if(missile->timer_smoke<=0.0f){
 			missile->timer_smoke=MISSILE_SMOKE;
-			newsmoke(state,&missile->base,0.2f,0.3f);
+			newsmoke(state,&missile->base,0.2f,0.3f,1.0f);
 		}
 		else missile->timer_smoke-=state->gamespeed;
 
@@ -383,7 +383,7 @@ int core(struct state *state){
 		state->player.base.y+=state->player.yv*state->gamespeed;
 		if(state->player.reload>0.0f)state->player.reload-=state->gamespeed;
 		if(state->player.timer_smoke<=0.0f){
-			newsmoke(state,&state->player.base,0.4f,0.3f);
+			newsmoke(state,&state->player.base,0.4f,0.3f,state->player.health/100.0f);
 			state->player.timer_smoke=PLAYER_SMOKE;
 		}
 		else state->player.timer_smoke-=state->gamespeed;
@@ -469,7 +469,7 @@ void render(struct state *state){
 	if(state->smokelist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_SMOKE].object);
 		for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=smoke->next){
-			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,smoke->alpha);
+			glUniform4f(state->uniform.rgba,smoke->gray,smoke->gray,smoke->gray,smoke->alpha);
 			draw(state,&smoke->base);
 		}
 		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
