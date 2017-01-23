@@ -15,7 +15,7 @@ int core(struct state *state){
 	}
 
 	// proc clouds
-	if(!state->cloudlist||onein(140))newcloud(state);
+	newcloud(state);
 	for(struct cloud *cloud=state->cloudlist,*prevcloud=NULL;cloud!=NULL;){
 		if(distance(cloud->base.x+(CLOUD_SIZE/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
 		cloud->base.y+(CLOUD_SIZE/2.0f),state->player.base.y+(PLAYER_WIDTH/2.0f))>CLOUD_RMDIST){
@@ -460,8 +460,10 @@ void render(struct state *state){
 	// render clouds
 	if(state->cloudlist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_CLOUD].object);
-		for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
+		for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next){
+			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,cloud->alpha);
 			draw(state,&cloud->base);
+		}
 	}
 
 	// render explosions

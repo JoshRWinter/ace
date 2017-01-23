@@ -174,35 +174,43 @@ void newcloud(struct state *state){
 	int count=0;
 	for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
 		++count;
-	if(count>12)
+	if(count>7)
 		return;
 
-	while(count<5){
-		struct cloud *cloud=malloc(sizeof(struct cloud));
-		cloud->base.w=CLOUD_SIZE;
-		cloud->base.h=CLOUD_SIZE;
-		cloud->base.rot=0.0f;
-		cloud->base.frame=0.0f;
-		cloud->base.count=1.0f;
-		while(1){
-			float xoffset=randomint(8.0f,11.0f)*(onein(2)?1.0f:-1.0f);
-			float yoffset=randomint(8.0f,11.0f)*(onein(2)?1.0f:-1.0f);
-			cloud->base.x=(state->player.base.x+(PLAYER_WIDTH/2.0f))+xoffset;
-			cloud->base.y=(state->player.base.y+(PLAYER_HEIGHT/2.0f))+yoffset;
-			int nocollide=true;
-			for(struct cloud *c=state->cloudlist;c!=NULL;c=c->next){
-				if(collide(&c->base,&cloud->base,-0.5f)){
-					nocollide=false;
-					break;
-				}
-			}
-			if(nocollide)
+	struct cloud *cloud=malloc(sizeof(struct cloud));
+	cloud->base.w=randomint(12.0f,CLOUD_SIZE*10.0f)/10.0f;
+	cloud->base.h=cloud->base.w;
+	cloud->base.rot=0.0f;
+	cloud->base.frame=0.0f;
+	cloud->base.count=1.0f;
+	cloud->alpha=randomint(50,65)/100.0f;
+	int loops=0;
+	while(1){
+		// scuttle the clouds offscreen
+		// weird, but a reliable way of getting a good distributed cluster of clouds
+		float xoffset,yoffset;
+		float angle=randomint(1,360)*(M_PI/180.0f);
+		const float disperse=randomint(10,25);
+		float xv=cosf(angle)*disperse;
+		float yv=sinf(angle)*disperse;
+		xoffset=state->player.base.x+xv;
+		yoffset=state->player.base.y+yv;
+		cloud->base.x=xoffset;
+		cloud->base.y=yoffset;
+		int nocollide=true;
+		for(struct cloud *c=state->cloudlist;c!=NULL;c=c->next){
+			if(collide(&c->base,&cloud->base,-0.5f)){
+				nocollide=false;
 				break;
+			}
 		}
-		cloud->next=state->cloudlist;
-		state->cloudlist=cloud;
-		++count;
+		if(nocollide)
+			break;
+		if(++loops>5)
+			break;
 	}
+	cloud->next=state->cloudlist;
+	state->cloudlist=cloud;
 }
 struct cloud *deletecloud(struct state *state,struct cloud *cloud,struct cloud *prev){
 	if(prev!=NULL)prev->next=cloud->next;

@@ -14,11 +14,11 @@
    viewBox="0 0 744.09448819 1052.3622047"
    id="svg4451"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.0 r"
    sodipodi:docname="cloud.svg"
    inkscape:export-filename="/home/josh/android/ace/assets_local/cloud.png"
-   inkscape:export-xdpi="12.3974"
-   inkscape:export-ydpi="12.3974">
+   inkscape:export-xdpi="36.455681"
+   inkscape:export-ydpi="36.455681">
   <defs
      id="defs4453" />
   <sodipodi:namedview
@@ -29,7 +29,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.49497475"
-     inkscape:cx="227.15625"
+     inkscape:cx="-137.50882"
      inkscape:cy="584.62281"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -47,7 +47,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -56,8 +56,8 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:#ffffff;fill-rule:evenodd;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
-       d="M 699.02556,655.37225 C 801.55605,459.40266 580.35714,435.21935 580.35714,435.21935 c -10.71428,-136.42858 -137.5,-42.85715 -137.5,-42.85715 -215.71428,-201.42857 -201.42857,21.42858 -201.42857,21.42858 0,0 -207.142856,-56.42858 -168.571427,164.28571 0,0 -108.571429,196.42857 109.999997,235.71429 0,0 20.71429,158.57142 193.57143,45.71428 0,0 184.28572,95.71429 197.14286,-84.28571 140,13.57143 125.45413,-119.8471 125.45413,-119.8471 z"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 613.80869,655.56724 C 702.96163,459.75383 510.6234,435.58979 510.6234,435.58979 501.30705,299.26994 391.06356,392.7668 391.06356,392.7668 203.49435,191.49875 215.91615,414.1783 215.91615,414.1783 c 0,0 -180.116121,-56.38361 -146.577256,164.15478 0,0 -94.405694,196.27203 95.647866,235.52644 0,0 18.01162,158.44505 168.31542,45.67785 0,0 160.24125,95.63801 171.42086,-84.21854 121.73366,13.56062 109.08565,-119.75159 109.08565,-119.75159 z"
        id="path5003"
        inkscape:connector-curvature="0" />
   </g>
