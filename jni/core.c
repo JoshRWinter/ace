@@ -82,7 +82,7 @@ int core(struct state *state){
 			// chase the player in a dogfight
 			enemy->target.x=state->player.base.x+(PLAYER_WIDTH/2.0f);
 			enemy->target.y=state->player.base.y+(PLAYER_HEIGHT/2.0f);
-			if(onein(300))state->focused_enemy=NULL;
+			if(onein(220))state->focused_enemy=NULL;
 		}
 
 		// check for enemies colliding with player
