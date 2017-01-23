@@ -61,7 +61,7 @@ struct button{
 #define PLAYER_WIDTH 0.59166f
 #define PLAYER_HEIGHT 0.75f
 #define PLAYER_SPEED 0.1f
-#define PLAYER_RELOAD 20
+#define PLAYER_RELOAD 18
 #define PLAYER_TURN_SPEED 0.06f
 #define PLAYER_SMOKE 5
 #define PLAYER_TOLERANCE 0.2f // collision tolerance
