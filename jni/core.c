@@ -45,7 +45,7 @@ int core(struct state *state){
 			enemy=deleteenemy(state,enemy,prevenemy);
 			continue;
 		}
-		if((state->missilelist==NULL?onein(520):onein(950))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
+		if((state->missilelist==NULL?onein(720):onein(1250))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-enemy->target.y,
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-enemy->target.x);
 		align(&enemy->base.rot,PLAYER_TURN_SPEED*state->gamespeed,angle);
