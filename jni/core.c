@@ -311,6 +311,20 @@ int core(struct state *state){
 		smoke=smoke->next;
 	}
 
+	// proc health
+	if(state->player.health<50&&!state->healthlist&&onein(350))
+		newhealth(state);
+	for(struct health *health=state->healthlist,*prevhealth=NULL;health!=NULL;){
+		if(collide(&state->player.base,&health->base,0.2f)){
+			health=deletehealth(state,health,prevhealth);
+			state->player.health=100;
+			newmessage(state,"full repair");
+			continue;
+		}
+		prevhealth=health;
+		health=health->next;
+	}
+
 	// proc explosions
 	for(struct explosion *explosion=state->explosionlist,*prevexplosion=NULL;explosion!=NULL;){
 		int done=true; // explosion is ready to be deleted
@@ -461,6 +475,40 @@ void render(struct state *state){
 			for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
 				glUniform4f(state->uniform.rgba,explosion->flash[i].rgb[0],explosion->flash[i].rgb[1],explosion->flash[i].rgb[2],1.0f);
 				draw(state,&explosion->flash[i].base);
+			}
+		}
+	}
+
+	// render health
+	if(state->healthlist){
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_HEALTH].object);
+		for(struct health *health=state->healthlist;health!=NULL;health=health->next)
+			draw(state,&health->base);
+		if(!state->player.dead){
+			// render indicators
+			glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_HEALTHINDICATOR].object);
+			struct base i;
+			i.count=1.0f;
+			i.frame=0.0f;
+			i.w=INDICATOR_WIDTH;
+			i.h=INDICATOR_HEIGHT;
+			for(struct health *health=state->healthlist;health!=NULL;health=health->next){
+				if(health->base.x+HEALTH_SIZE<PLAYER_LEFT_BOUNDARY||health->base.x>PLAYER_RIGHT_BOUNDARY||
+						health->base.y+HEALTH_SIZE<PLAYER_TOP_BOUNDARY||health->base.y>PLAYER_BOTTOM_BOUNDARY){
+					float x=health->base.x+(HEALTH_SIZE/2.0f)-(INDICATOR_WIDTH/2.0f);
+					float y=health->base.y+(HEALTH_SIZE/2.0f)-(INDICATOR_HEIGHT/2.0f);
+					if(health->base.x+HEALTH_SIZE<PLAYER_LEFT_BOUNDARY)x=PLAYER_LEFT_BOUNDARY;
+					else if(health->base.x>PLAYER_RIGHT_BOUNDARY)x=PLAYER_RIGHT_BOUNDARY-INDICATOR_WIDTH;
+					if(health->base.y+HEALTH_SIZE<PLAYER_TOP_BOUNDARY)y=PLAYER_TOP_BOUNDARY+(INDICATOR_WIDTH-INDICATOR_HEIGHT);
+					else if(health->base.y>PLAYER_BOTTOM_BOUNDARY)y=PLAYER_BOTTOM_BOUNDARY-INDICATOR_WIDTH;
+					float angle=atan2f((y+(INDICATOR_HEIGHT/2.0f))-(health->base.y+(HEALTH_SIZE/2.0f)),
+							(x+(INDICATOR_WIDTH/2.0f))-(health->base.x+(HEALTH_SIZE/2.0f)));
+					i.x=x;
+					i.y=y;
+					i.rot=angle;
+					draw(state,&i);
+				}
 			}
 		}
 	}
@@ -627,6 +675,7 @@ void init(struct state *state){
 	state->missilelist=NULL;
 	state->bulletlist=NULL;
 	state->smokelist=NULL;
+	state->healthlist=NULL;
 	state->explosionlist=NULL;
 	state->messagelist=NULL;
 }
@@ -640,6 +689,8 @@ void reset(struct state *state){
 	state->bulletlist=NULL;
 	for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=deletesmoke(state,smoke,NULL));
 	state->smokelist=NULL;
+	for(struct health *health=state->healthlist;health!=NULL;health=deletehealth(state,health,NULL));
+	state->healthlist=NULL;
 	for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=deleteenemy(state,enemy,NULL));
 	state->enemylist=NULL;
 	for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=deleteexplosion(state,explosion,NULL));

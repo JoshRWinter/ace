@@ -14,6 +14,8 @@
 #define TID_FLASH 5
 #define TID_INDICATOR 6
 #define TID_ENEMY 7
+#define TID_HEALTHINDICATOR 8
+#define TID_HEALTH 9
 
 // ui
 #define TID_JOYBASE 0
@@ -131,6 +133,12 @@ struct smoke{
 	struct smoke *next;
 };
 
+#define HEALTH_SIZE 0.5f
+struct health{
+	struct base base;
+	struct health *next;
+};
+
 #define EXPLOSION_FLASH_COUNT 8
 #define EXPLOSION_FLASH_MIN_TIMER 3
 #define EXPLOSION_FLASH_MAX_TIMER 18
@@ -193,6 +201,7 @@ struct state{
 	struct missile *missilelist;
 	struct bullet *bulletlist;
 	struct smoke *smokelist;
+	struct health *healthlist;
 	struct cloud *cloudlist;
 	struct explosion *explosionlist;
 	struct message *messagelist;
@@ -228,6 +237,8 @@ void newbullet(struct state*,struct base*);
 struct bullet *deletebullet(struct state*,struct bullet*,struct bullet*);
 void newsmoke(struct state*,struct base*,float,float,float);
 struct smoke *deletesmoke(struct state*,struct smoke*,struct smoke*);
+void newhealth(struct state*);
+struct health *deletehealth(struct state*,struct health*,struct health*);
 void newcloud(struct state*);
 struct cloud *deletecloud(struct state*,struct cloud*,struct cloud*);
 void newexplosion(struct state*,float,float,float);

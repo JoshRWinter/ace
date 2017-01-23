@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.0 r"
+   sodipodi:docname="health_indicator.svg"
+   inkscape:export-filename="/home/josh/android/ace/assets_local/health_indicator.png"
+   inkscape:export-xdpi="42.787376"
+   inkscape:export-ydpi="42.787376">
+  <defs
+     id="defs2">
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="Arrow1Lstart"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lstart">
+      <path
+         transform="scale(0.8) translate(12.5,0)"
+         style="fill-rule:evenodd;stroke:#ffffff;stroke-width:1pt;stroke-opacity:1;fill:#c33e32;fill-opacity:1"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path4145" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="195.01895"
+     inkscape:cy="715.12409"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:snap-nodes="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1015"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#ff1e62;fill-opacity:1;stroke:none;stroke-width:0;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path7307"
+       sodipodi:type="arc"
+       sodipodi:cx="-99.257843"
+       sodipodi:cy="-30.690302"
+       sodipodi:rx="47.998219"
+       sodipodi:ry="47.998219"
+       sodipodi:start="1.5707963"
+       sodipodi:end="3.1415927"
+       d="M -99.257842,17.307917 A 47.998219,47.998219 0 0 1 -133.19771,3.2495636 47.998219,47.998219 0 0 1 -147.25606,-30.690304 l 47.998217,2e-6 z"
+       transform="matrix(-0.76537794,-0.64358108,0.76537794,-0.64358108,0,0)"
+       inkscape:export-xdpi="21.393738"
+       inkscape:export-ydpi="21.393738" />
+    <circle
+       style="fill:#ff1e62;fill-opacity:1;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path7305"
+       cx="112.24175"
+       cy="83.632439"
+       r="38.629356"
+       inkscape:export-xdpi="21.393738"
+       inkscape:export-ydpi="21.393738" />
+    <g
+       id="g4560" />
+    <g
+       id="g4570"
+       transform="matrix(0.81443518,0,0,0.81443518,21.891673,8.7209637)"
+       style="stroke-width:1.22784483">
+      <ellipse
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path4546"
+         cx="100.73066"
+         cy="82.026039"
+         rx="11.717261"
+         ry="11.43378" />
+      <ellipse
+         ry="11.43378"
+         rx="11.717261"
+         cy="82.026039"
+         cx="121.14109"
+         id="ellipse4548"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="ccc"
+         inkscape:connector-curvature="0"
+         id="path4554"
+         d="M 129.45644,89.991833 110.93583,113.36707 92.415314,89.991833"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.32486722px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <ellipse
+         ry="5.5562501"
+         rx="4.7294269"
+         cy="90.228127"
+         cx="111.22422"
+         id="path4562"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>

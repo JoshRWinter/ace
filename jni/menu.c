@@ -66,6 +66,8 @@ int menu_end(struct state *state){
 			bullet->base.y+=slide;
 		for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=smoke->next)
 			smoke->base.y+=slide;
+		for(struct health *health=state->healthlist;health!=NULL;health=health->next)
+			health->base.y+=slide;
 		for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
 			cloud->base.y+=slide;
 		for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=explosion->next){

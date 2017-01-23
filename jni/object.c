@@ -146,6 +146,28 @@ struct smoke *deletesmoke(struct state *state,struct smoke *smoke,struct smoke *
 	return temp;
 }
 
+void newhealth(struct state *state){
+	struct health *health=malloc(sizeof(struct health));
+	health->base.w=HEALTH_SIZE;
+	health->base.h=HEALTH_SIZE;
+	float xoff=(state->rect.right+1.5f)*(onein(2)?1.0f:-1.0f);
+	float yoff=(state->rect.top+1.5f)*(onein(2)?1.0f:-1.0f);
+	health->base.x=state->player.base.x+xoff;
+	health->base.y=state->player.base.y+yoff;
+	health->base.rot=0.0f;
+	health->base.count=1.0f;
+	health->base.frame=0.0f;
+	health->next=state->healthlist;
+	state->healthlist=health;
+}
+struct health *deletehealth(struct state *state,struct health *health,struct health *prev){
+	if(prev!=NULL)prev->next=health->next;
+	else state->healthlist=health->next;
+	void *temp=health->next;
+	free(health);
+	return temp;
+}
+
 void newcloud(struct state *state){
 	int count=0;
 	for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
