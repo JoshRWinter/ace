@@ -77,7 +77,9 @@ void newbullet(struct state *state,struct base *owner){
 	const float ANGLE_OFFSET=0.9f;
 
 	struct bullet *b1=malloc(sizeof(struct bullet));
-	struct bullet *b2=malloc(sizeof(struct bullet));
+	struct bullet *b2;
+	if(owner==&state->player.base)
+		b2=malloc(sizeof(struct bullet));
 
 	b1->base.w=BULLET_WIDTH;
 	b1->base.h=BULLET_HEIGHT;
