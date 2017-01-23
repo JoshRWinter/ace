@@ -100,16 +100,14 @@ int menu_end(struct state *state){
 			drawtextcentered(state->font.main,0.0f,yoff,info);
 
 			// buttons
-			if(yoff==0.0f){
-				if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){
-					reset(state);
-					return true;
-				}
-				if(button_process(state->pointer,&buttonstop)==BUTTON_ACTIVATE){
-					reset(state);
-					state->showmenu=true;
-					return true;
-				}
+			if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){
+				reset(state);
+				return true;
+			}
+			if(button_process(state->pointer,&buttonstop)==BUTTON_ACTIVATE){
+				reset(state);
+				state->showmenu=true;
+				return true;
 			}
 
 			// draw buttons
