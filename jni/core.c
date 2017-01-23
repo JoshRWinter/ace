@@ -86,7 +86,7 @@ int core(struct state *state){
 		}
 
 		// check for enemies colliding with player
-		if(!state->player.dead&&collide(&state->player.base,&enemy->base,0.3f)){
+		if(!state->player.dead&&collide(&state->player.base,&enemy->base,0.5f)){
 			state->player.dead=true;
 			float x1=state->player.base.x+(PLAYER_WIDTH/2.0f);
 			float x2=enemy->base.x+(ENEMY_WIDTH/2.0f);
