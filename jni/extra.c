@@ -23,7 +23,7 @@ void button_draw(struct state *state,struct button *button){
 	float yoff;
 	struct button b=*button;
 	if(b.active){
-		yoff=0.1f;
+		yoff=0.075f;
 		b.base.y+=yoff;
 	}
 	else
