@@ -45,7 +45,7 @@ int core(struct state *state){
 			enemy=deleteenemy(state,enemy,prevenemy);
 			continue;
 		}
-		if((state->missilelist==NULL?onein(520):onein(800))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
+		if((state->missilelist==NULL?onein(520):onein(950))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-enemy->target.y,
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-enemy->target.x);
 		align(&enemy->base.rot,PLAYER_TURN_SPEED*state->gamespeed,angle);
@@ -128,7 +128,7 @@ int core(struct state *state){
 			missile=deletemissile(state,missile,prevmissile);
 			continue;
 		}
-		if((missile->ttl-=state->gamespeed)<-65.0f){
+		if((missile->ttl-=state->gamespeed)<-32.0f){
 			newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f);
 			missile=deletemissile(state,missile,prevmissile);
 			continue;

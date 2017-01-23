@@ -97,8 +97,8 @@ struct enemy{
 #define INDICATOR_HEIGHT 0.55f
 #define MISSILE_SPEED 0.116f
 #define MISSILE_TURN_SPEED 0.04f
-#define MISSILE_SMOKE 4
-#define MISSILE_TTL 1400
+#define MISSILE_SMOKE 3
+#define MISSILE_TTL 1000
 struct missile{
 	struct base base;
 	float xv,yv;
