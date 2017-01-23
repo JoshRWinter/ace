@@ -88,6 +88,7 @@ int core(struct state *state){
 		// check for enemies colliding with player
 		if(!state->player.dead&&collide(&state->player.base,&enemy->base,0.5f)){
 			state->player.dead=true;
+			vibratedevice(&state->jni_info,DEATH_RATTLE);
 			float x1=state->player.base.x+(PLAYER_WIDTH/2.0f);
 			float x2=enemy->base.x+(ENEMY_WIDTH/2.0f);
 			float y1=state->player.base.y+(PLAYER_HEIGHT/2.0f);
@@ -195,6 +196,7 @@ int core(struct state *state){
 			newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f);
 			missile=deletemissile(state,missile,prevmissile);
 			state->player.dead=true;
+			vibratedevice(&state->jni_info,DEATH_RATTLE);
 			continue;
 		}
 		// check for missiles colliding with enemies
@@ -278,10 +280,12 @@ int core(struct state *state){
 		if(stop)continue;
 		// check for bullets colliding with player
 		if(!state->player.dead&&bullet->owner!=&state->player.base&&collide(&bullet->base,&state->player.base,0.1f)){
+			vibratedevice(&state->jni_info,HIT_RATTLE);
 			state->player.health-=randomint(BULLET_ENEMY_DMG);
 			if(state->player.health<1){
 				newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f);
 				state->player.dead=true;
+				vibratedevice(&state->jni_info,DEATH_RATTLE);
 			}
 			newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
 			bullet=deletebullet(state,bullet,prevbullet);

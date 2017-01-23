@@ -34,6 +34,8 @@
 #define POINTS_ENEMY_SHOT_DOWN 25
 
 #define GAMEOVER_DELAY 1
+#define DEATH_RATTLE 300
+#define HIT_RATTLE 30
 
 #define JOYBASE_SIZE 2.0f
 #define JOYTOP_SIZE 1.0f
