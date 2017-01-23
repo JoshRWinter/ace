@@ -159,10 +159,21 @@ void newcloud(struct state *state){
 		cloud->base.rot=0.0f;
 		cloud->base.frame=0.0f;
 		cloud->base.count=1.0f;
-		float xoffset=randomint(8.0f,11.0f)*(onein(2)?1.0f:-1.0f);
-		float yoffset=randomint(8.0f,11.0f)*(onein(2)?1.0f:-1.0f);
-		cloud->base.x=(state->player.base.x+(PLAYER_WIDTH/2.0f))+xoffset;
-		cloud->base.y=(state->player.base.y+(PLAYER_HEIGHT/2.0f))+yoffset;
+		while(1){
+			float xoffset=randomint(8.0f,11.0f)*(onein(2)?1.0f:-1.0f);
+			float yoffset=randomint(8.0f,11.0f)*(onein(2)?1.0f:-1.0f);
+			cloud->base.x=(state->player.base.x+(PLAYER_WIDTH/2.0f))+xoffset;
+			cloud->base.y=(state->player.base.y+(PLAYER_HEIGHT/2.0f))+yoffset;
+			int nocollide=true;
+			for(struct cloud *c=state->cloudlist;c!=NULL;c=c->next){
+				if(collide(&c->base,&cloud->base,-0.5f)){
+					nocollide=false;
+					break;
+				}
+			}
+			if(nocollide)
+				break;
+		}
 		cloud->next=state->cloudlist;
 		state->cloudlist=cloud;
 		++count;
