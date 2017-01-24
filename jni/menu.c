@@ -120,38 +120,47 @@ int menu_end(struct state *state){
 	// make every object slide downwards
 	const float vd=0.01f;
 	float slide=vd;
+	float slideout=vd;
 	float yoff=state->rect.top*2.0f;
+	int transition=false; // transition out
 	while(process(state->app)){
-		for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
-			enemy->base.y+=slide;
-		for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next)
-			missile->base.y+=slide;
-		for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=bullet->next)
-			bullet->base.y+=slide;
-		for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=smoke->next)
-			smoke->base.y+=slide;
-		for(struct health *health=state->healthlist;health!=NULL;health=health->next)
-			health->base.y+=slide;
-		for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
-			cloud->base.y+=slide;
-		for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=explosion->next){
-			explosion->cloud.base.y+=slide;
-			for(int i=0;i<EXPLOSION_FLASH_COUNT;++i)
-				explosion->flash[i].base.y+=slide;
+		if(!transition){
+			for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
+				enemy->base.y+=slide;
+			for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next)
+				missile->base.y+=slide;
+			for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=bullet->next)
+				bullet->base.y+=slide;
+			for(struct smoke *smoke=state->smokelist;smoke!=NULL;smoke=smoke->next)
+				smoke->base.y+=slide;
+			for(struct health *health=state->healthlist;health!=NULL;health=health->next)
+				health->base.y+=slide;
+			for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=cloud->next)
+				cloud->base.y+=slide;
+			for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=explosion->next){
+				explosion->cloud.base.y+=slide;
+				for(int i=0;i<EXPLOSION_FLASH_COUNT;++i)
+					explosion->flash[i].base.y+=slide;
+			}
 		}
 
-		slide+=vd;
-
-		render(state);
+		if(!transition){
+			slide+=vd;
+			render(state);
+		}
+		else
+			glClear(GL_COLOR_BUFFER_BIT);
 
 		if(slide>0.5f){
 			buttonnew.base.y=yoff+3.0f;
 			buttonstop.base.y=yoff+3.0f;
 
-			if(yoff!=0.0f){
-				yoff-=(yoff/10.0f);
-				if(yoff>-0.005)
-					yoff=0.0f;
+			if(!transition){
+				if(yoff!=0.0f){
+					yoff-=(yoff/10.0f);
+					if(yoff>-0.005)
+						yoff=0.0f;
+				}
 			}
 
 			// header
@@ -166,7 +175,7 @@ int menu_end(struct state *state){
 			// buttons
 			if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){
 				reset(state);
-				return true;
+				transition=true;
 			}
 			if(button_process(state->pointer,&buttonstop)==BUTTON_ACTIVATE||state->back){
 				state->back=false;
@@ -178,6 +187,14 @@ int menu_end(struct state *state){
 			// draw buttons
 			button_draw(state,&buttonnew);
 			button_draw(state,&buttonstop);
+
+			// handle transition animation (out transition)
+			if(transition){
+				slideout+=vd;
+				yoff+=slideout;
+				if(yoff>8.0f)
+					return menu_transition(state);
+			}
 		}
 		eglSwapBuffers(state->display,state->surface);
 	}
