@@ -178,12 +178,13 @@ void newcloud(struct state *state){
 		return;
 
 	struct cloud *cloud=malloc(sizeof(struct cloud));
-	cloud->base.w=randomint(12.0f,CLOUD_SIZE*10.0f)/10.0f;
+	cloud->base.w=randomint(120.0f,CLOUD_SIZE*100.0f)/100.0f;
 	cloud->base.h=cloud->base.w;
 	cloud->base.rot=0.0f;
 	cloud->base.frame=0.0f;
 	cloud->base.count=1.0f;
 	cloud->alpha=randomint(50,65)/100.0f;
+	cloud->parallax=((randomint(5,15)/100.0f)+(cloud->base.w-2.0f))/2.25f;//randomint(0,20)/100.0f;
 	int loops=0;
 	while(1){
 		// scuttle the clouds offscreen

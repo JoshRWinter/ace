@@ -22,6 +22,11 @@ int core(struct state *state){
 				cloud=deletecloud(state,cloud,prevcloud);
 				continue;
 		}
+		// parallax effect
+		if(!state->player.dead){
+			cloud->base.x-=state->player.xv*cloud->parallax;
+			cloud->base.y-=state->player.yv*cloud->parallax;
+		}
 
 		prevcloud=cloud;
 		cloud=cloud->next;

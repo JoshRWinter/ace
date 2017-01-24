@@ -165,6 +165,7 @@ struct explosion{
 struct cloud{
 	struct base base;
 	float alpha;
+	float parallax;
 	struct cloud *next;
 };
 
