@@ -2,6 +2,7 @@
 #include <GLES2/gl2.h>
 #include <android_native_app_glue.h>
 #include <stdlib.h>
+#include <math.h>
 #include "defs.h"
 
 int menu_main(struct state *state){
@@ -13,15 +14,25 @@ int menu_main(struct state *state){
 		"~ ACE ~ \n"
 		"Programming and Art by Josh Winter\n"
 		"yadda yadda";
+	float yoff=0.0f;
+	float slide=0.0f;
+	const float inc=0.01f;
+	int transition=false;
 	while(process(state->app)){
+		buttonplay.base.y=yoff+3.0f;
+		buttonaboot.base.y=buttonplay.base.y;
+		buttonconf.base.y=buttonplay.base.y;
+		title.y=yoff+state->rect.top;
+
 		// draw background
+		glClear(GL_COLOR_BUFFER_BIT);
 		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_TITLE].object);
 		draw(state,&title);
 
 		// buttons
 		if(button_process(state->pointer,&buttonplay)==BUTTON_ACTIVATE){
-			return true;
+			transition=true;
 		}
 		if(button_process(state->pointer,&buttonaboot)==BUTTON_ACTIVATE){
 			if(!menu_message(state,"Aboot",aboot))
@@ -34,6 +45,14 @@ int menu_main(struct state *state){
 		button_draw(state,&buttonplay);
 		button_draw(state,&buttonaboot);
 		button_draw(state,&buttonconf);
+
+		// handle transition animation
+		if(transition){
+			slide+=inc;
+			yoff+=slide;
+			if(title.y>state->rect.bottom)
+				return menu_transition(state);
+		}
 
 		if(state->back){
 			state->back=false;
@@ -189,6 +208,24 @@ int menu_message(struct state *state,const char *caption,const char *msg){
 			state->back=false;
 			return true;
 		}
+
+		eglSwapBuffers(state->display,state->surface);
+	}
+	return false;
+}
+
+int menu_transition(struct state *state){
+	struct base player={-PLAYER_WIDTH/2.0f,state->rect.top-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,0.0f,1.0f,0.0f};
+	while(process(state->app)){
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		float step=(fabs(player.y+PLAYER_HEIGHT/2.0f)/10.0f)+0.0005f;
+		if(targetf(&player.y,step,-PLAYER_HEIGHT/2.0f)==-PLAYER_HEIGHT/2.0f)
+			return true;
+
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
+		draw(state,&player);
 
 		eglSwapBuffers(state->display,state->surface);
 	}

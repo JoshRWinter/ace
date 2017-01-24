@@ -224,6 +224,7 @@ int menu_main(struct state*);
 int menu_pause(struct state*);
 int menu_end(struct state*);
 int menu_message(struct state*,const char*,const char*);
+int menu_transition(struct state*);
 
 int core(struct state *state);
 void render(struct state *state);
