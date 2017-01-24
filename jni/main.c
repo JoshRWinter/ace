@@ -95,6 +95,10 @@ int32_t inputproc(struct android_app *app, AInputEvent *event){
 			reset(app->userData);
 			return true;
 		}
+		else if(action==AKEY_EVENT_ACTION_UP&&key==AKEYCODE_BACK){
+			state->back=true;
+			return true;
+		}
 	}
 	return false;
 }

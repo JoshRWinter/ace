@@ -35,6 +35,46 @@ int menu_main(struct state *state){
 		button_draw(state,&buttonaboot);
 		button_draw(state,&buttonconf);
 
+		if(state->back){
+			state->back=false;
+			ANativeActivity_finish(state->app->activity);
+		}
+
+		eglSwapBuffers(state->display,state->surface);
+	}
+	return false;
+}
+
+int menu_pause(struct state *state){
+	struct button buttonresume={{0.25f,3.0,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Resume",false};
+	struct button buttonmenu={{-3.0f,3.0,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Menu",false};
+	while(process(state->app)){
+		//glClear(GL_COLOR_BUFFER_BIT);
+		render(state);
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+
+		// buttons
+		if(button_process(state->pointer,&buttonresume)==BUTTON_ACTIVATE){
+			return true;
+		}
+		if(button_process(state->pointer,&buttonmenu)==BUTTON_ACTIVATE){
+			reset(state);
+			state->showmenu=true;
+			return core(state);
+		}
+
+		glBindTexture(GL_TEXTURE_2D,state->font.header->atlas);
+		drawtextcentered(state->font.header,0.0f,-3.0f,"PAUSED");
+
+		// draw buttons
+		button_draw(state,&buttonresume);
+		button_draw(state,&buttonmenu);
+
+		if(state->back){
+			state->back=false;
+			return true;
+		}
+
 		eglSwapBuffers(state->display,state->surface);
 	}
 	return false;
@@ -109,7 +149,8 @@ int menu_end(struct state *state){
 				reset(state);
 				return true;
 			}
-			if(button_process(state->pointer,&buttonstop)==BUTTON_ACTIVATE){
+			if(button_process(state->pointer,&buttonstop)==BUTTON_ACTIVATE||state->back){
+				state->back=false;
 				reset(state);
 				state->showmenu=true;
 				return true;
@@ -143,6 +184,11 @@ int menu_message(struct state *state,const char *caption,const char *msg){
 		}
 
 		button_draw(state,&buttonok);
+
+		if(state->back){
+			state->back=false;
+			return true;
+		}
 
 		eglSwapBuffers(state->display,state->surface);
 	}

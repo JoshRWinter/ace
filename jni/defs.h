@@ -179,7 +179,7 @@ struct message{
 };
 
 struct state{
-	int running,showmenu;
+	int running,showmenu,back;
 	int fire,gameoverdelay;
 	float points,gamespeed;
 
@@ -220,6 +220,7 @@ int button_process(struct crosshair*,struct button*);
 void button_draw(struct state*,struct button*);
 
 int menu_main(struct state*);
+int menu_pause(struct state*);
 int menu_end(struct state*);
 int menu_message(struct state*,const char*,const char*);
 

@@ -452,6 +452,13 @@ int core(struct state *state){
 		}
 	}
 	
+	// pause menu
+	if(state->back){
+		state->back=false;
+		if(!menu_pause(state))
+			return false;
+	}
+
 	return true;
 }
 
@@ -642,6 +649,7 @@ void render(struct state *state){
 }
 
 void init(struct state *state){
+	state->back=false;
 	memset(state->pointer,0,sizeof(struct crosshair)*2);
 	state->showmenu=true;
 
