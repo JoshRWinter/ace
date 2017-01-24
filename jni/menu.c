@@ -41,12 +41,13 @@ int menu_main(struct state *state){
 }
 
 int menu_end(struct state *state){
-	struct button buttonnew={{1.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Reset",false};
-	struct button buttonstop={{-2.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Menu",false};
-	char info[100];
-	sprintf(info,"You scored %d points!",(int)state->points);
+	struct button buttonnew={{0.25f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Reset",false};
+	struct button buttonstop={{-3.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Menu",false};
+	char info[26];
+	sprintf(info,"SCORE: %d",(int)state->points);
 	// show the slow motion death of the player
 	state->gamespeed=1.0f;
+	int egg=onein(100);
 	while(process(state->app)&&state->gamespeed>0.005f){
 		state->gamespeed/=1.05f;
 		if(!core(state))
@@ -97,11 +98,11 @@ int menu_end(struct state *state){
 			// header
 			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 			glBindTexture(GL_TEXTURE_2D,state->font.header->atlas);
-			drawtextcentered(state->font.header,0.0f,yoff+-3.0f,"Game Over");
+			drawtextcentered(state->font.header,0.0f,yoff+-4.0f,egg?"lol u ded":"KILLED IN ACTION");
 
 			// end game stats
-			glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
-			drawtextcentered(state->font.main,0.0f,yoff,info);
+			glBindTexture(GL_TEXTURE_2D,state->font.button->atlas);
+			drawtextcentered(state->font.button,0.0f,yoff-1.0f,info);
 
 			// buttons
 			if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){
