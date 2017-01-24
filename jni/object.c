@@ -148,14 +148,12 @@ struct smoke *deletesmoke(struct state *state,struct smoke *smoke,struct smoke *
 	return temp;
 }
 
-void newhealth(struct state *state){
+void newhealth(struct state *state,struct enemy *enemy){
 	struct health *health=malloc(sizeof(struct health));
 	health->base.w=HEALTH_SIZE;
 	health->base.h=HEALTH_SIZE;
-	float xoff=(state->rect.right+1.5f)*(onein(2)?1.0f:-1.0f);
-	float yoff=(state->rect.top+1.5f)*(onein(2)?1.0f:-1.0f);
-	health->base.x=state->player.base.x+xoff;
-	health->base.y=state->player.base.y+yoff;
+	health->base.x=enemy->base.x+(ENEMY_WIDTH/2.0f)-(HEALTH_SIZE/2.0f);
+	health->base.y=enemy->base.y+(ENEMY_HEIGHT/2.0f)-(HEALTH_SIZE/2.0f);
 	health->base.rot=0.0f;
 	health->base.count=1.0f;
 	health->base.frame=0.0f;

@@ -267,6 +267,7 @@ int core(struct state *state){
 				newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
 				if((enemy->health-=randomint(BULLET_DMG))<1){
 					if(!state->player.dead&&bullet->owner==&state->player.base){
+						if(state->player.health<50&&onein(2))newhealth(state,enemy);
 						sprintf(msg,"+%d enemy shot down",POINTS_ENEMY_SHOT_DOWN);
 						newmessage(state,msg);
 						state->points+=POINTS_ENEMY_SHOT_DOWN;
@@ -321,8 +322,6 @@ int core(struct state *state){
 	}
 
 	// proc health
-	if(state->player.health<50&&!state->healthlist&&onein(350))
-		newhealth(state);
 	for(struct health *health=state->healthlist,*prevhealth=NULL;health!=NULL;){
 		if(collide(&state->player.base,&health->base,0.2f)){
 			health=deletehealth(state,health,prevhealth);

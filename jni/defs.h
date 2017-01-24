@@ -242,7 +242,7 @@ void newbullet(struct state*,struct base*);
 struct bullet *deletebullet(struct state*,struct bullet*,struct bullet*);
 void newsmoke(struct state*,struct base*,float,float,float);
 struct smoke *deletesmoke(struct state*,struct smoke*,struct smoke*);
-void newhealth(struct state*);
+void newhealth(struct state*,struct enemy*);
 struct health *deletehealth(struct state*,struct health*,struct health*);
 void newcloud(struct state*);
 struct cloud *deletecloud(struct state*,struct cloud*,struct cloud*);
