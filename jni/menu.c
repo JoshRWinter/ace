@@ -73,6 +73,7 @@ int menu_conf(struct state *state){
 	struct button buttonmusic={{rmargin,1.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Music",false};
 	struct button buttonback={{-BUTTON_WIDTH/2.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Back",false};
 	char status[76];
+	int changed=false;
 	while(process(state->app)){
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -89,15 +90,20 @@ int menu_conf(struct state *state){
 		// buttons
 		if(button_process(state->pointer,&buttonvib)==BUTTON_ACTIVATE){
 			state->vibrate=!state->vibrate;
+			changed=true;
 		}
 		if(button_process(state->pointer,&buttonsound)==BUTTON_ACTIVATE){
 			state->sounds=!state->sounds;
+			changed=true;
 		}
 		if(button_process(state->pointer,&buttonmusic)==BUTTON_ACTIVATE){
 			state->music=!state->music;
+			changed=true;
 		}
 		if(button_process(state->pointer,&buttonback)==BUTTON_ACTIVATE||state->back){
 			state->back=false;
+			if(changed)
+				save_settings(state);
 			return true;
 		}
 

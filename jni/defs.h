@@ -3,6 +3,7 @@
 #define distance(x1,x2,y1,y2) (sqrtf(powf((x2)-(x1),2)+powf((y2)-(y1),2)))
 #define xcorrect(a) ((a)-(state->player.base.x+(PLAYER_WIDTH/2.0f)))
 #define ycorrect(b) ((b)-(state->player.base.y+(PLAYER_HEIGHT/2.0f)))
+#define DATAPATH "/data/data/joshwinter.ace/files"
 
 // gameplay
 #define TID_BACKGROUND 0
@@ -217,6 +218,8 @@ int32_t inputproc(struct android_app*,AInputEvent*);
 void cmdproc(struct android_app*,int32_t);
 void init_display(struct state*);
 void term_display(struct state*);
+void load_settings(struct state*);
+void save_settings(struct state*);
 
 int button_process(struct crosshair*,struct button*);
 void button_draw(struct state*,struct button*);

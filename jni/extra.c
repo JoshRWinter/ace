@@ -2,7 +2,40 @@
 #include <GLES2/gl2.h>
 #include <android_native_app_glue.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "defs.h"
+
+void load_settings(struct state *state){
+	FILE *file=fopen(DATAPATH"/00","rb");
+
+	if(!file){
+		state->vibrate=true;
+		state->sounds=true;
+		state->music=true;
+		return;
+	}
+
+	fread(&state->vibrate,sizeof(int),1,file);
+	fread(&state->sounds,sizeof(int),1,file);
+	fread(&state->music,sizeof(int),1,file);
+
+	fclose(file);
+}
+
+void save_settings(struct state *state){
+	FILE *file=fopen(DATAPATH"/00","wb");
+
+	if(!file){
+		logcat("could not write to settings file for some reason");
+		return;
+	}
+
+	fwrite(&state->vibrate,sizeof(int),1,file);
+	fwrite(&state->sounds,sizeof(int),1,file);
+	fwrite(&state->music,sizeof(int),1,file);
+
+	fclose(file);
+}
 
 int button_process(struct crosshair *p,struct button *b){
 	if(p[0].x>b->base.x&&p[0].x<b->base.x+BUTTON_WIDTH&&p[0].y>b->base.y&&p[0].y<b->base.y+BUTTON_HEIGHT){
