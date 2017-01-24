@@ -653,6 +653,10 @@ void render(struct state *state){
 }
 
 void init(struct state *state){
+	state->vibrate=true;
+	state->sounds=true;
+	state->music=true;
+
 	state->back=false;
 	memset(state->pointer,0,sizeof(struct crosshair)*2);
 	state->showmenu=true;

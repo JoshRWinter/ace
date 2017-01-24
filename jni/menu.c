@@ -39,6 +39,8 @@ int menu_main(struct state *state){
 				return false;
 		}
 		if(button_process(state->pointer,&buttonconf)==BUTTON_ACTIVATE){
+			if(!menu_conf(state))
+				return false;
 		}
 
 		// draw buttons
@@ -64,9 +66,56 @@ int menu_main(struct state *state){
 	return false;
 }
 
+int menu_conf(struct state *state){
+	const float rmargin=2.0f;
+	struct button buttonvib={{rmargin,-2.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Vibrate",false};
+	struct button buttonsound={{rmargin,-0.5f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Sounds",false};
+	struct button buttonmusic={{rmargin,1.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Music",false};
+	struct button buttonback={{-BUTTON_WIDTH/2.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Back",false};
+	char status[76];
+	while(process(state->app)){
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+		// header
+		glBindTexture(GL_TEXTURE_2D,state->font.header->atlas);
+		drawtextcentered(state->font.header,0.0f,-4.0f,"Configuration");
+
+		// status line
+		glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
+		sprintf(status,"Vibration: %s\nSounds: %s\nMusic: %s",state->vibrate?"yes":"no",state->sounds?"yes":"no",state->music?"yes":"no");
+		drawtextcentered(state->font.main,-3.0f,-0.75f,status);
+
+		// buttons
+		if(button_process(state->pointer,&buttonvib)==BUTTON_ACTIVATE){
+			state->vibrate=!state->vibrate;
+		}
+		if(button_process(state->pointer,&buttonsound)==BUTTON_ACTIVATE){
+			state->sounds=!state->sounds;
+		}
+		if(button_process(state->pointer,&buttonmusic)==BUTTON_ACTIVATE){
+			state->music=!state->music;
+		}
+		if(button_process(state->pointer,&buttonback)==BUTTON_ACTIVATE||state->back){
+			state->back=false;
+			return true;
+		}
+
+		// draw buttons
+		button_draw(state,&buttonvib);
+		button_draw(state,&buttonsound);
+		button_draw(state,&buttonmusic);
+		button_draw(state,&buttonback);
+
+		eglSwapBuffers(state->display,state->surface);
+	}
+	return false;
+}
+
 int menu_pause(struct state *state){
-	struct button buttonresume={{0.25f,3.0,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Resume",false};
-	struct button buttonmenu={{-3.0f,3.0,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Menu",false};
+	struct button buttonresume={{2.0f,3.0,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Resume",false};
+	struct button buttonmenu={{-BUTTON_WIDTH/2.0f,3.0,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Menu",false};
+	struct button buttonconf={{-5.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Settings",false};
 	while(process(state->app)){
 		//glClear(GL_COLOR_BUFFER_BIT);
 		render(state);
@@ -81,6 +130,10 @@ int menu_pause(struct state *state){
 			state->showmenu=true;
 			return core(state);
 		}
+		if(button_process(state->pointer,&buttonconf)==BUTTON_ACTIVATE){
+			if(!menu_conf(state))
+				return false;
+		}
 
 		glBindTexture(GL_TEXTURE_2D,state->font.header->atlas);
 		drawtextcentered(state->font.header,0.0f,-3.0f,"PAUSED");
@@ -88,6 +141,7 @@ int menu_pause(struct state *state){
 		// draw buttons
 		button_draw(state,&buttonresume);
 		button_draw(state,&buttonmenu);
+		button_draw(state,&buttonconf);
 
 		if(state->back){
 			state->back=false;
