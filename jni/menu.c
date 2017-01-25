@@ -183,6 +183,21 @@ int menu_end(struct state *state){
 	float slideout=vd;
 	float yoff=state->rect.top*2.0f;
 	int transition=false; // transition out
+	// compute and sort highscores
+	int newhighscore=-1;
+	if((int)state->points>state->highscore[0]){
+		state->highscore[0]=state->points;
+		selection(state->highscore);
+		// take note of the index
+		for(int i=0;i<HIGHSCORE_COUNT;++i){
+			if(state->highscore[i]==(int)state->points){
+				newhighscore=i;
+				break;
+			}
+		}
+		save_highscores(state);
+	}
+
 	while(process(state->app)){
 		if(!transition){
 			for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
@@ -230,7 +245,25 @@ int menu_end(struct state *state){
 
 			// end game stats
 			glBindTexture(GL_TEXTURE_2D,state->font.button->atlas);
-			drawtextcentered(state->font.button,0.0f,yoff-1.0f,info);
+			drawtextcentered(state->font.button,0.0f,yoff-2.5f,info);
+
+			// highscores
+			glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
+			char listing[16];
+			for(int i=HIGHSCORE_COUNT-1;i>=0;--i){
+				float offset=yoff-1.0f+((HIGHSCORE_COUNT-1-i)*0.35f);
+				if(state->highscore[i]==0)
+					sprintf(listing,"%d. -",HIGHSCORE_COUNT-i);
+				else
+					sprintf(listing,"%d. %d",HIGHSCORE_COUNT-i,state->highscore[i]);
+				if(newhighscore==i){
+					glUniform4f(state->uniform.rgba,HIGHSCORE_HIGHLIGHT);
+					drawtextcentered(state->font.main,0.0f,offset,listing);
+					glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+				}
+				else
+					drawtextcentered(state->font.main,0.0f,offset,listing);
+			}
 
 			// buttons
 			if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){

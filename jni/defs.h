@@ -37,6 +37,8 @@
 #define GAMEOVER_DELAY 1
 #define DEATH_RATTLE 300
 #define HIT_RATTLE 30
+#define HIGHSCORE_COUNT 5
+#define HIGHSCORE_HIGHLIGHT 0.3f,0.9f,0.1f,1.0f
 
 #define JOYBASE_SIZE 2.0f
 #define JOYTOP_SIZE 1.0f
@@ -181,7 +183,7 @@ struct message{
 };
 
 struct state{
-	int running,showmenu,back;
+	int running,showmenu,back,highscore[HIGHSCORE_COUNT];
 	int vibrate,sounds,music; // global settings
 	int fire,gameoverdelay;
 	float points,gamespeed;
@@ -220,6 +222,9 @@ void init_display(struct state*);
 void term_display(struct state*);
 void load_settings(struct state*);
 void save_settings(struct state*);
+void load_highscores(struct state*);
+void save_highscores(struct state*);
+void selection(int*);
 
 int button_process(struct crosshair*,struct button*);
 void button_draw(struct state*,struct button*);

@@ -37,6 +37,51 @@ void save_settings(struct state *state){
 	fclose(file);
 }
 
+void load_highscores(struct state *state){
+	FILE *file=fopen(DATAPATH"/01","rb");
+
+	if(!file){
+		memset(state->highscore,0,sizeof(int)*HIGHSCORE_COUNT);
+		return;
+	}
+
+	fread(state->highscore,sizeof(int),HIGHSCORE_COUNT,file);
+	fclose(file);
+}
+
+void save_highscores(struct state *state){
+	FILE *file=fopen(DATAPATH"/01","wb");
+
+	if(!file){
+		logcat("could not save highscores for some reason");
+		return;
+	}
+
+	fwrite(state->highscore,sizeof(int),HIGHSCORE_COUNT,file);
+	fclose(file);
+}
+
+static void swap(int *i,int *j){
+	int temp=*i;
+	*i=*j;
+	*j=temp;
+}
+void selection(int *a){
+	const int n=5;
+	int	i,j;
+	for (j = 0; j < n-1; j++) {
+		int iMin = j;
+		for (i = j+1; i < n; i++) {
+			if (a[i] < a[iMin]) {
+				iMin = i;
+			}
+		}
+		if(iMin != j) {
+			swap(a+j, a+iMin);
+		}
+	}
+}
+
 int button_process(struct crosshair *p,struct button *b){
 	if(p[0].x>b->base.x&&p[0].x<b->base.x+BUTTON_WIDTH&&p[0].y>b->base.y&&p[0].y<b->base.y+BUTTON_HEIGHT){
 		if(p[0].active){

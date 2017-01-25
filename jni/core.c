@@ -654,6 +654,7 @@ void render(struct state *state){
 
 void init(struct state *state){
 	load_settings(state);
+	load_highscores(state);
 
 	state->back=false;
 	memset(state->pointer,0,sizeof(struct crosshair)*2);
