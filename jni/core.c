@@ -135,7 +135,7 @@ int core(struct state *state){
 			group=deletegroup(state,group,prevgroup);
 			continue;
 		}
-		const float DEPTH=1.75f;
+		const float DEPTH=1.55f;
 		if(!state->player.dead){
 			group->base.x+=state->player.xv/DEPTH;
 			group->base.y+=state->player.yv/DEPTH;
@@ -491,7 +491,7 @@ void render(struct state *state){
 	// render groups
 	if(state->grouplist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_GROUP].object);
-		glUniform4f(state->uniform.rgba,0.85f,0.85f,1.0f,1.0f);
+		glUniform4f(state->uniform.rgba,0.8f,0.8f,1.0f,1.0f);
 		for(struct group *group=state->grouplist;group!=NULL;group=group->next)
 			draw(state,&group->base);
 	}
