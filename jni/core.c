@@ -612,17 +612,33 @@ void render(struct state *state){
 			draw(state,&enemy->base);
 	}
 	
-	// fire button
+	// render controls
 	if(!state->player.dead){
+		// fire button
 		if(state->fire)
 			glUniform4f(state->uniform.rgba,0.6f,0.6f,0.6f,1.0f);
 		else
 			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYFIRE].object);
 		uidraw(state,&state->joy_fire);
-
-		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+		// radar
+		for(struct group *group=state->grouplist;group!=NULL;group=group->next){
+			float angle=atan2f((state->player.base.y+(PLAYER_HEIGHT/2.0f))-(group->base.y+(GROUP_HEIGHT/2.0f)),
+					(state->player.base.x+(PLAYER_WIDTH/2.0f))-(group->base.x+(GROUP_WIDTH/2.0f)));
+			float dist=distance(state->player.base.x+(PLAYER_WIDTH/2.0f),group->base.x+(GROUP_WIDTH/2.0f),
+					state->player.base.y+(PLAYER_HEIGHT/2.0f),group->base.y+(GROUP_HEIGHT/2.0f))/40.0f;
+			if(dist>0.6f)
+				dist=0.6f;
+			float x,y;
+			x=state->joy_fire.x+(JOYFIRE_SIZE/2.0f)-(cosf(angle)*dist);
+			y=state->joy_fire.y+(JOYFIRE_SIZE/2.0f)-(sinf(angle)*dist);
+			struct base blob={x,y,0.1f,0.1f,0.0f,1.0f,0.0f};
+			glUniform4f(state->uniform.rgba,1.0f,0.2f,0.2f,1.0f);
+			glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_BLOB].object);
+			uidraw(state,&blob);
+		}
 		// joysticks
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYBASE].object);
 		uidraw(state,&state->joy_base);
 		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYTOP].object);

@@ -25,6 +25,7 @@
 #define TID_JOYFIRE 2
 #define TID_TITLE 3
 #define TID_BUTTON 4
+#define TID_BLOB 5
 
 // sounds
 #define SID_BACKGROUND 0
