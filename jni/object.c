@@ -43,6 +43,27 @@ struct enemy *deleteenemy(struct state *state,struct enemy *enemy,struct enemy *
 	return temp;
 }
 
+void newgroup(struct state *state){
+	struct group *group=malloc(sizeof(struct group));
+	group->base.w=GROUP_WIDTH;
+	group->base.h=GROUP_HEIGHT;
+	group->base.x=2.0f;
+	group->base.y=0.0f;
+	group->base.rot=randomint(1,360)*(M_PI/180.0f);
+	group->base.count=1.0f;
+	group->base.frame=0.0f;
+	group->health=100;
+	group->next=state->grouplist;
+	state->grouplist=group;
+}
+struct group *deletegroup(struct state *state,struct group *group,struct group *prev){
+	if(prev!=NULL)prev->next=group->next;
+	else state->grouplist=group->next;
+	void *temp=group->next;
+	free(group);
+	return temp;
+}
+
 void newmissile(struct state *state,struct enemy *enemy){
 	int count=0;
 	for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next)

@@ -17,6 +17,7 @@
 #define TID_ENEMY 7
 #define TID_HEALTHINDICATOR 8
 #define TID_HEALTH 9
+#define TID_GROUP 10
 
 // ui
 #define TID_JOYBASE 0
@@ -96,6 +97,14 @@ struct enemy{
 	int dead;
 	int health;
 	struct enemy *next;
+};
+
+#define GROUP_WIDTH 2.0f
+#define GROUP_HEIGHT 0.975f
+struct group{
+	struct base base;
+	int health;
+	struct group *next;
 };
 
 #define MISSILE_WIDTH 0.25f
@@ -206,6 +215,7 @@ struct state{
 	struct base background,joy_base,joy_top,joy_fire;
 	struct player player;
 	struct enemy *enemylist,*focused_enemy;
+	struct group *grouplist;
 	struct missile *missilelist;
 	struct bullet *bulletlist;
 	struct smoke *smokelist;
@@ -247,6 +257,8 @@ void uidraw(struct state*,struct base*);
 
 void newenemy(struct state*);
 struct enemy *deleteenemy(struct state*,struct enemy*,struct enemy*);
+void newgroup(struct state*);
+struct group *deletegroup(struct state*,struct group*,struct group*);
 void newmissile(struct state*,struct enemy*);
 struct missile *deletemissile(struct state*,struct missile*,struct missile*);
 void newbullet(struct state*,struct base*);

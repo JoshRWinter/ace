@@ -128,6 +128,23 @@ int core(struct state *state){
 		enemy=enemy->next;
 	}
 
+	// proc groups
+	if(!state->grouplist)newgroup(state);
+	for(struct group *group=state->grouplist,*prevgroup=NULL;group!=NULL;){
+		if(group->health<1){
+			group=deletegroup(state,group,prevgroup);
+			continue;
+		}
+		const float DEPTH=1.75f;
+		if(!state->player.dead){
+			group->base.x+=state->player.xv/DEPTH;
+			group->base.y+=state->player.yv/DEPTH;
+		}
+
+		prevgroup=group;
+		group=group->next;
+	}
+
 	// proc missiles
 	for(struct missile *missile=state->missilelist,*prevmissile=NULL;missile!=NULL;){
 		if(missile->dead){
@@ -468,9 +485,17 @@ int core(struct state *state){
 
 void render(struct state *state){
 	glClear(GL_COLOR_BUFFER_BIT);
-	glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 	/*glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_BACKGROUND].object);
 	draw(state,&state->background);*/
+
+	// render groups
+	if(state->grouplist){
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_GROUP].object);
+		glUniform4f(state->uniform.rgba,0.85f,0.85f,1.0f,1.0f);
+		for(struct group *group=state->grouplist;group!=NULL;group=group->next)
+			draw(state,&group->base);
+	}
+	glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 
 	// render clouds
 	if(state->cloudlist){
@@ -693,6 +718,7 @@ void init(struct state *state){
 
 	state->cloudlist=NULL;
 	state->enemylist=NULL;
+	state->grouplist=NULL;
 	state->missilelist=NULL;
 	state->bulletlist=NULL;
 	state->smokelist=NULL;
@@ -714,6 +740,8 @@ void reset(struct state *state){
 	state->healthlist=NULL;
 	for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=deleteenemy(state,enemy,NULL));
 	state->enemylist=NULL;
+	for(struct group *group=state->grouplist;group!=NULL;group=deletegroup(state,group,NULL));
+	state->grouplist=NULL;
 	for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=deleteexplosion(state,explosion,NULL));
 	state->explosionlist=NULL;
 	for(struct message *message=state->messagelist;message!=NULL;message=deletemessage(state,message,NULL));
