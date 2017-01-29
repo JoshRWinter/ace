@@ -129,8 +129,10 @@ int core(struct state *state){
 	}
 
 	// proc groups
-	if(!state->grouplist)newgroup(state);
+	int active_groups=0;
 	for(struct group *group=state->grouplist;group!=NULL;group=group->next){
+		if(!group->dead)
+			++active_groups;
 		if(!state->player.dead){
 			group->base.x+=state->player.xv/GROUP_DEPTH;
 			group->base.y+=state->player.yv/GROUP_DEPTH;
@@ -144,6 +146,7 @@ int core(struct state *state){
 			}
 		}
 	}
+	if(active_groups<1&&onein(800))newgroup(state);
 
 	// proc bombs
 	if(state->bomb&&state->player.timer_bomb<=0.0f){
@@ -176,7 +179,7 @@ int core(struct state *state){
 			int stop=false;
 			for(struct group *group=state->grouplist,*prevgroup=NULL;group!=NULL;){
 				if(collide(&bomb->base,&group->base,0.0f)){
-					if(!group->dead&&(group->health-=4)<1){
+					if(!group->dead&&(group->health-=6)<1){
 						group->dead=true;
 						newexplosion(state,group->base.x+(GROUP_WIDTH/2.0f),group->base.y+(GROUP_HEIGHT/2.0f),0.5f,true);
 						state->points+=POINTS_GROUP_DESTROYED;

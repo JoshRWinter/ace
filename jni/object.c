@@ -44,11 +44,13 @@ struct enemy *deleteenemy(struct state *state,struct enemy *enemy,struct enemy *
 }
 
 void newgroup(struct state *state){
+	float xoff=(randomint(165,190)/10.0f)*(randomint(0,1)?1.0f:-1.0f);
+	float yoff=(randomint(175,250)/10.0f)*(randomint(0,1)?1.0f:-1.0f);
 	struct group *group=malloc(sizeof(struct group));
 	group->base.w=GROUP_WIDTH;
 	group->base.h=GROUP_HEIGHT;
-	group->base.x=2.0f;
-	group->base.y=0.0f;
+	group->base.x=state->player.base.x+xoff;
+	group->base.y=state->player.base.y+yoff;
 	group->base.rot=randomint(1,360)*(M_PI/180.0f);
 	group->base.count=1.0f;
 	group->base.frame=0.0f;
