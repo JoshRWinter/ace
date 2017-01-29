@@ -6,9 +6,11 @@
 #include "defs.h"
 
 int menu_main(struct state *state){
-	struct button buttonplay={{-BUTTON_WIDTH/2.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Play",false};
-	struct button buttonaboot={{2.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Aboot",false};
-	struct button buttonconf={{-5.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Settings",false};
+	struct button buttonconf={{-6.75f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Settings",false};
+	struct button buttonaboot={{-3.25f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Aboot",false};
+	struct button buttonplay={{0.25f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Play",false};
+	struct button buttonquit={{3.75f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Quit",false};
+
 	struct base title={state->rect.left,state->rect.top,state->rect.right*2.0f,state->rect.bottom*2.0f,0.0f,1.0f,0.0f};
 	const char *aboot=
 		"~ ACE ~ \n"
@@ -22,6 +24,7 @@ int menu_main(struct state *state){
 		buttonplay.base.y=yoff+3.0f;
 		buttonaboot.base.y=buttonplay.base.y;
 		buttonconf.base.y=buttonplay.base.y;
+		buttonquit.base.y=buttonplay.base.y;
 		title.y=yoff+state->rect.top;
 
 		// draw background
@@ -42,11 +45,16 @@ int menu_main(struct state *state){
 			if(!menu_conf(state))
 				return false;
 		}
+		if(button_process(state->pointer,&buttonquit)==BUTTON_ACTIVATE||state->back){
+			state->back=false;
+			ANativeActivity_finish(state->app->activity);
+		}
 
 		// draw buttons
 		button_draw(state,&buttonplay);
 		button_draw(state,&buttonaboot);
 		button_draw(state,&buttonconf);
+		button_draw(state,&buttonquit);
 
 		// handle transition animation
 		if(transition){
@@ -54,11 +62,6 @@ int menu_main(struct state *state){
 			yoff+=slide;
 			if(title.y>state->rect.bottom)
 				return menu_transition(state);
-		}
-
-		if(state->back){
-			state->back=false;
-			ANativeActivity_finish(state->app->activity);
 		}
 
 		eglSwapBuffers(state->display,state->surface);
