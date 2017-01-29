@@ -135,6 +135,14 @@ int core(struct state *state){
 			group->base.x+=state->player.xv/GROUP_DEPTH;
 			group->base.y+=state->player.yv/GROUP_DEPTH;
 		}
+		if(group->dead&&group->timer_explosions>-45.0f){
+			group->timer_explosions-=state->gamespeed;
+			if(((int)group->timer_explosions)%10==0){
+				float xoff=randomint(-10,10)/10.0f;
+				float yoff=randomint(-10,10)/10.0f;
+				newexplosion(state,group->base.x+(GROUP_WIDTH/2.0f)+xoff,group->base.y+(GROUP_HEIGHT/2.0f)+yoff,0.4f,true);
+			}
+		}
 	}
 
 	// proc bombs

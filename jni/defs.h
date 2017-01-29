@@ -114,6 +114,7 @@ struct group{
 	struct base base;
 	int health;
 	int dead;
+	float timer_explosions;
 	struct group *next;
 };
 

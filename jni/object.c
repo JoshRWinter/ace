@@ -54,6 +54,7 @@ void newgroup(struct state *state){
 	group->base.frame=0.0f;
 	group->health=100;
 	group->dead=false;
+	group->timer_explosions=0.0f;
 	group->next=state->grouplist;
 	state->grouplist=group;
 }
