@@ -174,6 +174,7 @@ int core(struct state *state){
 						state->points+=POINTS_GROUP_DESTROYED;
 						sprintf(msg,"+%d carrier group destroyed",POINTS_GROUP_DESTROYED);
 						newmessage(state,msg);
+						if(state->vibrate)vibratedevice(&state->jni_info,CARRIER_RATTLE);
 					}
 					newexplosion(state,bomb->base.x,bomb->base.y,0.05f,true);
 					bomb=deletebomb(state,bomb,prevbomb);
