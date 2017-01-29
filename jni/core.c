@@ -79,8 +79,8 @@ int core(struct state *state){
 		if(enemy!=state->focused_enemy){
 			// find new random waypoint
 			if(collide(&enemy->base,&enemy->target,0.0f)){
-				enemy->target.x=randomint((state->player.base.x-15.0f)*10.0f,(state->player.base.x+15.0f)*10.0f)/10.0f;
-				enemy->target.y=randomint((state->player.base.y-15.0f)*10.0f,(state->player.base.y+15.0f)*10.0f)/10.0f;
+				enemy->target.x=randomint((state->player.base.x-17.0f)*10.0f,(state->player.base.x+17.0f)*10.0f)/10.0f;
+				enemy->target.y=randomint((state->player.base.y-17.0f)*10.0f,(state->player.base.y+17.0f)*10.0f)/10.0f;
 			}
 		}
 		else{
