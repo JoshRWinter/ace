@@ -886,6 +886,7 @@ void reset(struct state *state){
 	state->player.base.frame=0;
 	state->player.timer_smoke=0;
 	state->player.timer_bomb=0.0f;
+	state->player.bombs=0;
 	state->player.dead=false;
 }
 
