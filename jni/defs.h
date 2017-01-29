@@ -18,6 +18,7 @@
 #define TID_HEALTHINDICATOR 8
 #define TID_HEALTH 9
 #define TID_GROUP 10
+#define TID_BOMB 11
 
 // ui
 #define TID_JOYBASE 0
@@ -26,6 +27,7 @@
 #define TID_TITLE 3
 #define TID_BUTTON 4
 #define TID_BLOB 5
+#define TID_JOYBOMB 6
 
 // sounds
 #define SID_BACKGROUND 0
@@ -35,6 +37,7 @@
 #define POINTS_MISSILE_SHOT_DOWN 12
 #define POINTS_MISSILE_EVADED 15
 #define POINTS_ENEMY_SHOT_DOWN 25
+#define POINTS_GROUP_DESTROYED 65
 
 #define GAMEOVER_DELAY 1
 #define DEATH_RATTLE 300
@@ -46,6 +49,7 @@
 #define JOYTOP_SIZE 1.0f
 #define JOYTOP_DIST 1.2f
 #define JOYFIRE_SIZE 1.5f
+#define JOYBOMB_SIZE 0.85f
 struct base{
 	float x,y,w,h,rot;
 	float count,frame;
@@ -76,8 +80,10 @@ struct player{
 	struct base base;
 	float targetrot;
 	float xv,yv;
+	float timer_bomb;
 	int reload;
 	int health;
+	int bombs;
 	int dead;
 	float timer_smoke;
 };
@@ -100,12 +106,28 @@ struct enemy{
 	struct enemy *next;
 };
 
-#define GROUP_WIDTH 2.0f
-#define GROUP_HEIGHT 0.975f
+#define GROUP_WIDTH 2.2f
+#define GROUP_HEIGHT 1.78333f
+#define GROUP_DEPTH 1.75f
 struct group{
 	struct base base;
 	int health;
+	int dead;
 	struct group *next;
+};
+
+#define BOMB_COUNT 21
+#define BOMB_DRAG 0.99f
+#define BOMB_ALTITUDE 72
+#define BOMB_WIDTH 0.55f
+#define BOMB_HEIGHT 0.175f
+#define BOMB_RECHARGE 420.0f // bomb it
+struct bomb{
+	struct base base;
+	float xv,yv;
+	int altitude;
+	float depth;
+	struct bomb *next;
 };
 
 #define MISSILE_WIDTH 0.25f
@@ -170,6 +192,7 @@ struct flash{
 struct explosion{
 	struct flash flash[EXPLOSION_FLASH_COUNT];
 	struct flash cloud; // background cloud
+	int sealevel;
 	struct explosion *next;
 };
 
@@ -195,7 +218,7 @@ struct message{
 struct state{
 	int running,showmenu,back,highscore[HIGHSCORE_COUNT];
 	int vibrate,sounds,music; // global settings
-	int fire,gameoverdelay;
+	int fire,bomb,gameoverdelay;
 	float points,gamespeed;
 
 	int vao,vbo,program;
@@ -213,10 +236,11 @@ struct state{
 	struct android_app *app;
 	struct jni_info jni_info;
 
-	struct base background,joy_base,joy_top,joy_fire;
+	struct base background,joy_base,joy_top,joy_fire,joy_bomb;
 	struct player player;
 	struct enemy *enemylist,*focused_enemy;
 	struct group *grouplist;
+	struct bomb *bomblist;
 	struct missile *missilelist;
 	struct bullet *bulletlist;
 	struct smoke *smokelist;
@@ -260,6 +284,8 @@ void newenemy(struct state*);
 struct enemy *deleteenemy(struct state*,struct enemy*,struct enemy*);
 void newgroup(struct state*);
 struct group *deletegroup(struct state*,struct group*,struct group*);
+void newbomb(struct state*);
+struct bomb *deletebomb(struct state*,struct bomb*,struct bomb*);
 void newmissile(struct state*,struct enemy*);
 struct missile *deletemissile(struct state*,struct missile*,struct missile*);
 void newbullet(struct state*,struct base*);
@@ -270,7 +296,7 @@ void newhealth(struct state*,struct enemy*);
 struct health *deletehealth(struct state*,struct health*,struct health*);
 void newcloud(struct state*);
 struct cloud *deletecloud(struct state*,struct cloud*,struct cloud*);
-void newexplosion(struct state*,float,float,float);
+void newexplosion(struct state*,float,float,float,int);
 struct explosion *deleteexplosion(struct state*,struct explosion*,struct explosion*);
 void newmessage(struct state*,char*);
 struct message *deletemessage(struct state*,struct message*,struct message*);

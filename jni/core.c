@@ -36,7 +36,7 @@ int core(struct state *state){
 	if(onein(140)||state->enemylist==NULL)newenemy(state);
 	if(onein(200)&&state->focused_enemy==NULL){
 		// choose an enemy at random to be the "focused" enemy
-		while(state->focused_enemy==NULL){
+		while(state->enemylist&&state->focused_enemy==NULL){
 			for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next){
 				if(onein(5)){
 					state->focused_enemy=enemy;
@@ -98,7 +98,7 @@ int core(struct state *state){
 			float x2=enemy->base.x+(ENEMY_WIDTH/2.0f);
 			float y1=state->player.base.y+(PLAYER_HEIGHT/2.0f);
 			float y2=enemy->base.y+(ENEMY_HEIGHT/2.0f);
-			newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.5f);
+			newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.5f,false);
 			enemy=deleteenemy(state,enemy,prevenemy);
 			continue;
 		}
@@ -114,7 +114,7 @@ int core(struct state *state){
 				float x2=enemy->base.x+(ENEMY_WIDTH/2.0f);
 				float y1=enemy2->base.y+(ENEMY_HEIGHT/2.0f);
 				float y2=enemy->base.y+(ENEMY_HEIGHT/2.0f);
-				newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.5f);
+				newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.5f,false);
 			}
 		}
 
@@ -130,19 +130,65 @@ int core(struct state *state){
 
 	// proc groups
 	if(!state->grouplist)newgroup(state);
-	for(struct group *group=state->grouplist,*prevgroup=NULL;group!=NULL;){
-		if(group->health<1){
-			group=deletegroup(state,group,prevgroup);
+	for(struct group *group=state->grouplist;group!=NULL;group=group->next){
+		if(!state->player.dead){
+			group->base.x+=state->player.xv/GROUP_DEPTH;
+			group->base.y+=state->player.yv/GROUP_DEPTH;
+		}
+	}
+
+	// proc bombs
+	if(state->bomb&&state->player.timer_bomb<=0.0f){
+		state->player.bombs=BOMB_COUNT;
+		state->player.timer_bomb=BOMB_RECHARGE;
+	}
+	else if(state->player.timer_bomb>0.0f)--state->player.timer_bomb;
+	if(state->player.bombs&&--state->player.bombs%4==0)newbomb(state);
+	for(struct bomb *bomb=state->bomblist,*prevbomb=NULL;bomb!=NULL;){
+		bomb->xv*=BOMB_DRAG;
+		bomb->yv*=BOMB_DRAG;
+		bomb->base.x+=bomb->xv*state->gamespeed;
+		bomb->base.y+=bomb->yv*state->gamespeed;
+		if(!state->player.dead){
+			bomb->base.x+=state->player.xv/bomb->depth;
+			bomb->base.y+=state->player.yv/bomb->depth;
+			if(bomb->depth<GROUP_DEPTH)
+				bomb->depth=GROUP_DEPTH;
+			bomb->depth-=0.02f;
+		}
+		const float BOMB_SHRINK=0.97f;
+		float oldw=bomb->base.w;
+		float oldh=bomb->base.h;
+		bomb->base.w*=BOMB_SHRINK;
+		bomb->base.h*=BOMB_SHRINK;
+		bomb->base.x+=(oldw-bomb->base.w)/1.0f;
+		bomb->base.y+=(oldh-bomb->base.h)/1.0f;
+		if(!--bomb->altitude){
+			// check for bombs colliding with carrier groups
+			int stop=false;
+			for(struct group *group=state->grouplist,*prevgroup=NULL;group!=NULL;){
+				if(collide(&bomb->base,&group->base,0.0f)){
+					if(!group->dead&&(group->health-=4)<1){
+						group->dead=true;
+						newexplosion(state,group->base.x+(GROUP_WIDTH/2.0f),group->base.y+(GROUP_HEIGHT/2.0f),0.5f,true);
+						state->points+=POINTS_GROUP_DESTROYED;
+						sprintf(msg,"+%d carrier group destroyed",POINTS_GROUP_DESTROYED);
+						newmessage(state,msg);
+					}
+					newexplosion(state,bomb->base.x,bomb->base.y,0.05f,true);
+					bomb=deletebomb(state,bomb,prevbomb);
+					stop=true;
+					break;
+				}
+				prevgroup=group;
+				group=group->next;
+			}
+			if(stop)continue;
+			bomb=deletebomb(state,bomb,prevbomb);
 			continue;
 		}
-		const float DEPTH=1.55f;
-		if(!state->player.dead){
-			group->base.x+=state->player.xv/DEPTH;
-			group->base.y+=state->player.yv/DEPTH;
-		}
-
-		prevgroup=group;
-		group=group->next;
+		prevbomb=bomb;
+		bomb=bomb->next;
 	}
 
 	// proc missiles
@@ -152,7 +198,7 @@ int core(struct state *state){
 			continue;
 		}
 		if((missile->ttl-=state->gamespeed)<-32.0f){
-			newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f);
+			newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f,false);
 			missile=deletemissile(state,missile,prevmissile);
 			continue;
 		}
@@ -210,12 +256,12 @@ int core(struct state *state){
 				float x2=missile2->base.x+(MISSILE_WIDTH/2.0f);
 				float y1=missile->base.y+(MISSILE_HEIGHT/2.0f);
 				float y2=missile2->base.y+(MISSILE_HEIGHT/2.0f);
-				newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.2f);
+				newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.2f,false);
 			}
 		}
 		// check for missiles colliding with player
 		if(!state->player.dead&&collide(&missile->base,&state->player.base,PLAYER_TOLERANCE)){
-			newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f);
+			newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f,false);
 			missile=deletemissile(state,missile,prevmissile);
 			state->player.dead=true;
 			if(state->vibrate)vibratedevice(&state->jni_info,DEATH_RATTLE);
@@ -226,7 +272,7 @@ int core(struct state *state){
 		if(MISSILE_TTL-missile->ttl>20)
 			for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
 				if(collide(&missile->base,&enemy->base,0.1f)){
-					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.3f);
+					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.3f,false);
 					enemy=deleteenemy(state,enemy,prevenemy);
 					missile=deletemissile(state,missile,prevmissile);
 					stop=true;
@@ -268,7 +314,7 @@ int core(struct state *state){
 					state->points+=POINTS_MISSILE_SHOT_DOWN;
 				}
 
-				newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f);
+				newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f,false);
 				missile=deletemissile(state,missile,prevmissile);
 				bullet=deletebullet(state,bullet,prevbullet);
 				stop=true;
@@ -281,7 +327,7 @@ int core(struct state *state){
 		// check for bullets colliding with enemies
 		for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
 			if(bullet->owner!=&enemy->base&&collide(&bullet->base,&enemy->base,0.1f)){
-				newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
+				newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05,false);
 				if((enemy->health-=randomint(BULLET_DMG))<1){
 					if(!state->player.dead&&bullet->owner==&state->player.base){
 						if(state->player.health<50&&onein(2))newhealth(state,enemy);
@@ -290,7 +336,7 @@ int core(struct state *state){
 						state->points+=POINTS_ENEMY_SHOT_DOWN;
 					}
 
-					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.32f);
+					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.32f,false);
 					enemy=deleteenemy(state,enemy,prevenemy);
 				}
 				bullet=deletebullet(state,bullet,prevbullet);
@@ -306,11 +352,11 @@ int core(struct state *state){
 			if(state->vibrate)vibratedevice(&state->jni_info,HIT_RATTLE);
 			state->player.health-=randomint(BULLET_ENEMY_DMG);
 			if(state->player.health<1){
-				newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f);
+				newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f,false);
 				state->player.dead=true;
 				if(state->vibrate)vibratedevice(&state->jni_info,DEATH_RATTLE);
 			}
-			newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05);
+			newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05,false);
 			bullet=deletebullet(state,bullet,prevbullet);
 			continue;
 		}
@@ -354,6 +400,10 @@ int core(struct state *state){
 	for(struct explosion *explosion=state->explosionlist,*prevexplosion=NULL;explosion!=NULL;){
 		int done=true; // explosion is ready to be deleted
 		for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
+			if(!state->player.dead&&explosion->sealevel){
+				explosion->flash[i].base.x+=state->player.xv/GROUP_DEPTH;
+				explosion->flash[i].base.y+=state->player.yv/GROUP_DEPTH;
+			}
 			if(explosion->flash[i].timer_delay<=0.0f){
 				float increment=((EXPLOSION_FLASH_MAX_GROW_RATE*fabs(explosion->flash[i].maxsize-explosion->flash[i].base.w))+0.005f)*state->gamespeed;
 				if(explosion->flash[i].growing){
@@ -385,6 +435,10 @@ int core(struct state *state){
 		}
 		// background cloud
 		float increment=((EXPLOSION_FLASH_MAX_GROW_RATE*fabs(explosion->cloud.maxsize-explosion->cloud.base.w))+0.004f)*state->gamespeed;
+		if(!state->player.dead&&explosion->sealevel){
+			explosion->cloud.base.x+=state->player.xv/GROUP_DEPTH;
+			explosion->cloud.base.y+=state->player.yv/GROUP_DEPTH;
+		}
 		if(explosion->cloud.growing){
 			done=false;
 			const float GROWTH_MULT=1.8f;
@@ -444,6 +498,7 @@ int core(struct state *state){
 	state->joy_top.x=state->joy_base.x+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
 	state->joy_top.y=state->joy_base.y+(JOYBASE_SIZE/2.0f)-(JOYTOP_SIZE/2.0f);
 	state->fire=false;
+	state->bomb=false;
 	state->player.xv=-cosf(state->player.base.rot)*PLAYER_SPEED;
 	state->player.yv=-sinf(state->player.base.rot)*PLAYER_SPEED;
 	align(&state->player.base.rot,PLAYER_TURN_SPEED*state->gamespeed,state->player.targetrot);
@@ -455,6 +510,10 @@ int core(struct state *state){
 			if(state->pointer[i].x>state->joy_fire.x&&state->pointer[i].x<state->joy_fire.x+JOYFIRE_SIZE&&
 					state->pointer[i].y>state->joy_fire.y&&state->pointer[i].y<state->joy_fire.y+JOYFIRE_SIZE){
 				state->fire=true;
+			}
+			else if(state->pointer[i].x>state->joy_bomb.x&&state->pointer[i].x<state->joy_bomb.x+JOYBOMB_SIZE&&
+					state->pointer[i].y>state->joy_bomb.y&&state->pointer[i].y<state->joy_bomb.y+JOYBOMB_SIZE){
+				state->bomb=true;
 			}
 		}
 		else{
@@ -492,10 +551,22 @@ void render(struct state *state){
 	if(state->grouplist){
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_GROUP].object);
 		glUniform4f(state->uniform.rgba,0.8f,0.8f,1.0f,1.0f);
-		for(struct group *group=state->grouplist;group!=NULL;group=group->next)
+		for(struct group *group=state->grouplist;group!=NULL;group=group->next){
+			if(group->dead)
+				glUniform4f(state->uniform.rgba,0.4f,0.4f,0.5f,1.0f);
+			else
+				glUniform4f(state->uniform.rgba,0.8f,0.8f,0.8f,1.0f);
 			draw(state,&group->base);
+		}
 	}
 	glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+
+	// render bombs
+	if(state->bomblist){
+		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_BOMB].object);
+		for(struct bomb *bomb=state->bomblist;bomb!=NULL;bomb=bomb->next)
+			draw(state,&bomb->base);
+	}
 
 	// render clouds
 	if(state->cloudlist){
@@ -621,8 +692,21 @@ void render(struct state *state){
 			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYFIRE].object);
 		uidraw(state,&state->joy_fire);
+		// bomb button
+		if(state->bomb)
+			glUniform4f(state->uniform.rgba,0.6f,0.6f,0.6f,0.6f);
+		else
+			glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,0.3f);
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_JOYBOMB].object);
+		uidraw(state,&state->joy_bomb);
+		glUniform4f(state->uniform.texcoords,0.0f,(BOMB_RECHARGE-state->player.timer_bomb)/BOMB_RECHARGE,0.0f,1.0f);
+		glUniform2f(state->uniform.size,state->joy_bomb.w*((BOMB_RECHARGE-state->player.timer_bomb)/BOMB_RECHARGE),state->joy_bomb.h);
+		glUniform4f(state->uniform.rgba,1.0f,0.0f,0.0f,0.6f);
+		glDrawArrays(GL_TRIANGLE_STRIP,0,4);
 		// radar
 		for(struct group *group=state->grouplist;group!=NULL;group=group->next){
+			if(group->dead)
+				continue;
 			float angle=atan2f((state->player.base.y+(PLAYER_HEIGHT/2.0f))-(group->base.y+(GROUP_HEIGHT/2.0f)),
 					(state->player.base.x+(PLAYER_WIDTH/2.0f))-(group->base.x+(GROUP_WIDTH/2.0f)));
 			float dist=distance(state->player.base.x+(PLAYER_WIDTH/2.0f),group->base.x+(GROUP_WIDTH/2.0f),
@@ -727,6 +811,13 @@ void init(struct state *state){
 	state->joy_fire.rot=0.0f;
 	state->joy_fire.w=JOYFIRE_SIZE;
 	state->joy_fire.h=JOYFIRE_SIZE;
+	state->joy_bomb.w=JOYBOMB_SIZE;
+	state->joy_bomb.h=JOYBOMB_SIZE;
+	state->joy_bomb.x=7.15f;
+	state->joy_bomb.y=3.65f;
+	state->joy_bomb.rot=0.0f;
+	state->joy_bomb.count=1.0f;
+	state->joy_bomb.frame=0.0f;
 
 	state->player.base.w=PLAYER_WIDTH;
 	state->player.base.h=PLAYER_HEIGHT;
@@ -735,6 +826,7 @@ void init(struct state *state){
 	state->cloudlist=NULL;
 	state->enemylist=NULL;
 	state->grouplist=NULL;
+	state->bomblist=NULL;
 	state->missilelist=NULL;
 	state->bulletlist=NULL;
 	state->smokelist=NULL;
@@ -758,6 +850,8 @@ void reset(struct state *state){
 	state->enemylist=NULL;
 	for(struct group *group=state->grouplist;group!=NULL;group=deletegroup(state,group,NULL));
 	state->grouplist=NULL;
+	for(struct bomb *bomb=state->bomblist;bomb!=NULL;bomb=deletebomb(state,bomb,NULL));
+	state->bomblist=NULL;
 	for(struct explosion *explosion=state->explosionlist;explosion!=NULL;explosion=deleteexplosion(state,explosion,NULL));
 	state->explosionlist=NULL;
 	for(struct message *message=state->messagelist;message!=NULL;message=deletemessage(state,message,NULL));
@@ -766,6 +860,7 @@ void reset(struct state *state){
 	state->focused_enemy=NULL;
 	state->gamespeed=1.0f;
 	state->fire=false;
+	state->bomb=false;
 	state->gameoverdelay=GAMEOVER_DELAY;
 	state->points=0.0f;
 	state->player.health=100;

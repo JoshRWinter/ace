@@ -204,6 +204,8 @@ int menu_end(struct state *state){
 				enemy->base.y+=slide;
 			for(struct group *group=state->grouplist;group!=NULL;group=group->next)
 				group->base.y+=slide;
+			for(struct bomb *bomb=state->bomblist;bomb!=NULL;bomb=bomb->next)
+				bomb->base.y+=slide;
 			for(struct missile *missile=state->missilelist;missile!=NULL;missile=missile->next)
 				missile->base.y+=slide;
 			for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=bullet->next)

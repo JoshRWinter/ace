@@ -53,6 +53,7 @@ void newgroup(struct state *state){
 	group->base.count=1.0f;
 	group->base.frame=0.0f;
 	group->health=100;
+	group->dead=false;
 	group->next=state->grouplist;
 	state->grouplist=group;
 }
@@ -61,6 +62,32 @@ struct group *deletegroup(struct state *state,struct group *group,struct group *
 	else state->grouplist=group->next;
 	void *temp=group->next;
 	free(group);
+	return temp;
+}
+
+void newbomb(struct state *state){
+	struct bomb *bomb=malloc(sizeof(struct bomb));
+	bomb->base.w=BOMB_WIDTH;
+	bomb->base.h=BOMB_HEIGHT;
+	float xoff=randomint(-5,5)/100.0f;
+	float yoff=randomint(-5,5)/100.0f;
+	bomb->base.x=state->player.base.x+(PLAYER_WIDTH/2.0f)-(BOMB_WIDTH/2.0f)+xoff;
+	bomb->base.y=state->player.base.y+(PLAYER_HEIGHT/2.0f)-(BOMB_HEIGHT/2.0f)+yoff;
+	bomb->base.rot=state->player.base.rot;
+	bomb->base.count=1.0f;
+	bomb->base.frame=0.0f;
+	bomb->altitude=BOMB_ALTITUDE;
+	bomb->depth=2.3f;
+	bomb->xv=state->player.xv/2.0f;
+	bomb->yv=state->player.yv/2.0f;
+	bomb->next=state->bomblist;
+	state->bomblist=bomb;
+}
+struct bomb *deletebomb(struct state *state,struct bomb *bomb,struct bomb *prev){
+	if(prev!=NULL)prev->next=bomb->next;
+	else state->bomblist=bomb->next;
+	void *temp=bomb->next;
+	free(bomb);
 	return temp;
 }
 
@@ -240,15 +267,16 @@ struct cloud *deletecloud(struct state *state,struct cloud *cloud,struct cloud *
 	return temp;
 }
 
-void newexplosion(struct state *state,float x,float y,float size){
+void newexplosion(struct state *state,float x,float y,float size,int sealevel){
 	// don't generate explosion if it would be offscreen
 	float xdiff=fabs(x-(state->player.base.x+(PLAYER_WIDTH/2.0f)));
-	if(xdiff>state->rect.right)
+	if(xdiff>state->rect.right+1.0f)
 		return;
 	float ydiff=fabs(y-(state->player.base.y+(PLAYER_HEIGHT/2.0f)));
-	if(ydiff>state->rect.bottom)
+	if(ydiff>state->rect.bottom+1.0f)
 		return;
 	struct explosion *explosion=malloc(sizeof(struct explosion));
+	explosion->sealevel=sealevel;
 	for(int i=0;i<EXPLOSION_FLASH_COUNT;++i){
 		const float SIZE_MULT=0.5f;
 		explosion->flash[i].base.x=randomint((x-(size*SIZE_MULT))*10.0f,(x+size)*10.0f)/10.0f;
