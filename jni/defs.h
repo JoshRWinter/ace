@@ -198,7 +198,7 @@ struct explosion{
 	struct explosion *next;
 };
 
-#define CLOUD_SIZE 2.0f
+#define CLOUD_SIZE 2.25f
 #define CLOUD_RMDIST 14.0f
 struct cloud{
 	struct base base;
