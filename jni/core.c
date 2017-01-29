@@ -34,7 +34,7 @@ int core(struct state *state){
 
 	// proc enemies
 	if(onein(140)||state->enemylist==NULL)newenemy(state);
-	if(onein(200)&&state->focused_enemy==NULL){
+	if(onein(300)&&state->focused_enemy==NULL){
 		// choose an enemy at random to be the "focused" enemy
 		while(state->enemylist&&state->focused_enemy==NULL){
 			for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next){
@@ -50,7 +50,7 @@ int core(struct state *state){
 			enemy=deleteenemy(state,enemy,prevenemy);
 			continue;
 		}
-		if((state->missilelist==NULL?onein(720):onein(1250))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
+		if((state->missilelist==NULL?onein(750):onein(1550))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-enemy->target.y,
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-enemy->target.x);
 		align(&enemy->base.rot,PLAYER_TURN_SPEED*state->gamespeed,angle);
@@ -87,7 +87,7 @@ int core(struct state *state){
 			// chase the player in a dogfight
 			enemy->target.x=state->player.base.x+(PLAYER_WIDTH/2.0f);
 			enemy->target.y=state->player.base.y+(PLAYER_HEIGHT/2.0f);
-			if(onein(220))state->focused_enemy=NULL;
+			if(onein(190))state->focused_enemy=NULL;
 		}
 
 		// check for enemies colliding with player
@@ -873,6 +873,7 @@ void reset(struct state *state){
 	state->player.reload=0;
 	state->player.base.frame=0;
 	state->player.timer_smoke=0;
+	state->player.timer_bomb=0.0f;
 	state->player.dead=false;
 }
 
