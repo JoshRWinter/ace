@@ -316,7 +316,7 @@ int core(struct state *state){
 		// check for bullets colliding with missiles
 		int stop=false;
 		for(struct missile *missile=state->missilelist,*prevmissile=NULL;missile!=NULL;){
-			if(collide(&bullet->base,&missile->base,-0.3f)){
+			if(bullet->owner==&state->player.base&&collide(&bullet->base,&missile->base,-0.3f)){
 				if(!state->player.dead){
 					sprintf(msg,"+%d missile shot down",POINTS_MISSILE_SHOT_DOWN);
 					newmessage(state,msg);
