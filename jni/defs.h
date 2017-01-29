@@ -207,7 +207,7 @@ struct cloud{
 	struct cloud *next;
 };
 
-#define MESSAGE_TTL 120
+#define MESSAGE_TTL 190
 #define MESSAGE_MAX 50
 #define MESSAGE_PINCH 10
 #define MESSAGE_Y 3.0f
