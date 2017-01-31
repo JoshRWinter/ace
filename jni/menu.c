@@ -163,7 +163,7 @@ int menu_pause(struct state *state){
 }
 
 int menu_end(struct state *state){
-	struct button buttonnew={{0.25f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Reset",false};
+	struct button buttonnew={{0.25f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Again",false};
 	struct button buttonstop={{-3.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Menu",false};
 	char info[26];
 	sprintf(info,"SCORE: %d",(int)state->points);
