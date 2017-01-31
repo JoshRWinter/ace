@@ -273,9 +273,19 @@ int core(struct state *state){
 		}
 		// check for missiles colliding with player
 		if(!state->player.dead&&collide(&missile->base,&state->player.base,PLAYER_TOLERANCE)){
-			newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f,false);
+			if(onein(3)){
+				if((state->player.health-=85)<1)
+					state->player.dead=true;
+				else
+					newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f,false);
+			}
+			else
+				state->player.dead=true;
+
+			if(state->player.dead)
+				newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f,false);
+
 			missile=deletemissile(state,missile,prevmissile);
-			state->player.dead=true;
 			if(state->vibrate)vibratedevice(&state->jni_info,DEATH_RATTLE);
 			continue;
 		}
