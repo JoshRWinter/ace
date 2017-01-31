@@ -494,6 +494,8 @@ int core(struct state *state){
 		else state->player.timer_smoke-=state->gamespeed;
 	}
 	else if(!--state->gameoverdelay){
+		// delete all messages in the queue
+		for(struct message *message=state->messagelist;message!=NULL;message=deletemessage(state,message,NULL));
 		if(!menu_end(state))
 			return false;
 		return core(state);
