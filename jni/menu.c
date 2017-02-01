@@ -263,7 +263,7 @@ int menu_end(struct state *state){
 			glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
 			char listing[16];
 			for(int i=HIGHSCORE_COUNT-1;i>=0;--i){
-				float offset=yoff-1.0f+((HIGHSCORE_COUNT-1-i)*0.35f);
+				float offset=yoff-1.0f+((HIGHSCORE_COUNT-1-i)*0.41f);
 				if(state->highscore[i]==0)
 					sprintf(listing,"%d. -",HIGHSCORE_COUNT-i);
 				else
