@@ -201,6 +201,11 @@ int menu_end(struct state *state){
 		save_highscores(state);
 	}
 
+	// award logic
+	if(newhighscore==HIGHSCORE_COUNT-1&&state->points>300)
+		if(!menu_award(state,AWARD_DFC))
+			return false;
+
 	while(process(state->app)){
 		if(!transition){
 			for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next)
@@ -343,6 +348,48 @@ int menu_transition(struct state *state){
 
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
 		draw(state,&player);
+
+		eglSwapBuffers(state->display,state->surface);
+	}
+	return false;
+}
+
+int menu_award(struct state *state,int award){
+	char *message;
+	int tid;
+	struct base awddfc={-DFC_WIDTH/2.0f,-1.0f,DFC_WIDTH,DFC_HEIGHT,0.0f,1.0f,0.0f};
+	struct base *award_base;
+	struct button buttonok={{-BUTTON_WIDTH/2.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"OK",false};
+	switch(award){
+	case AWARD_DFC:
+		message="The United States Navy is proud to present this\n"
+			"Distinguished Flying Cross\n"
+			"For your heroic actions against aerial enemy combatants\n"
+			"on this day, February 2, 1945";
+			tid=TID_AWDDFC;
+			award_base=&awddfc;
+			break;
+	}
+	while(process(state->app)){
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+		// message
+		glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
+		drawtextcentered(state->font.main,0.0f,-3.75f,message);
+
+		// award
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_AWDDFC].object);
+		uidraw(state,award_base);
+
+		// button
+		if(button_process(state->pointer,&buttonok)==BUTTON_ACTIVATE||state->back){
+			state->back=false;
+			return true;
+		}
+
+		// draw button
+		button_draw(state,&buttonok);
 
 		eglSwapBuffers(state->display,state->surface);
 	}

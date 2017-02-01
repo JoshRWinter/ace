@@ -28,6 +28,7 @@
 #define TID_BUTTON 4
 #define TID_BLOB 5
 #define TID_JOYBOMB 6
+#define TID_AWDDFC 7
 
 // sounds
 #define SID_BACKGROUND 0
@@ -39,6 +40,8 @@
 #define POINTS_ENEMY_SHOT_DOWN 25
 #define POINTS_GROUP_DESTROYED 150
 
+#define AWARD_DFC 1
+
 #define GAMEOVER_DELAY 1
 #define DEATH_RATTLE 300
 #define HIT_RATTLE 30
@@ -46,6 +49,8 @@
 #define HIGHSCORE_COUNT 5
 #define HIGHSCORE_HIGHLIGHT 0.3f,0.9f,0.1f,1.0f
 
+#define DFC_WIDTH 1.8583333f
+#define DFC_HEIGHT 3.5f
 #define JOYBASE_SIZE 2.0f
 #define JOYTOP_SIZE 1.0f
 #define JOYTOP_DIST 1.2f
@@ -272,6 +277,7 @@ int menu_pause(struct state*);
 int menu_end(struct state*);
 int menu_message(struct state*,const char*,const char*);
 int menu_transition(struct state*);
+int menu_award(struct state*,int);
 
 int core(struct state *state);
 void render(struct state *state);

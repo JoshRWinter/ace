@@ -1,2 +1,2 @@
-joy_base.tga joy_top.tga joy_fire.tga title.tga button.tga blob.tga joy_bomb.tga -o ../assets/uiassets
+joy_base.tga joy_top.tga joy_fire.tga title.tga button.tga blob.tga joy_bomb.tga dfc.tga -o ../assets/uiassets
 
