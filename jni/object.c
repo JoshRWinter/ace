@@ -273,6 +273,30 @@ struct cloud *deletecloud(struct state *state,struct cloud *cloud,struct cloud *
 	return temp;
 }
 
+void newlargecloud(struct state *state,int top){
+	struct largecloud *cloud=malloc(sizeof(struct largecloud));
+	cloud->base.w=randomint((LARGECLOUD_SIZE-2.5f)*10.0f,LARGECLOUD_SIZE*10.0f)/10.0f;
+	cloud->base.h=cloud->base.w;
+	cloud->base.x=state->rect.left-LARGECLOUD_SIZE;
+	cloud->base.y=randomint((state->rect.top-(LARGECLOUD_SIZE/2.0f))*10.0f,(state->rect.bottom+(LARGECLOUD_SIZE/2.0f))*10.0f)/10.0f;
+	cloud->base.rot=0.0f;
+	cloud->base.count=1.0f;
+	cloud->base.frame=0.0f;
+	cloud->top=top;
+	cloud->alpha=1.0f;
+	cloud->xv=cloud->base.w/50.0f;
+	cloud->yv=0.0f;
+	cloud->next=state->largecloudlist;
+	state->largecloudlist=cloud;
+}
+struct largecloud *deletelargecloud(struct state *state,struct largecloud *cloud,struct largecloud *prev){
+	if(prev!=NULL)prev->next=cloud->next;
+	else state->largecloudlist=cloud->next;
+	void *temp=cloud->next;
+	free(cloud);
+	return temp;
+}
+
 void newexplosion(struct state *state,float x,float y,float size,int sealevel){
 	// don't generate explosion if it would be offscreen
 	float xdiff=fabs(x-(state->player.base.x+(PLAYER_WIDTH/2.0f)));

@@ -20,6 +20,18 @@ int menu_main(struct state *state){
 	float slide=0.0f;
 	const float inc=0.01f;
 	int transition=false;
+
+	// generate lots o clouds
+	for(int i=0;i<18;++i){
+		for(int j=0;j<1;++j)
+			newlargecloud(state,true);
+		for(struct largecloud *cloud=state->largecloudlist;cloud!=NULL;cloud=cloud->next){
+			const float MULTIPLIER=randomint(10,15);
+			cloud->base.x+=cloud->xv*MULTIPLIER;
+			cloud->base.y+=cloud->yv*MULTIPLIER;
+		}
+	}
+
 	while(process(state->app)){
 		buttonplay.base.y=yoff+3.0f;
 		buttonaboot.base.y=buttonplay.base.y;
@@ -27,8 +39,30 @@ int menu_main(struct state *state){
 		buttonquit.base.y=buttonplay.base.y;
 		title.y=yoff+state->rect.top;
 
-		// draw background
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// process large clouds
+		if(onein(45))
+			newlargecloud(state,false);
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_LARGECLOUD].object);
+		for(struct largecloud *cloud=state->largecloudlist,*prevcloud=NULL;cloud!=NULL;){
+			if(cloud->base.x>state->rect.right){
+				cloud=deletelargecloud(state,cloud,prevcloud);
+				continue;
+			}
+			cloud->base.x+=cloud->xv;
+			cloud->base.y=yoff+cloud->base.y;
+
+			if(!cloud->top){
+				// render
+				uidraw(state,&cloud->base);
+			}
+
+			prevcloud=cloud;
+			cloud=cloud->next;
+		}
+
+		// draw background
 		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_TITLE].object);
 		draw(state,&title);
@@ -56,12 +90,21 @@ int menu_main(struct state *state){
 		button_draw(state,&buttonconf);
 		button_draw(state,&buttonquit);
 
+		// process large clouds
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_LARGECLOUD].object);
+		for(struct largecloud *cloud=state->largecloudlist;cloud!=NULL;cloud=cloud->next)
+			if(cloud->top)
+				uidraw(state,&cloud->base);
+
 		// handle transition animation
 		if(transition){
 			slide+=inc;
 			yoff+=slide;
-			if(title.y>state->rect.bottom)
+			if(title.y>state->rect.bottom){
+				for(struct largecloud *cloud=state->largecloudlist;cloud!=NULL;cloud=deletelargecloud(state,cloud,NULL));
 				return menu_transition(state);
+			}
 		}
 
 		eglSwapBuffers(state->display,state->surface);

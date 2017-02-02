@@ -29,6 +29,7 @@
 #define TID_BLOB 5
 #define TID_JOYBOMB 6
 #define TID_AWDDFC 7
+#define TID_LARGECLOUD 8
 
 // sounds
 #define SID_BACKGROUND 0
@@ -212,6 +213,15 @@ struct cloud{
 	struct cloud *next;
 };
 
+#define LARGECLOUD_SIZE 4.25f
+struct largecloud{
+	struct base base;
+	float xv,yv;
+	float alpha;
+	int top;
+	struct largecloud *next;
+};
+
 #define MESSAGE_TTL 190
 #define MESSAGE_MAX 50
 #define MESSAGE_PINCH 10
@@ -253,6 +263,7 @@ struct state{
 	struct smoke *smokelist;
 	struct health *healthlist;
 	struct cloud *cloudlist;
+	struct largecloud *largecloudlist;
 	struct explosion *explosionlist;
 	struct message *messagelist;
 };
@@ -304,6 +315,8 @@ void newhealth(struct state*,struct enemy*);
 struct health *deletehealth(struct state*,struct health*,struct health*);
 void newcloud(struct state*);
 struct cloud *deletecloud(struct state*,struct cloud*,struct cloud*);
+void newlargecloud(struct state*,int);
+struct largecloud *deletelargecloud(struct state*,struct largecloud*,struct largecloud*);
 void newexplosion(struct state*,float,float,float,int);
 struct explosion *deleteexplosion(struct state*,struct explosion*,struct explosion*);
 void newmessage(struct state*,char*);

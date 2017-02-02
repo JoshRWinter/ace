@@ -848,6 +848,7 @@ void init(struct state *state){
 	state->player.base.count=1.0f;
 
 	state->cloudlist=NULL;
+	state->largecloudlist=NULL;
 	state->enemylist=NULL;
 	state->grouplist=NULL;
 	state->bomblist=NULL;
@@ -862,6 +863,8 @@ void init(struct state *state){
 void reset(struct state *state){
 	for(struct cloud *cloud=state->cloudlist;cloud!=NULL;cloud=deletecloud(state,cloud,NULL));
 	state->cloudlist=NULL;
+	for(struct largecloud *largecloud=state->largecloudlist;largecloud!=NULL;largecloud=deletelargecloud(state,largecloud,NULL));
+	state->largecloudlist=NULL;
 	for(struct missile *missile=state->missilelist;missile!=NULL;missile=deletemissile(state,missile,NULL));
 	state->missilelist=NULL;
 	for(struct bullet *bullet=state->bulletlist;bullet!=NULL;bullet=deletebullet(state,bullet,NULL));

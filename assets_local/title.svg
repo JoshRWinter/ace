@@ -28,9 +28,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.78456342"
-     inkscape:cx="306.46736"
-     inkscape:cy="572.01749"
+     inkscape:zoom="1.5691268"
+     inkscape:cx="659.76745"
+     inkscape:cy="431.46146"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -47,7 +47,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -57,7 +57,7 @@
      id="layer1"
      transform="translate(0,-87)">
     <rect
-       style="fill:#00a8d4;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.69999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#00a8d4;fill-opacity:0.00392157;fill-rule:evenodd;stroke:none;stroke-width:0.69999999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect5190"
        width="200"
        height="112.5"
@@ -75,7 +75,7 @@
          y="164.70158"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:42.33333206px;font-family:'Century Gothic';-inkscape-font-specification:'Century Gothic';fill:#ffffff;fill-opacity:1;stroke-width:0.26458332px">ACE</tspan></text>
     <g
-       transform="matrix(0.17301548,0,0,0.17301548,106.96781,153.42319)"
+       transform="matrix(0.17301548,0,0,0.17301548,106.96781,158.18572)"
        id="layer1-9"
        inkscape:label="Layer 1">
       <g
@@ -257,7 +257,7 @@
          style="fill:#b13838;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <g
-       transform="matrix(0.20597429,0,0,0.20597429,145.45887,148.28965)"
+       transform="matrix(0.20597429,0,0,0.20597429,145.45887,153.05218)"
        id="layer1-8"
        inkscape:label="Layer 1">
       <path
@@ -348,17 +348,17 @@
     </g>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 162.08092,191.55651 v 7.65402"
+       d="m 162.08092,196.31904 v 7.65402"
        id="path5706"
        inkscape:connector-curvature="0" />
     <path
        inkscape:connector-curvature="0"
        id="path5708"
-       d="m 162.08092,176.52009 v 7.65402"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.2;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none" />
+       d="m 162.08092,181.28262 v 7.65402"
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 115.7224,182.80056 c 0.0319,0.15795 0,8.17395 0,8.17395"
+       d="m 115.7224,187.56309 c 0.0319,0.15795 0,8.17395 0,8.17395"
        id="path5710"
        inkscape:connector-curvature="0" />
   </g>
