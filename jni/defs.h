@@ -58,9 +58,9 @@
 #define DFC_HEIGHT 3.5f
 #define DFCSMALL_WIDTH 1.0667f
 #define DFCSMALL_HEIGHT 2.0f
-#define AM_WIDTH 2.08333f
+#define AM_WIDTH 1.8f
 #define AM_HEIGHT 3.4f
-#define AMSMALL_WIDTH 1.225f
+#define AMSMALL_WIDTH 1.058333f
 #define AMSMALL_HEIGHT 2.0f
 #define JOYBASE_SIZE 2.0f
 #define JOYTOP_SIZE 1.0f
