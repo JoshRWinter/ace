@@ -50,15 +50,15 @@ int core(struct state *state){
 			enemy=deleteenemy(state,enemy,prevenemy);
 			continue;
 		}
-		if((state->missilelist==NULL?onein(750):onein(1550))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
+		if(enemy->dying==0.0f&&(state->missilelist==NULL?onein(750):onein(1550))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-enemy->target.y,
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-enemy->target.x);
-		align(&enemy->base.rot,PLAYER_TURN_SPEED*state->gamespeed,angle);
+		align(&enemy->base.rot,enemy->dying>0.0f?(PLAYER_TURN_SPEED*1.5f*state->gamespeed):(PLAYER_TURN_SPEED*state->gamespeed),angle);
 		enemy->base.x-=(cosf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED))*state->gamespeed;
 		enemy->base.y-=(sinf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED))*state->gamespeed;
 
 		// decide whether to fire upon the player
-		if(state->missilelist==NULL&&distance(enemy->base.x+(ENEMY_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
+		if(enemy->dying==0.0f&&state->missilelist==NULL&&distance(enemy->base.x+(ENEMY_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
 					enemy->base.y+(ENEMY_HEIGHT/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f))<ENEMY_FIRE_DIST){
 			float cone=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-(state->player.base.y+(PLAYER_HEIGHT/2.0f)),
 					(enemy->base.x+(ENEMY_WIDTH/2.0f))-(state->player.base.x+(PLAYER_WIDTH/2.0f)));
@@ -76,7 +76,21 @@ int core(struct state *state){
 		if(enemy->timer_reload>0.0f)
 			enemy->timer_reload-=state->gamespeed;
 
-		if(enemy!=state->focused_enemy){
+		if(enemy->dying>0.0f){
+			// enemy has been shot down
+			// spin out of control briefly before blowing up
+			const float aoff=3.0f;
+			enemy->target.x=(enemy->base.x+(ENEMY_WIDTH/2.0f))-cosf(enemy->base.rot+aoff)/5.0f;
+			enemy->target.y=(enemy->base.y+(ENEMY_HEIGHT/2.0f))-sinf(enemy->base.rot+aoff)/5.0f;
+			if(enemy->dying>ENEMY_SPIN_TIMER){
+				newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.32f,false);
+				enemy=deleteenemy(state,enemy,prevenemy);
+				continue;
+			}
+			else
+				enemy->dying+=state->gamespeed;
+		}
+		else if(enemy!=state->focused_enemy){
 			// find new random waypoint
 			if(collide(&enemy->base,&enemy->target,0.0f)){
 				enemy->target.x=randomint((state->player.base.x-17.0f)*10.0f,(state->player.base.x+17.0f)*10.0f)/10.0f;
@@ -91,7 +105,7 @@ int core(struct state *state){
 		}
 
 		// check for enemies colliding with player
-		if(!state->player.dead&&collide(&state->player.base,&enemy->base,0.5f)){
+		if(enemy->dying==0.0f&&!state->player.dead&&collide(&state->player.base,&enemy->base,0.5f)){
 			state->player.dead=true;
 			if(state->vibrate)vibratedevice(&state->jni_info,DEATH_RATTLE);
 			float x1=state->player.base.x+(PLAYER_WIDTH/2.0f);
@@ -122,7 +136,7 @@ int core(struct state *state){
 			enemy->timer_smoke=PLAYER_SMOKE;
 			newsmoke(state,&enemy->base,0.4f,0.3f,enemy->health/100.0f);
 		}
-		else enemy->timer_smoke-=state->gamespeed;
+		else enemy->timer_smoke-=enemy->dying?state->gamespeed*3.75f:state->gamespeed;
 		
 		prevenemy=enemy;
 		enemy=enemy->next;
@@ -350,7 +364,7 @@ int core(struct state *state){
 		for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
 			if(bullet->owner!=&enemy->base&&collide(&bullet->base,&enemy->base,0.1f)){
 				newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05,false);
-				if((enemy->health-=randomint(BULLET_DMG))<1){
+				if(enemy->dying==0.0f&&(enemy->health-=randomint(BULLET_DMG))<1){
 					if(!state->player.dead&&bullet->owner==&state->player.base){
 						++state->player.victories; // arial victory
 						if(state->player.health<50&&onein(2))newhealth(state,enemy);
@@ -359,8 +373,15 @@ int core(struct state *state){
 						state->points+=POINTS_ENEMY_SHOT_DOWN;
 					}
 
-					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.32f,false);
-					enemy=deleteenemy(state,enemy,prevenemy);
+					int spin_out=onein(3); // have the enemy spin out of control before exploding
+					if(spin_out){
+						enemy->dying+=state->gamespeed;
+						newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.2f,false);
+					}
+					else{
+						newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.32f,false);
+						enemy=deleteenemy(state,enemy,prevenemy);
+					}
 				}
 				bullet=deletebullet(state,bullet,prevbullet);
 				stop=true;

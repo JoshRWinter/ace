@@ -114,12 +114,14 @@ struct player{
 #define ENEMY_MODE_DOGFIGHT 2
 #define ENEMY_CONE 0.75f
 #define ENEMY_FIRE_DIST 7.0f
+#define ENEMY_SPIN_TIMER 110.0f
 struct enemy{
 	struct base base;
 	struct base target;
 	float timer_smoke;
 	float timer_reload;
 	int dead;
+	float dying; // timer
 	int health;
 	struct enemy *next;
 };
