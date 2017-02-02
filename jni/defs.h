@@ -30,6 +30,9 @@
 #define TID_JOYBOMB 6
 #define TID_AWDDFC 7
 #define TID_LARGECLOUD 8
+#define TID_AWDAM 9
+#define TID_AWDDFCSMALL 10
+#define TID_AWDAMSMALL 11
 
 // sounds
 #define SID_BACKGROUND 0
@@ -42,6 +45,7 @@
 #define POINTS_GROUP_DESTROYED 150
 
 #define AWARD_DFC 1
+#define AWARD_AM 2
 
 #define GAMEOVER_DELAY 1
 #define DEATH_RATTLE 300
@@ -50,8 +54,14 @@
 #define HIGHSCORE_COUNT 5
 #define HIGHSCORE_HIGHLIGHT 0.3f,0.9f,0.1f,1.0f
 
-#define DFC_WIDTH 1.8583333f
+#define DFC_WIDTH 1.86667f
 #define DFC_HEIGHT 3.5f
+#define DFCSMALL_WIDTH 1.0667f
+#define DFCSMALL_HEIGHT 2.0f
+#define AM_WIDTH 2.08333f
+#define AM_HEIGHT 3.4f
+#define AMSMALL_WIDTH 1.225f
+#define AMSMALL_HEIGHT 2.0f
 #define JOYBASE_SIZE 2.0f
 #define JOYTOP_SIZE 1.0f
 #define JOYTOP_DIST 1.2f
@@ -92,6 +102,7 @@ struct player{
 	int health;
 	int bombs;
 	int dead;
+	int victories; // enemy combatants shot down
 	float timer_smoke;
 };
 
@@ -232,11 +243,17 @@ struct message{
 	struct message *next;
 };
 
+struct stat{
+	int dfc; // distinguished flying cross
+	int am; // air medals
+};
+
 struct state{
 	int running,showmenu,back,highscore[HIGHSCORE_COUNT];
 	int vibrate,sounds,music; // global settings
 	int fire,bomb,gameoverdelay;
 	float points,gamespeed;
+	struct stat stat;
 
 	int vao,vbo,program;
 	struct device device,screen;
@@ -275,8 +292,8 @@ void init_display(struct state*);
 void term_display(struct state*);
 void load_settings(struct state*);
 void save_settings(struct state*);
-void load_highscores(struct state*);
-void save_highscores(struct state*);
+void load_stats(struct state*);
+void save_stats(struct state*);
 void selection(int*);
 
 int button_process(struct crosshair*,struct button*);

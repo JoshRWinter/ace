@@ -37,19 +37,22 @@ void save_settings(struct state *state){
 	fclose(file);
 }
 
-void load_highscores(struct state *state){
+void load_stats(struct state *state){
 	FILE *file=fopen(DATAPATH"/01","rb");
 
 	if(!file){
 		memset(state->highscore,0,sizeof(int)*HIGHSCORE_COUNT);
+		memset(&state->stat,0,sizeof(struct stat));
 		return;
 	}
 
 	fread(state->highscore,sizeof(int),HIGHSCORE_COUNT,file);
+	fread(&state->stat.dfc,sizeof(int),1,file);
+	fread(&state->stat.am,sizeof(int),1,file);
 	fclose(file);
 }
 
-void save_highscores(struct state *state){
+void save_stats(struct state *state){
 	FILE *file=fopen(DATAPATH"/01","wb");
 
 	if(!file){
@@ -58,6 +61,8 @@ void save_highscores(struct state *state){
 	}
 
 	fwrite(state->highscore,sizeof(int),HIGHSCORE_COUNT,file);
+	fwrite(&state->stat.dfc,sizeof(int),1,file);
+	fwrite(&state->stat.am,sizeof(int),1,file);
 	fclose(file);
 }
 

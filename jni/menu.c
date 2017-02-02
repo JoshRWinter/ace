@@ -11,6 +11,9 @@ int menu_main(struct state *state){
 	struct button buttonplay={{0.25f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Play",false};
 	struct button buttonquit={{3.75f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Quit",false};
 
+	struct base awddfc={4.1f,-0.5f,DFCSMALL_WIDTH,DFCSMALL_HEIGHT,0.0f,1.0f,0.0f};
+	struct base awdam={5.6f,-0.45f,AMSMALL_WIDTH,AMSMALL_HEIGHT,0.0f,1.0f,0.0f};
+
 	struct base title={state->rect.left,state->rect.top,state->rect.right*2.0f,state->rect.bottom*2.0f,0.0f,1.0f,0.0f};
 	const char *aboot=
 		"~ ACE ~ \n"
@@ -33,6 +36,8 @@ int menu_main(struct state *state){
 	}
 
 	while(process(state->app)){
+		awddfc.y=yoff-0.5f;
+		awdam.y=yoff-0.45f;
 		buttonplay.base.y=yoff+3.0f;
 		buttonaboot.base.y=buttonplay.base.y;
 		buttonconf.base.y=buttonplay.base.y;
@@ -66,6 +71,26 @@ int menu_main(struct state *state){
 		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_TITLE].object);
 		draw(state,&title);
+
+		// draw awards
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_AWDDFCSMALL].object);
+		uidraw(state,&awddfc);
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_AWDAMSMALL].object);
+		uidraw(state,&awdam);
+		glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
+		char medalcount[7];
+		sprintf(medalcount,"x%d",state->stat.dfc);
+		drawtextcentered(state->font.main,awddfc.x+(DFCSMALL_WIDTH/2.0f),yoff+1.5f,medalcount);
+		sprintf(medalcount,"x%d",state->stat.am);
+		drawtextcentered(state->font.main,awdam.x+(AMSMALL_WIDTH/2.0f),yoff+1.5f,medalcount);
+
+		// draw highscores
+		float offset=yoff-0.8f;
+		for(int i=0;i<HIGHSCORE_COUNT;++i){
+			char listing[16];
+			sprintf(listing,"%d. %d",i+1,state->highscore[HIGHSCORE_COUNT-1-i]);
+			drawtext(state->font.main,-6.0f,offset+(i*0.5f),listing);
+		}
 
 		// buttons
 		if(button_process(state->pointer,&buttonplay)==BUTTON_ACTIVATE){
@@ -241,13 +266,23 @@ int menu_end(struct state *state){
 				break;
 			}
 		}
-		save_highscores(state);
 	}
 
 	// award logic
-	if(newhighscore==HIGHSCORE_COUNT-1&&state->points>300)
+	// distinguished flying cross
+	if(newhighscore==HIGHSCORE_COUNT-1&&state->points>300){
+		++state->stat.dfc;
 		if(!menu_award(state,AWARD_DFC))
 			return false;
+	}
+	// air medal
+	if(state->player.victories>=6){
+		++state->stat.am;
+		if(!menu_award(state,AWARD_AM))
+			return false;
+	}
+
+	save_stats(state);
 
 	while(process(state->app)){
 		if(!transition){
@@ -398,19 +433,29 @@ int menu_transition(struct state *state){
 }
 
 int menu_award(struct state *state,int award){
-	char *message;
+	char message[200];
 	int tid;
 	struct base awddfc={-DFC_WIDTH/2.0f,-1.0f,DFC_WIDTH,DFC_HEIGHT,0.0f,1.0f,0.0f};
+	struct base awdam={-AM_WIDTH/2.0f,-1.0f,AM_WIDTH,AM_HEIGHT,0.0f,1.0f,0.0f};
 	struct base *award_base;
 	struct button buttonok={{-BUTTON_WIDTH/2.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"OK",false};
 	switch(award){
 	case AWARD_DFC:
-		message="The United States Navy is proud to present this\n"
+		sprintf(message,"%s",
+			"The United States Navy is proud to award this\n"
 			"Distinguished Flying Cross\n"
 			"For your heroic actions against aerial enemy combatants\n"
-			"on this day, February 2, 1945";
+			"on this day, February 2, 1945");
 			tid=TID_AWDDFC;
 			award_base=&awddfc;
+			break;
+	case AWARD_AM:
+		sprintf(message,"The United States Navy is proud to award this\n"
+			"Air Medal\n"
+			"for your %d confirmed victories against enemy aerial combatants\n"
+			"on this day, February 2, 1945",state->player.victories);
+			tid=TID_AWDAM;
+			award_base=&awdam;
 			break;
 	}
 	while(process(state->app)){
@@ -422,7 +467,7 @@ int menu_award(struct state *state,int award){
 		drawtextcentered(state->font.main,0.0f,-3.75f,message);
 
 		// award
-		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_AWDDFC].object);
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[tid].object);
 		uidraw(state,award_base);
 
 		// button
