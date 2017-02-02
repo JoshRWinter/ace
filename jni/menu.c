@@ -452,7 +452,7 @@ int menu_award(struct state *state,int award){
 	case AWARD_AM:
 		sprintf(message,"The United States Navy is proud to award this\n"
 			"Air Medal\n"
-			"for your %d confirmed victories against enemy aerial combatants\n"
+			"for your %d confirmed victories against aerial enemy combatants\n"
 			"on this day, February 2, 1945",state->player.victories);
 			tid=TID_AWDAM;
 			award_base=&awdam;
