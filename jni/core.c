@@ -765,6 +765,7 @@ void render(struct state *state){
 					(state->player.base.x+(PLAYER_WIDTH/2.0f))-(group->base.x+(GROUP_WIDTH/2.0f)));
 			float dist=distance(state->player.base.x+(PLAYER_WIDTH/2.0f),group->base.x+(GROUP_WIDTH/2.0f),
 					state->player.base.y+(PLAYER_HEIGHT/2.0f),group->base.y+(GROUP_HEIGHT/2.0f))/40.0f;
+			dist*=GROUP_DEPTH;
 			if(dist>0.6f)
 				dist=0.6f;
 			float x,y;
