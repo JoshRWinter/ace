@@ -25,7 +25,7 @@ int menu_main(struct state *state){
 	int transition=false;
 
 	// generate lots o clouds
-	for(int i=0;i<18;++i){
+	for(int i=0;i<20;++i){
 		for(int j=0;j<1;++j)
 			newlargecloud(state,true);
 		for(struct largecloud *cloud=state->largecloudlist;cloud!=NULL;cloud=cloud->next){
@@ -47,7 +47,7 @@ int menu_main(struct state *state){
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// process large clouds
-		if(onein(45))
+		if(onein(35))
 			newlargecloud(state,false);
 		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_LARGECLOUD].object);
 		for(struct largecloud *cloud=state->largecloudlist,*prevcloud=NULL;cloud!=NULL;){
