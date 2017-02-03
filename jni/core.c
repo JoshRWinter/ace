@@ -577,6 +577,11 @@ int core(struct state *state){
 			}
 		}
 	}
+
+	// radar blips
+	state->radarblink+=0.06f;
+	if(state->radarblink>1000.0f)
+		state->radarblink=0.0f;
 	
 	// pause menu
 	if(state->back){
@@ -750,6 +755,9 @@ void render(struct state *state){
 		glUniform4f(state->uniform.rgba,1.0f,0.0f,0.0f,0.6f);
 		glDrawArrays(GL_TRIANGLE_STRIP,0,4);
 		// radar
+		float blink=(sinf(state->radarblink)+1.0f)/2.0f;
+		glUniform4f(state->uniform.rgba,0.6f,0.05f,0.05f,blink);
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_BLOB].object);
 		for(struct group *group=state->grouplist;group!=NULL;group=group->next){
 			if(group->dead)
 				continue;
@@ -763,8 +771,20 @@ void render(struct state *state){
 			x=state->joy_fire.x+(JOYFIRE_SIZE/2.0f)-(cosf(angle)*dist);
 			y=state->joy_fire.y+(JOYFIRE_SIZE/2.0f)-(sinf(angle)*dist);
 			struct base blob={x,y,0.1f,0.1f,0.0f,1.0f,0.0f};
-			glUniform4f(state->uniform.rgba,1.0f,0.2f,0.2f,1.0f);
-			glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_BLOB].object);
+			uidraw(state,&blob);
+		}
+		glUniform4f(state->uniform.rgba,0.6f,0.05f,0.05f,blink);
+		for(struct enemy *enemy=state->enemylist;enemy!=NULL;enemy=enemy->next){
+			float angle=atan2f((state->player.base.y+(PLAYER_HEIGHT/2.0f))-(enemy->base.y+(ENEMY_HEIGHT/2.0f)),
+					(state->player.base.x+(PLAYER_WIDTH/2.0f))-(enemy->base.x+(ENEMY_WIDTH/2.0f)));
+			float dist=distance(state->player.base.x+(PLAYER_WIDTH/2.0f),enemy->base.x+(ENEMY_WIDTH/2.0f),
+					state->player.base.y+(PLAYER_HEIGHT/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f))/40.0f;
+			if(dist>0.6f)
+				dist=0.6f;
+			float x,y;
+			x=state->joy_fire.x+(JOYFIRE_SIZE/2.0f)-(cosf(angle)*dist);
+			y=state->joy_fire.y+(JOYFIRE_SIZE/2.0f)-(sinf(angle)*dist);
+			struct base blob={x,y,0.05f,0.05f,0.0f,1.0f,0.0f};
 			uidraw(state,&blob);
 		}
 		// joysticks
@@ -911,6 +931,7 @@ void reset(struct state *state){
 	state->fire=false;
 	state->bomb=false;
 	state->gameoverdelay=GAMEOVER_DELAY;
+	state->radarblink=0.0f;
 	state->points=0.0f;
 	state->player.health=100;
 	state->player.base.x=-PLAYER_WIDTH/2.0f;

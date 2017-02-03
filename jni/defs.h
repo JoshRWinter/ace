@@ -255,6 +255,7 @@ struct state{
 	int vibrate,sounds,music; // global settings
 	int fire,bomb,gameoverdelay;
 	float points,gamespeed;
+	float radarblink;
 	struct stat stat;
 
 	int vao,vbo,program;
