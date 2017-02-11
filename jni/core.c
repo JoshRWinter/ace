@@ -69,6 +69,8 @@ int core(struct state *state){
 			float diff=enemy->base.rot-cone;
 			if(diff>M_PI)diff=(M_PI*2.0f)-diff;
 			if(fabs(diff)<ENEMY_CONE&&enemy->timer_reload<=0.0f){
+				if(onscreen(enemy)&&state->sounds)
+					playsound(state->soundengine,state->aassets.sound+SID_FIRE,false);
 				newbullet(state,&enemy->base);
 				enemy->timer_reload=PLAYER_RELOAD;
 			}
@@ -83,6 +85,8 @@ int core(struct state *state){
 			enemy->target.x=(enemy->base.x+(ENEMY_WIDTH/2.0f))-cosf(enemy->base.rot+aoff)/5.0f;
 			enemy->target.y=(enemy->base.y+(ENEMY_HEIGHT/2.0f))-sinf(enemy->base.rot+aoff)/5.0f;
 			if(enemy->dying>ENEMY_SPIN_TIMER){
+				if(onscreen(enemy)&&state->sounds)
+					playsound(state->soundengine,state->aassets.sound+SID_EXPLOSION,false);
 				newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.32f,false);
 				enemy=deleteenemy(state,enemy,prevenemy);
 				continue;
@@ -112,6 +116,8 @@ int core(struct state *state){
 			float x2=enemy->base.x+(ENEMY_WIDTH/2.0f);
 			float y1=state->player.base.y+(PLAYER_HEIGHT/2.0f);
 			float y2=enemy->base.y+(ENEMY_HEIGHT/2.0f);
+			if(state->sounds)
+				playsound(state->soundengine,state->aassets.sound+SID_EXPLOSION,false);
 			newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.5f,false);
 			enemy=deleteenemy(state,enemy,prevenemy);
 			continue;
@@ -128,6 +134,8 @@ int core(struct state *state){
 				float x2=enemy->base.x+(ENEMY_WIDTH/2.0f);
 				float y1=enemy2->base.y+(ENEMY_HEIGHT/2.0f);
 				float y2=enemy->base.y+(ENEMY_HEIGHT/2.0f);
+				if(onscreen(enemy)&&state->sounds)
+					playsound(state->soundengine,state->aassets.sound+SID_EXPLOSION,false);
 				newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.5f,false);
 			}
 		}
@@ -164,6 +172,8 @@ int core(struct state *state){
 
 	// proc bombs
 	if(state->bomb&&state->player.timer_bomb<=0.0f){
+		if(state->sounds)
+			playsound(state->soundengine,state->aassets.sound+SID_DROP,false);
 		state->player.bombs=BOMB_COUNT;
 		state->player.timer_bomb=BOMB_RECHARGE;
 	}
@@ -195,6 +205,8 @@ int core(struct state *state){
 				if(collide(&bomb->base,&group->base,0.0f)){
 					if(!group->dead&&(group->health-=6)<1){
 						group->dead=true;
+						if(state->sounds)
+							playsound(state->soundengine,state->aassets.sound+SID_HUGEEXPLOSION,false);
 						newexplosion(state,group->base.x+(GROUP_WIDTH/2.0f),group->base.y+(GROUP_HEIGHT/2.0f),0.5f,true);
 						state->points+=POINTS_GROUP_DESTROYED;
 						sprintf(msg,"+%d carrier group destroyed",POINTS_GROUP_DESTROYED);
@@ -202,6 +214,8 @@ int core(struct state *state){
 						if(state->vibrate)vibratedevice(&state->jni_info,CARRIER_RATTLE);
 					}
 					newexplosion(state,bomb->base.x,bomb->base.y,0.05f,true);
+					if(state->sounds)
+						playsound(state->soundengine,state->aassets.sound+SID_DISTEXPLOSION,false);
 					bomb=deletebomb(state,bomb,prevbomb);
 					stop=true;
 					break;
@@ -224,6 +238,8 @@ int core(struct state *state){
 			continue;
 		}
 		if((missile->ttl-=state->gamespeed)<-32.0f){
+			if(onscreen(missile)&&state->sounds)
+				playsound(state->soundengine,state->aassets.sound+SID_SMALLEXPLOSION,false);
 			newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f,false);
 			missile=deletemissile(state,missile,prevmissile);
 			continue;
@@ -282,6 +298,8 @@ int core(struct state *state){
 				float x2=missile2->base.x+(MISSILE_WIDTH/2.0f);
 				float y1=missile->base.y+(MISSILE_HEIGHT/2.0f);
 				float y2=missile2->base.y+(MISSILE_HEIGHT/2.0f);
+				if(onscreen(missile)&&state->sounds)
+					playsound(state->soundengine,state->aassets.sound+SID_SMALLEXPLOSION,false);
 				newexplosion(state,(x1+x2)/2.0f,(y1+y2)/2.0f,0.2f,false);
 			}
 		}
@@ -296,8 +314,13 @@ int core(struct state *state){
 			else
 				state->player.dead=true;
 
-			if(state->player.dead)
+			if(state->player.dead){
+				if(state->sounds)
+					playsound(state->soundengine,state->aassets.sound+SID_EXPLOSION,false);
 				newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f,false);
+			}
+			else if(state->sounds)
+				playsound(state->soundengine,state->aassets.sound+SID_SMALLEXPLOSION,false);
 
 			missile=deletemissile(state,missile,prevmissile);
 			if(state->vibrate)vibratedevice(&state->jni_info,DEATH_RATTLE);
@@ -309,6 +332,8 @@ int core(struct state *state){
 			for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
 				if(collide(&missile->base,&enemy->base,0.1f)){
 					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.3f,false);
+					if(onscreen(enemy)&&state->sounds)
+						playsound(state->soundengine,state->aassets.sound+SID_EXPLOSION,false);
 					enemy=deleteenemy(state,enemy,prevenemy);
 					missile=deletemissile(state,missile,prevmissile);
 					stop=true;
@@ -330,6 +355,8 @@ int core(struct state *state){
 
 	// proc bullets
 	if(state->fire&&state->player.reload<=0&&!state->player.dead){
+		if(state->sounds)
+			playsound(state->soundengine,state->aassets.sound+SID_FIRE,false);
 		newbullet(state,&state->player.base);
 		state->player.reload=PLAYER_RELOAD;
 	}
@@ -350,6 +377,8 @@ int core(struct state *state){
 					state->points+=POINTS_MISSILE_SHOT_DOWN;
 				}
 
+				if(onscreen(bullet)&&state->sounds)
+					playsound(state->soundengine,state->aassets.sound+SID_SMALLEXPLOSION,false);
 				newexplosion(state,missile->base.x+(MISSILE_WIDTH/2.0f),missile->base.y+(MISSILE_HEIGHT/2.0f),0.2f,false);
 				missile=deletemissile(state,missile,prevmissile);
 				bullet=deletebullet(state,bullet,prevbullet);
@@ -363,6 +392,8 @@ int core(struct state *state){
 		// check for bullets colliding with enemies
 		for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
 			if(bullet->owner!=&enemy->base&&collide(&bullet->base,&enemy->base,0.1f)){
+				if(onscreen(enemy)&&state->sounds)
+					playsound(state->soundengine,state->aassets.sound+SID_HIT,false);
 				newexplosion(state,bullet->base.x+(BULLET_WIDTH/2.0f),bullet->base.y+(BULLET_HEIGHT/2.0f),0.05,false);
 				if(enemy->dying==0.0f&&(enemy->health-=randomint(BULLET_DMG))<1){
 					if(!state->player.dead&&bullet->owner==&state->player.base){
@@ -377,9 +408,13 @@ int core(struct state *state){
 					if(spin_out){
 						enemy->dying+=state->gamespeed;
 						newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.2f,false);
+						if(onscreen(enemy)&&state->sounds)
+							playsound(state->soundengine,state->aassets.sound+SID_SMALLEXPLOSION,false);
 					}
 					else{
 						newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.32f,false);
+						if(onscreen(enemy)&&state->sounds)
+							playsound(state->soundengine,state->aassets.sound+SID_EXPLOSION,false);
 						enemy=deleteenemy(state,enemy,prevenemy);
 					}
 				}
@@ -394,8 +429,12 @@ int core(struct state *state){
 		// check for bullets colliding with player
 		if(!state->player.dead&&bullet->owner!=&state->player.base&&collide(&bullet->base,&state->player.base,0.1f)){
 			if(state->vibrate)vibratedevice(&state->jni_info,HIT_RATTLE);
+			if(state->sounds)
+				playsound(state->soundengine,state->aassets.sound+SID_HIT,false);
 			state->player.health-=randomint(BULLET_ENEMY_DMG);
 			if(state->player.health<1){
+				if(state->sounds)
+					playsound(state->soundengine,state->aassets.sound+SID_EXPLOSION,false);
 				newexplosion(state,state->player.base.x+(PLAYER_WIDTH/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f),0.3f,false);
 				state->player.dead=true;
 				if(state->vibrate)vibratedevice(&state->jni_info,DEATH_RATTLE);
@@ -527,6 +566,10 @@ int core(struct state *state){
 	}
 	else if(!--state->gameoverdelay){
 		// delete all messages in the queue
+		if(state->sounds&&state->player.engine!=NULL){
+			stopsound(state->soundengine,state->player.engine);
+			state->player.engine=NULL;
+		}
 		for(struct message *message=state->messagelist;message!=NULL;message=deletemessage(state,message,NULL));
 		if(!menu_end(state))
 			return false;
@@ -886,6 +929,7 @@ void init(struct state *state){
 	state->joy_bomb.count=1.0f;
 	state->joy_bomb.frame=0.0f;
 
+	state->player.engine=NULL;
 	state->player.base.w=PLAYER_WIDTH;
 	state->player.base.h=PLAYER_HEIGHT;
 	state->player.base.count=1.0f;

@@ -3,6 +3,7 @@
 #define distance(x1,x2,y1,y2) (sqrtf(powf((x2)-(x1),2)+powf((y2)-(y1),2)))
 #define xcorrect(a) ((a)-(state->player.base.x+(PLAYER_WIDTH/2.0f)))
 #define ycorrect(b) ((b)-(state->player.base.y+(PLAYER_HEIGHT/2.0f)))
+#define onscreen(target) (target->base.x+target->base.w>PLAYER_LEFT_BOUNDARY&&target->base.x<PLAYER_RIGHT_BOUNDARY&&target->base.y+target->base.h>PLAYER_TOP_BOUNDARY&&target->base.y<PLAYER_BOTTOM_BOUNDARY)
 #define DATAPATH "/data/data/joshwinter.ace/files"
 
 // gameplay
@@ -35,7 +36,18 @@
 #define TID_AWDAMSMALL 11
 
 // sounds
-#define SID_BACKGROUND 0
+#define SID_SILENCE 0
+#define SID_THEME 1
+#define SID_DISTEXPLOSION 2
+#define SID_EXPLOSION 3
+#define SID_FIRE 4
+#define SID_HIT 5
+#define SID_SMALLEXPLOSION 6
+#define SID_MESSAGE 7
+#define SID_HUGEEXPLOSION 8
+#define SID_DROP 9
+#define SID_ENGINE 10
+#define SID_WOOSH 11
 
 // point values
 #define POINTS_MISSILES_COLLIDE 10
@@ -95,6 +107,7 @@ struct button{
 #define PLAYER_TOLERANCE 0.2f // collision tolerance
 struct player{
 	struct base base;
+	struct audioplayer *engine;
 	float targetrot;
 	float xv,yv;
 	float timer_bomb;
@@ -262,6 +275,7 @@ struct state{
 	struct device device,screen;
 	struct pack assets,uiassets;
 	struct apack aassets;
+	slesenv *soundengine;
 	struct{float left,right,bottom,top;}rect;
 	struct{ftfont *main,*button,*header;}font;
 	struct{int vector,size,texcoords,rot,rgba,projection;}uniform;

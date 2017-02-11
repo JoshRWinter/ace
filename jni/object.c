@@ -378,6 +378,8 @@ struct explosion *deleteexplosion(struct state *state,struct explosion *explosio
 }
 
 void newmessage(struct state *state,char *msg){
+	if(state->sounds)
+		playsound(state->soundengine,state->aassets.sound+SID_MESSAGE,false);
 	struct message *message=malloc(sizeof(struct message));
 	message->ttl=MESSAGE_TTL;
 	int len=strlen(msg);

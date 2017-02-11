@@ -59,6 +59,14 @@ void init_display(struct state *state){
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.0f,0.65882f,0.83137f,1.0f);
 
+	// set up sounds
+	loadapack(&state->aassets,state->app->activity->assetManager,"aassets");
+	state->soundengine=initOpenSL();
+	if(state->music)
+		playsound(state->soundengine,state->aassets.sound+SID_THEME,true);
+	else
+		playsound(state->soundengine,state->aassets.sound+SID_SILENCE,true);
+
 	// set up fonts
 	set_ftfont_params(state->screen.w,state->screen.h,state->rect.right*2.0f,state->rect.bottom*2.0f,state->uniform.vector,state->uniform.size,state->uniform.texcoords);
 	state->font.main=create_ftfont(state->app->activity->assetManager,0.4f,"corbel.ttf");
@@ -67,6 +75,12 @@ void init_display(struct state *state){
 }
 
 void term_display(struct state *state){
+	if(state->player.engine){
+		stopsound(state->soundengine,state->player.engine);
+		state->player.engine=NULL;
+	}
+	termOpenSL(state->soundengine);
+	destroyapack(&state->aassets);
 	state->running=false;
 	destroy_ftfont(state->font.main);
 	destroy_ftfont(state->font.button);
@@ -117,6 +131,7 @@ void cmdproc(struct android_app *app,int32_t cmd){
 			break;
 		case APP_CMD_DESTROY:
 			reset(state);
+			break;
 	}
 }
 

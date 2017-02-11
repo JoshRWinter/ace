@@ -1,6 +1,6 @@
 activity=ace
 
-all:../assets/assets ../assets/uiassets
+all:../assets/assets ../assets/uiassets ../assets/aassets
 	NDK_DEBUG=1 ndk-build -C ..
 	ant debug -f ../build.xml
 	adb install -r $(CURDIR)/../bin/$(activity)-debug.apk
@@ -14,5 +14,5 @@ all:../assets/assets ../assets/uiassets
 	cd ../assets_local && ./convert.sh
 	cd ../assets_local/ && pack --build uibuild.txt
 
-#../assets/aassets:../assets_local/apack.txt ../assets_local/*.ogg
-#	cd ../assets_local/ && apack --build
+../assets/aassets:../assets_local/apack.txt ../assets_local/*.ogg
+	cd ../assets_local/ && apack --build

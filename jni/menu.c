@@ -94,6 +94,8 @@ int menu_main(struct state *state){
 
 		// buttons
 		if(button_process(state->pointer,&buttonplay)==BUTTON_ACTIVATE){
+			if(state->sounds&&!transition)
+				playsound(state->soundengine,state->aassets.sound+SID_WOOSH,false);
 			transition=true;
 		}
 		if(button_process(state->pointer,&buttonaboot)==BUTTON_ACTIVATE){
@@ -128,7 +130,11 @@ int menu_main(struct state *state){
 			yoff+=slide;
 			if(title.y>state->rect.bottom){
 				for(struct largecloud *cloud=state->largecloudlist;cloud!=NULL;cloud=deletelargecloud(state,cloud,NULL));
-				return menu_transition(state);
+				if(!menu_transition(state))
+					return false;
+				if(state->sounds)
+					state->player.engine=playsound(state->soundengine,state->aassets.sound+SID_ENGINE,true);
+				return true;
 			}
 		}
 
@@ -169,6 +175,11 @@ int menu_conf(struct state *state){
 		}
 		if(button_process(state->pointer,&buttonmusic)==BUTTON_ACTIVATE){
 			state->music=!state->music;
+			stopallsounds(state->soundengine);
+			if(state->music)
+				playsound(state->soundengine,state->aassets.sound+SID_THEME,true);
+			else
+				playsound(state->soundengine,state->aassets.sound+SID_SILENCE,true);
 			changed=true;
 		}
 		if(button_process(state->pointer,&buttonback)==BUTTON_ACTIVATE||state->back){
@@ -193,13 +204,20 @@ int menu_pause(struct state *state){
 	struct button buttonresume={{2.0f,3.0,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Resume",false};
 	struct button buttonmenu={{-BUTTON_WIDTH/2.0f,3.0,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Menu",false};
 	struct button buttonconf={{-5.0f,3.0f,BUTTON_WIDTH,BUTTON_HEIGHT,0.0f,1.0f,0.0f},"Settings",false};
+	if(state->sounds&&state->player.engine!=NULL){
+		stopsound(state->soundengine,state->player.engine);
+		state->player.engine=NULL;
+	}
 	while(process(state->app)){
 		//glClear(GL_COLOR_BUFFER_BIT);
 		render(state);
 		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 
 		// buttons
-		if(button_process(state->pointer,&buttonresume)==BUTTON_ACTIVATE){
+		if(button_process(state->pointer,&buttonresume)==BUTTON_ACTIVATE||state->back){
+			state->back=false;
+			if(state->sounds&&!state->player.dead)
+				state->player.engine=playsound(state->soundengine,state->aassets.sound+SID_ENGINE,true);
 			return true;
 		}
 		if(button_process(state->pointer,&buttonmenu)==BUTTON_ACTIVATE){
@@ -219,11 +237,6 @@ int menu_pause(struct state *state){
 		button_draw(state,&buttonresume);
 		button_draw(state,&buttonmenu);
 		button_draw(state,&buttonconf);
-
-		if(state->back){
-			state->back=false;
-			return true;
-		}
 
 		eglSwapBuffers(state->display,state->surface);
 	}
@@ -283,6 +296,10 @@ int menu_end(struct state *state){
 	}
 
 	save_stats(state);
+
+	// do the woosh
+	if(state->sounds)
+		playsound(state->soundengine,state->aassets.sound+SID_WOOSH,false);
 
 	while(process(state->app)){
 		if(!transition){
@@ -358,6 +375,8 @@ int menu_end(struct state *state){
 			// buttons
 			if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){
 				reset(state);
+				if(state->sounds&&!transition)
+					playsound(state->soundengine,state->aassets.sound+SID_WOOSH,false);
 				transition=true;
 			}
 			if(button_process(state->pointer,&buttonstop)==BUTTON_ACTIVATE||state->back){
@@ -375,8 +394,13 @@ int menu_end(struct state *state){
 			if(transition){
 				slideout+=vd;
 				yoff+=slideout;
-				if(yoff>8.0f)
-					return menu_transition(state);
+				if(yoff>8.0f){
+					if(!menu_transition(state))
+						return false;
+					if(state->sounds)
+						state->player.engine=playsound(state->soundengine,state->aassets.sound+SID_ENGINE,true);
+					return true;
+				}
 			}
 		}
 		eglSwapBuffers(state->display,state->surface);
