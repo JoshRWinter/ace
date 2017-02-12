@@ -34,6 +34,8 @@ int menu_main(struct state *state){
 			cloud->base.y+=cloud->yv*MULTIPLIER;
 		}
 	}
+	char skill[26];
+	sprintf(skill,"Pilot Skill: %d",get_pilot_skill(state));
 
 	while(process(state->app)){
 		awddfc.y=yoff-0.5f;
@@ -85,12 +87,13 @@ int menu_main(struct state *state){
 		drawtextcentered(state->font.main,awdam.x+(AMSMALL_WIDTH/2.0f),yoff+1.5f,medalcount);
 
 		// draw highscores
-		float offset=yoff-0.8f;
+		float offset=yoff-1.0f;
 		for(int i=0;i<HIGHSCORE_COUNT;++i){
 			char listing[16];
 			sprintf(listing,"%d. %d",i+1,state->highscore[HIGHSCORE_COUNT-1-i]);
 			drawtext(state->font.main,-6.0f,offset+(i*0.5f),listing);
 		}
+		drawtextcentered(state->font.main,-5.5f,yoff+1.6f,skill);
 
 		// buttons
 		if(button_process(state->pointer,&buttonplay)==BUTTON_ACTIVATE){

@@ -5,6 +5,24 @@
 #include <stdio.h>
 #include "defs.h"
 
+int get_pilot_skill(struct state *state){
+	const float weight[]={0.3f,0.25f,0.25f,0.1f,0.1f};
+	int skill=0;
+
+	// weighted average of high scores / 15
+	for(int i=0;i<HIGHSCORE_COUNT;++i)
+		skill+=state->highscore[i]*weight[HIGHSCORE_COUNT-1-i];
+	skill/=15;
+
+	// plus DFCs * 3
+	skill += state->stat.dfc*3;
+
+	// plus air medals
+	skill += state->stat.am;
+
+	return skill;
+}
+
 void load_settings(struct state *state){
 	FILE *file=fopen(DATAPATH"/00","rb");
 
