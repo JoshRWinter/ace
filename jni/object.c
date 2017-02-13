@@ -206,6 +206,8 @@ void newhealth(struct state *state,struct enemy *enemy){
 	health->base.h=HEALTH_SIZE;
 	health->base.x=enemy->base.x+(ENEMY_WIDTH/2.0f)-(HEALTH_SIZE/2.0f);
 	health->base.y=enemy->base.y+(ENEMY_HEIGHT/2.0f)-(HEALTH_SIZE/2.0f);
+	health->xv=enemy->xv;
+	health->yv=enemy->yv;
 	health->base.rot=0.0f;
 	health->base.count=1.0f;
 	health->base.frame=0.0f;

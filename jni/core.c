@@ -54,8 +54,10 @@ int core(struct state *state){
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-enemy->target.y,
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-enemy->target.x);
 		align(&enemy->base.rot,enemy->dying>0.0f?(PLAYER_TURN_SPEED*1.5f*state->gamespeed):(PLAYER_TURN_SPEED*state->gamespeed),angle);
-		enemy->base.x-=(cosf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED))*state->gamespeed;
-		enemy->base.y-=(sinf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED))*state->gamespeed;
+		enemy->xv=-cosf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED);
+		enemy->yv=-sinf(enemy->base.rot)*(state->focused_enemy==enemy?PLAYER_SPEED-0.02f:ENEMY_SPEED);
+		enemy->base.x+=enemy->xv*state->gamespeed;
+		enemy->base.y+=enemy->yv*state->gamespeed;
 
 		// decide whether to fire upon the player
 		if(enemy->dying==0.0f&&state->missilelist==NULL&&distance(enemy->base.x+(ENEMY_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
@@ -469,6 +471,12 @@ int core(struct state *state){
 
 	// proc health
 	for(struct health *health=state->healthlist,*prevhealth=NULL;health!=NULL;){
+		health->base.x+=health->xv*state->gamespeed;
+		health->base.y+=health->yv*state->gamespeed;
+		const float RETARD=0.987f;
+		health->xv*=RETARD;
+		health->yv*=RETARD;
+		health->base.rot+=health->xv;
 		if(collide(&state->player.base,&health->base,0.2f)){
 			health=deletehealth(state,health,prevhealth);
 			state->player.health=100;

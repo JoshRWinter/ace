@@ -133,6 +133,7 @@ struct enemy{
 	struct base target;
 	float timer_smoke;
 	float timer_reload;
+	float xv,yv;
 	int dead;
 	float dying; // timer
 	int health;
@@ -207,6 +208,7 @@ struct smoke{
 #define HEALTH_SIZE 0.5f
 struct health{
 	struct base base;
+	float xv,yv;
 	struct health *next;
 };
 
