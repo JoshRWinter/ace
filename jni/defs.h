@@ -1,5 +1,6 @@
 #include "glesutil.h"
 
+// #define SHOW_FPS
 #define distance(x1,x2,y1,y2) (sqrtf(powf((x2)-(x1),2)+powf((y2)-(y1),2)))
 #define xcorrect(a) ((a)-(state->player.base.x+(PLAYER_WIDTH/2.0f)))
 #define ycorrect(b) ((b)-(state->player.base.y+(PLAYER_HEIGHT/2.0f)))

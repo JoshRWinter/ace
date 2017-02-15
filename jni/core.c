@@ -878,6 +878,7 @@ void render(struct state *state){
 		drawtextcentered(state->font.main,0.0f,state->rect.bottom-state->font.main->fontsize-0.1f,pointsmessage);
 	}
 	
+#ifdef SHOW_FPS
 	// fps counter
 	{
 		static char statustext[50];
@@ -893,6 +894,7 @@ void render(struct state *state){
 		glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
 		drawtext(state->font.main,state->rect.left+0.05f,state->rect.top+0.05f,statustext);
 	}
+#endif
 }
 
 void init(struct state *state){
