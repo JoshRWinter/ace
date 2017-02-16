@@ -99,8 +99,13 @@ int core(struct state *state){
 		else if(enemy!=state->focused_enemy){
 			// find new random waypoint
 			if(collide(&enemy->base,&enemy->target,0.0f)){
-				enemy->target.x=randomint((state->player.base.x-17.0f)*10.0f,(state->player.base.x+17.0f)*10.0f)/10.0f;
-				enemy->target.y=randomint((state->player.base.y-17.0f)*10.0f,(state->player.base.y+17.0f)*10.0f)/10.0f;
+				// keep enemies from choosing a new waypoint that is too close to where they currently are
+				float d;
+				do{
+					enemy->target.x=randomint((state->player.base.x-17.0f)*10.0f,(state->player.base.x+17.0f)*10.0f)/10.0f;
+					enemy->target.y=randomint((state->player.base.y-17.0f)*10.0f,(state->player.base.y+17.0f)*10.0f)/10.0f;
+					d=distance(enemy->base.x,enemy->target.x,enemy->base.y,enemy->target.y);
+				}while(d<2.5f);
 			}
 		}
 		else{
@@ -247,7 +252,11 @@ int core(struct state *state){
 			continue;
 		}
 		// unfocus any enemies
-		state->focused_enemy=NULL;
+		if(state->focused_enemy){
+			state->focused_enemy->target.x=state->focused_enemy->base.x+0.1f;
+			state->focused_enemy->target.y=state->focused_enemy->base.y+0.1f;
+			state->focused_enemy=NULL;
+		}
 		// calculate missile sway (weaving back and forth)
 		float dist=distance(missile->base.x+(MISSILE_WIDTH/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f),
 				missile->base.y+(MISSILE_HEIGHT/2.0f),state->player.base.x+(PLAYER_WIDTH/2.0f));
@@ -476,7 +485,7 @@ int core(struct state *state){
 		const float RETARD=0.987f;
 		health->xv*=RETARD;
 		health->yv*=RETARD;
-		health->base.rot+=health->xv;
+		health->base.rot+=health->xv*state->gamespeed;
 		if(collide(&state->player.base,&health->base,0.2f)){
 			health=deletehealth(state,health,prevhealth);
 			state->player.health=100;
