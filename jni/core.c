@@ -270,6 +270,11 @@ int core(struct state *state){
 			missile->xv=-cosf(missile->base.rot)*MISSILE_SPEED;
 			missile->yv=-sinf(missile->base.rot)*MISSILE_SPEED;
 		}
+		else if(missile->ttl>MISSILE_TTL-MISSILE_READY){
+			angle=missile->base.rot;
+			missile->xv=-cosf(missile->base.rot)*MISSILE_SPEED;
+			missile->yv=-sinf(missile->base.rot)*MISSILE_SPEED;
+		}
 		else if(missile->ttl>0){
 			angle=atan2f((missile->base.y+(MISSILE_HEIGHT/2.0f))-(state->player.base.y+(PLAYER_HEIGHT/2.0f)),
 				(missile->base.x+(MISSILE_WIDTH/2.0f))-(state->player.base.x+(PLAYER_WIDTH/2.0f)))+sway;
@@ -315,7 +320,7 @@ int core(struct state *state){
 			}
 		}
 		// check for missiles colliding with player
-		if(!state->player.dead&&collide(&missile->base,&state->player.base,PLAYER_TOLERANCE)){
+		if(!state->player.dead&&missile->ttl<MISSILE_TTL-MISSILE_READY&&collide(&missile->base,&state->player.base,PLAYER_TOLERANCE)){
 			if(onein(3)){
 				if((state->player.health-=85)<1)
 					state->player.dead=true;

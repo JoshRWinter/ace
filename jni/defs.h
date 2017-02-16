@@ -174,6 +174,7 @@ struct bomb{
 #define MISSILE_TURN_SPEED 0.04f
 #define MISSILE_SMOKE 3
 #define MISSILE_TTL 1000
+#define MISSILE_READY 50
 struct missile{
 	struct base base;
 	float xv,yv;
