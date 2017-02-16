@@ -236,7 +236,7 @@ void newcloud(struct state *state){
 	cloud->base.frame=0.0f;
 	cloud->base.count=1.0f;
 	if(cloud->base.w>1.75)
-		cloud->alpha=randomint(30,45)/100.0f;
+		cloud->alpha=randomint(45,60)/100.0f;
 	else
 		cloud->alpha=randomint(50,65)/100.0f;
 	cloud->parallax=((randomint(5,15)/100.0f)+(cloud->base.w-2.0f))/2.25f;//randomint(0,20)/100.0f;
