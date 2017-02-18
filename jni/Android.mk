@@ -2,8 +2,8 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := freetype
-ifeq "$(TARGET_ARCH_ABI)" "armeabi-v7a-hard"
-	LOCAL_SRC_FILES := ../../freetype-2.5.3/objs/freetype-armeabi-v7a-hard.a
+ifeq "$(TARGET_ARCH_ABI)" "armeabi-v7a"
+	LOCAL_SRC_FILES := ../../freetype-2.5.3/objs/freetype-armeabi-v7a.a
 else ifeq "$(TARGET_ARCH_ABI)" "x86"
 	LOCAL_SRC_FILES := ../../freetype-2.5.3/objs/freetype-x86.a
 endif
@@ -11,8 +11,8 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := ogg-vorbis
-ifeq "$(TARGET_ARCH_ABI)" "armeabi-v7a-hard"
-	LOCAL_SRC_FILES := ../../libogg-1.3.2/lib/ogg-vorbis-armeabi-v7a-hard.a
+ifeq "$(TARGET_ARCH_ABI)" "armeabi-v7a"
+	LOCAL_SRC_FILES := ../../libogg-1.3.2/lib/ogg-vorbis-armeabi-v7a.a
 else ifeq "$(TARGET_ARCH_ABI)" "x86"
 	LOCAL_SRC_FILES := ../../libogg-1.3.2/lib/ogg-vorbis-x86.a
 endif
