@@ -64,10 +64,16 @@ int core(struct state *state){
 					enemy->base.y+(ENEMY_HEIGHT/2.0f),state->player.base.y+(PLAYER_HEIGHT/2.0f))<ENEMY_FIRE_DIST){
 			float cone=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-(state->player.base.y+(PLAYER_HEIGHT/2.0f)),
 					(enemy->base.x+(ENEMY_WIDTH/2.0f))-(state->player.base.x+(PLAYER_WIDTH/2.0f)));
-			while(cone<0.0f)cone+=M_PI*2.0f;
+			/*while(cone<0.0f)cone+=M_PI*2.0f;
 			while(cone>M_PI*2.0f)cone-=M_PI*2.0f;
 			while(enemy->base.rot<0.0f)enemy->base.rot+=M_PI*2.0f;
-			while(enemy->base.rot>M_PI*2.0f)enemy->base.rot-=M_PI*2;
+			while(enemy->base.rot>M_PI*2.0f)enemy->base.rot-=M_PI*2;*/
+			cone=fmodf(cone,M_PI*2.0f);
+			if(cone<0.0f)
+				cone+=M_PI*2.0f;
+			enemy->base.rot=fmodf(enemy->base.rot,M_PI*2.0f);
+			if(enemy->base.rot<0.0f)
+				enemy->base.rot+=M_PI*2.0f;
 			float diff=enemy->base.rot-cone;
 			if(diff>M_PI)diff=(M_PI*2.0f)-diff;
 			if(fabs(diff)<ENEMY_CONE&&enemy->timer_reload<=0.0f){

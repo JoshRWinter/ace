@@ -497,10 +497,12 @@ float targetf(float *val,float step,float target){
 float align(float *rot,float step,float target){
 	const float PI=3.1415926f;
 	if(target==*rot)return *rot;
-	while(*rot>2.0f*PI)*rot-=2.0f*PI;
-	while(*rot<0.0f)*rot+=2.0f*PI;
-	while(target>2.0f*PI)target-=2.0f*PI;
-	while(target<0.0f)target+=2.0f*PI;
+	fmodf(*rot,M_PI*2.0f);
+	if(*rot<0.0f)
+		*rot+=M_PI*2.0f;
+	target=fmodf(target,M_PI*2.0f);
+	if(target<0.0f)
+		target+=M_PI*2.0f;
 	if(target>*rot){
 		if(target-*rot>PI){
 			*rot-=step;
