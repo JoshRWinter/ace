@@ -265,7 +265,7 @@ void set_ftfont_params(int iscreenwidth,int iscreenheight,float fscreenwidth,flo
 struct kernvector{
 	float advance,bitmap_left;
 };
-#define isvalidchar(c) ((c>31&&c<128)||c=='\n'||c=='\r')
+#define isvalidchar(c) ((c>31)||c=='\n'||c=='\r')
 static unsigned create_font_atlas(ftfont *font,struct AAssetManager *mgr,const char *facename,int pixelsize){
 	AAsset *asset=AAssetManager_open(mgr,facename,AASSET_MODE_UNKNOWN);
 	if(!asset){
@@ -274,7 +274,7 @@ static unsigned create_font_atlas(ftfont *font,struct AAssetManager *mgr,const c
 	}
 	int filesize=AAsset_seek(asset,0,SEEK_END);
 	AAsset_seek(asset,0,SEEK_SET);
-	char *chunk=malloc(filesize);
+	unsigned char *chunk=malloc(filesize);
 	AAsset_read(asset,chunk,filesize);
 	AAsset_close(asset);
 	

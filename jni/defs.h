@@ -275,7 +275,7 @@ struct state{
 	float radarblink;
 	struct stat stat;
 
-	int vao,vbo,program;
+	unsigned vao,vbo,program;
 	struct device device,screen;
 	struct pack assets,uiassets;
 	struct apack aassets;
