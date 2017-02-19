@@ -272,6 +272,8 @@ int menu_end(struct state *state){
 	int transition=false; // transition out
 	// compute and sort highscores
 	int newhighscore=-1;
+	int old_pilot_skill=get_pilot_skill(state);
+	char pilot_skill_message[36];
 	if((int)state->points>state->highscore[0]){
 		state->highscore[0]=state->points;
 		selection(state->highscore);
@@ -283,7 +285,6 @@ int menu_end(struct state *state){
 			}
 		}
 	}
-
 	// award logic
 	// distinguished flying cross
 	if(newhighscore==HIGHSCORE_COUNT-1&&state->points>300){
@@ -297,6 +298,10 @@ int menu_end(struct state *state){
 		if(!menu_award(state,AWARD_AM))
 			return false;
 	}
+
+	int pilot_skill=get_pilot_skill(state);
+	int skill_difference=pilot_skill-old_pilot_skill;
+	sprintf(pilot_skill_message,"Pilot Skill: %d (+%d)",pilot_skill,skill_difference);
 
 	save_stats(state);
 
@@ -374,6 +379,7 @@ int menu_end(struct state *state){
 				else
 					drawtextcentered(state->font.main,0.0f,offset,listing);
 			}
+			drawtextcentered(state->font.main,0.0f,yoff+1.5f,pilot_skill_message);
 
 			// buttons
 			if(button_process(state->pointer,&buttonnew)==BUTTON_ACTIVATE){
