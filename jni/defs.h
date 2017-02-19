@@ -284,7 +284,7 @@ struct state{
 	struct apack aassets;
 	slesenv *soundengine;
 	struct{float left,right,bottom,top;}rect;
-	struct{ftfont *main,*button,*header;}font;
+	struct{ftfont *main,*main_gothic,*button,*header;}font;
 	struct{int vector,size,texcoords,rot,rgba,projection;}uniform;
 	struct crosshair pointer[2];
 	

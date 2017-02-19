@@ -18,7 +18,10 @@ int menu_main(struct state *state){
 	const char *aboot=
 		"~ ACE ~ \n"
 		"Programming and Art by Josh Winter\n"
-		"yadda yadda";
+		"https://bitbucket.org/JoshRWinter/ace\n\n"
+		"~ Music ~\n"
+		"Enzer0 - Beyond\n"
+		"https://enzer0.newgrounds.com";
 	float yoff=0.0f;
 	float slide=0.0f;
 	const float inc=0.01f;
@@ -429,8 +432,8 @@ int menu_message(struct state *state,const char *caption,const char *msg){
 		drawtextcentered(state->font.header,0.0f,-3.75f,caption);
 
 		// draw msg
-		glBindTexture(GL_TEXTURE_2D,state->font.main->atlas);
-		drawtextcentered(state->font.main,0.0f,-2.5f,msg);
+		glBindTexture(GL_TEXTURE_2D,state->font.main_gothic->atlas);
+		drawtextcentered(state->font.main_gothic,0.0f,-2.5f,msg);
 
 		if(button_process(state->pointer,&buttonok)==BUTTON_ACTIVATE){
 			return true;

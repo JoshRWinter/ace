@@ -70,6 +70,7 @@ void init_display(struct state *state){
 	// set up fonts
 	set_ftfont_params(state->screen.w,state->screen.h,state->rect.right*2.0f,state->rect.bottom*2.0f,state->uniform.vector,state->uniform.size,state->uniform.texcoords);
 	state->font.main=create_ftfont(state->app->activity->assetManager,0.4f,"corbel.ttf");
+	state->font.main_gothic=create_ftfont(state->app->activity->assetManager,0.4,"GOTHIC.TTF");
 	state->font.button=create_ftfont(state->app->activity->assetManager,0.6f,"GOTHIC.TTF");
 	state->font.header=create_ftfont(state->app->activity->assetManager,0.8f,"GOTHIC.TTF");
 }
@@ -83,6 +84,7 @@ void term_display(struct state *state){
 	destroyapack(&state->aassets);
 	state->running=false;
 	destroy_ftfont(state->font.main);
+	destroy_ftfont(state->font.main_gothic);
 	destroy_ftfont(state->font.button);
 	destroy_ftfont(state->font.header);
 	glDeleteBuffers(1,&state->vbo);
