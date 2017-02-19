@@ -55,7 +55,9 @@ int core(struct state *state){
 		if(enemy->timer_frame>6.0f)
 			enemy->timer_frame=0.0f;
 		enemy->base.frame=enemy->timer_frame>3.0f?1:0;
-		if(enemy->dying==0.0f&&(state->missilelist==NULL?onein(750):onein(1550))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
+
+		float dist_from_player=distance(enemy->base.x,state->player.base.x,enemy->base.y,state->player.base.y);
+		if(enemy->dying==0.0f&&(state->missilelist==NULL?onein(750):onein(1550))&&!state->player.dead&&state->focused_enemy==NULL&&dist_from_player<22.0f)newmissile(state,enemy);
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-enemy->target.y,
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-enemy->target.x);
 		align(&enemy->base.rot,enemy->dying>0.0f?(PLAYER_TURN_SPEED*1.5f*state->gamespeed):(PLAYER_TURN_SPEED*state->gamespeed),angle);
@@ -355,7 +357,7 @@ int core(struct state *state){
 		}
 		// check for missiles colliding with enemies
 		int stop=false;
-		if(MISSILE_TTL-missile->ttl>20)
+		if(MISSILE_TTL-missile->ttl>40)
 			for(struct enemy *enemy=state->enemylist,*prevenemy=NULL;enemy!=NULL;){
 				if(collide(&missile->base,&enemy->base,0.1f)){
 					newexplosion(state,enemy->base.x+(ENEMY_WIDTH/2.0f),enemy->base.y+(ENEMY_HEIGHT/2.0f),0.3f,false);
