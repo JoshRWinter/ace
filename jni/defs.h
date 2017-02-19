@@ -99,8 +99,8 @@ struct button{
 #define PLAYER_RIGHT_BOUNDARY ((state->player.base.x+(PLAYER_WIDTH/2.0f))+state->rect.right)
 #define PLAYER_BOTTOM_BOUNDARY ((state->player.base.y+(PLAYER_HEIGHT/2.0f))+state->rect.bottom)
 #define PLAYER_TOP_BOUNDARY ((state->player.base.y+(PLAYER_HEIGHT/2.0f))-state->rect.bottom)
-#define PLAYER_WIDTH 0.59166f
-#define PLAYER_HEIGHT 0.75f
+#define PLAYER_WIDTH 0.6f
+#define PLAYER_HEIGHT 0.7583333f
 #define PLAYER_SPEED 0.1f
 #define PLAYER_RELOAD 18
 #define PLAYER_TURN_SPEED 0.06f
@@ -112,6 +112,7 @@ struct player{
 	float targetrot;
 	float xv,yv;
 	float timer_bomb;
+	float timer_frame;
 	int reload;
 	int health;
 	int bombs;
@@ -134,6 +135,7 @@ struct enemy{
 	struct base target;
 	float timer_smoke;
 	float timer_reload;
+	float timer_frame;
 	float xv,yv;
 	int dead;
 	float dying; // timer

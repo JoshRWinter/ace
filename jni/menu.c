@@ -449,7 +449,8 @@ int menu_message(struct state *state,const char *caption,const char *msg){
 }
 
 int menu_transition(struct state *state){
-	struct base player={-PLAYER_WIDTH/2.0f,state->rect.top-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,0.0f,1.0f,0.0f};
+	struct base player={-PLAYER_WIDTH/2.0f,state->rect.top-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,0.0f,2.0f,0.0f};
+	float timer_frame=0.0f;
 	while(process(state->app)){
 		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -458,6 +459,10 @@ int menu_transition(struct state *state){
 		if(targetf(&player.y,step,-PLAYER_HEIGHT/2.0f)==-PLAYER_HEIGHT/2.0f)
 			return true;
 
+		timer_frame+=1.0f;
+		if(timer_frame>6.0f)
+			timer_frame=0.0f;
+		player.frame=timer_frame>3.0f?1:0;
 		glBindTexture(GL_TEXTURE_2D,state->assets.texture[TID_PLAYER].object);
 		draw(state,&player);
 

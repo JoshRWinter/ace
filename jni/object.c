@@ -21,7 +21,7 @@ void newenemy(struct state *state){
 	enemy->base.y=state->player.base.y+(onein(2)?ENEMY_BOUNDS:-ENEMY_BOUNDS);
 	enemy->base.rot=randomint(1,360)*(M_PI/180.0f);
 	enemy->base.frame=0.0f;
-	enemy->base.count=1.0f;
+	enemy->base.count=2.0f;
 	enemy->target.w=ENEMY_WIDTH;
 	enemy->target.h=ENEMY_HEIGHT;
 	enemy->target.x=enemy->base.x;
@@ -32,6 +32,7 @@ void newenemy(struct state *state){
 	enemy->health=100;
 	enemy->timer_smoke=0;
 	enemy->timer_reload=0;
+	enemy->timer_frame=0.0f;
 	enemy->next=state->enemylist;
 	state->enemylist=enemy;
 }

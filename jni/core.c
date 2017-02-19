@@ -50,6 +50,11 @@ int core(struct state *state){
 			enemy=deleteenemy(state,enemy,prevenemy);
 			continue;
 		}
+		// animation
+		enemy->timer_frame+=state->gamespeed;
+		if(enemy->timer_frame>6.0f)
+			enemy->timer_frame=0.0f;
+		enemy->base.frame=enemy->timer_frame>3.0f?1:0;
 		if(enemy->dying==0.0f&&(state->missilelist==NULL?onein(750):onein(1550))&&!state->player.dead&&state->focused_enemy==NULL)newmissile(state,enemy);
 		float angle=atan2f((enemy->base.y+(ENEMY_HEIGHT/2.0f))-enemy->target.y,
 				(enemy->base.x+(ENEMY_WIDTH/2.0f))-enemy->target.x);
@@ -591,6 +596,10 @@ int core(struct state *state){
 			state->player.timer_smoke=PLAYER_SMOKE;
 		}
 		else state->player.timer_smoke-=state->gamespeed;
+		state->player.timer_frame+=state->gamespeed;
+		if(state->player.timer_frame>6.0f)
+			state->player.timer_frame=0.0f;
+		state->player.base.frame=state->player.timer_frame>3.0f?0:1;
 	}
 	else if(!--state->gameoverdelay){
 		// delete all messages in the queue
@@ -962,7 +971,6 @@ void init(struct state *state){
 	state->player.engine=NULL;
 	state->player.base.w=PLAYER_WIDTH;
 	state->player.base.h=PLAYER_HEIGHT;
-	state->player.base.count=1.0f;
 
 	state->cloudlist=NULL;
 	state->largecloudlist=NULL;
@@ -1016,9 +1024,11 @@ void reset(struct state *state){
 	state->player.targetrot=0.0f;
 	state->player.base.rot=0.0f;
 	state->player.reload=0;
-	state->player.base.frame=0;
+	state->player.base.frame=0.0f;
+	state->player.base.count=2.0f;
 	state->player.timer_smoke=0;
 	state->player.timer_bomb=0.0f;
+	state->player.timer_frame=0.0f;
 	state->player.bombs=0;
 	state->player.dead=false;
 	state->player.victories=0;
