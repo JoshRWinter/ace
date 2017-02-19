@@ -246,6 +246,7 @@ struct cloud{
 #define LARGECLOUD_SIZE 4.25f
 struct largecloud{
 	struct base base;
+	float yoffset;
 	float xv,yv;
 	float alpha;
 	int top;

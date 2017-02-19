@@ -58,7 +58,8 @@ int menu_main(struct state *state){
 				continue;
 			}
 			cloud->base.x+=cloud->xv;
-			cloud->base.y=yoff+cloud->base.y;
+			if(transition)
+				cloud->base.y=yoff+cloud->yoffset;
 
 			if(!cloud->top){
 				// render
@@ -131,7 +132,7 @@ int menu_main(struct state *state){
 		if(transition){
 			slide+=inc;
 			yoff+=slide;
-			if(title.y>state->rect.bottom){
+			if(title.y>state->rect.bottom+2.5f){
 				for(struct largecloud *cloud=state->largecloudlist;cloud!=NULL;cloud=deletelargecloud(state,cloud,NULL));
 				if(!menu_transition(state))
 					return false;

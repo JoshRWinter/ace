@@ -282,6 +282,7 @@ void newlargecloud(struct state *state,int top){
 	cloud->base.h=cloud->base.w;
 	cloud->base.x=state->rect.left-LARGECLOUD_SIZE;
 	cloud->base.y=randomint((state->rect.top-(LARGECLOUD_SIZE/2.0f))*10.0f,(state->rect.bottom+(LARGECLOUD_SIZE/2.0f))*10.0f)/10.0f;
+	cloud->yoffset=cloud->base.y;
 	cloud->base.rot=0.0f;
 	cloud->base.count=1.0f;
 	cloud->base.frame=0.0f;
