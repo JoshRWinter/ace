@@ -53,9 +53,29 @@ int menu_main(struct state *state){
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// process formations
+		const float FORMATION_CRAWL=-0.02f;
+		glUniform4f(state->uniform.rgba,0.8f,0.8f,1.0f,1.0f);
+		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_FORMATION].object);
+		if(onein(200))
+			newformation(state);
+		for(struct formation *formation=state->formationlist,*prevformation=NULL;formation!=NULL;){
+			formation->base.x+=FORMATION_CRAWL;
+			if(formation->base.x+FORMATION_WIDTH<state->rect.left){
+				formation=deleteformation(state,formation,prevformation);
+				continue;
+			}
+
+			uidraw(state,&formation->base);
+
+			prevformation=formation;
+			formation=formation->next;
+		}
+
 		// process large clouds
 		if(onein(35))
 			newlargecloud(state,false);
+		glUniform4f(state->uniform.rgba,1.0f,1.0f,1.0f,1.0f);
 		glBindTexture(GL_TEXTURE_2D,state->uiassets.texture[TID_LARGECLOUD].object);
 		for(struct largecloud *cloud=state->largecloudlist,*prevcloud=NULL;cloud!=NULL;){
 			if(cloud->base.x>state->rect.right){
@@ -140,6 +160,7 @@ int menu_main(struct state *state){
 			yoff+=slide;
 			if(title.y>state->rect.bottom+2.5f){
 				for(struct largecloud *cloud=state->largecloudlist;cloud!=NULL;cloud=deletelargecloud(state,cloud,NULL));
+				for(struct formation *formation=state->formationlist;formation!=NULL;formation=deleteformation(state,formation,NULL));
 				if(!menu_transition(state))
 					return false;
 				if(state->sounds)

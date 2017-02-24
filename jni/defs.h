@@ -35,6 +35,7 @@
 #define TID_AWDAM 9
 #define TID_AWDDFCSMALL 10
 #define TID_AWDAMSMALL 11
+#define TID_FORMATION 12
 
 // sounds
 #define SID_SILENCE 0
@@ -255,6 +256,13 @@ struct largecloud{
 	struct largecloud *next;
 };
 
+#define FORMATION_WIDTH 1.0f
+#define FORMATION_HEIGHT 2.85f
+struct formation{
+	struct base base;
+	struct formation *next;
+};
+
 #define MESSAGE_TTL 190
 #define MESSAGE_MAX 50
 #define MESSAGE_PINCH 10
@@ -305,6 +313,7 @@ struct state{
 	struct health *healthlist;
 	struct cloud *cloudlist;
 	struct largecloud *largecloudlist;
+	struct formation *formationlist;
 	struct explosion *explosionlist;
 	struct message *messagelist;
 };
@@ -360,6 +369,8 @@ void newcloud(struct state*);
 struct cloud *deletecloud(struct state*,struct cloud*,struct cloud*);
 void newlargecloud(struct state*,int);
 struct largecloud *deletelargecloud(struct state*,struct largecloud*,struct largecloud*);
+void newformation(struct state*);
+struct formation *deleteformation(struct state*,struct formation*,struct formation*);
 void newexplosion(struct state*,float,float,float,int);
 struct explosion *deleteexplosion(struct state*,struct explosion*,struct explosion*);
 void newmessage(struct state*,char*);

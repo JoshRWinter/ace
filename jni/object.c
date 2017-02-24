@@ -302,6 +302,34 @@ struct largecloud *deletelargecloud(struct state *state,struct largecloud *cloud
 	return temp;
 }
 
+void newformation(struct state *state){
+	// find somewhere to put it
+	struct base base;
+	base.w=FORMATION_WIDTH;
+	base.h=FORMATION_HEIGHT;
+	base.rot=0.0f;
+	base.count=1.0f;
+	base.frame=0.0f;
+	base.x=state->rect.right;
+	base.y=randomint((state->rect.top-2.0f)*10.0f,(state->rect.bottom+2.0f)*10.0f)/10.0f;
+	// make sure it doesn't collide with any other formations
+	for(struct formation *formation=state->formationlist;formation!=NULL;formation=formation->next)
+		if(collide(&base,&formation->base,-5.0f))
+			return;
+
+	struct formation *formation=malloc(sizeof(struct formation));
+	formation->base=base;
+	formation->next=state->formationlist;
+	state->formationlist=formation;
+}
+struct formation *deleteformation(struct state *state,struct formation *formation,struct formation *prev){
+	if(prev!=NULL)prev->next=formation->next;
+	else state->formationlist=formation->next;
+	void *temp=formation->next;
+	free(formation);
+	return temp;
+}
+
 void newexplosion(struct state *state,float x,float y,float size,int sealevel){
 	// don't generate explosion if it would be offscreen
 	float xdiff=fabs(x-(state->player.base.x+(PLAYER_WIDTH/2.0f)));
