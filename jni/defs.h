@@ -320,6 +320,7 @@ void load_stats(struct state*);
 void save_stats(struct state*);
 void selection(int*);
 int get_pilot_skill(struct state*);
+char *get_pilot_class(struct state*);
 
 int button_process(struct crosshair*,struct button*);
 void button_draw(struct state*,struct button*);

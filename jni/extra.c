@@ -23,6 +23,18 @@ int get_pilot_skill(struct state *state){
 	return skill;
 }
 
+char *get_pilot_class(struct state *state){
+	int skill=get_pilot_skill(state);
+	if(skill<70)
+		return "Novice";
+	else if(skill < 120)
+		return "Intermediate";
+	else if(skill < 160)
+		return "Professional";
+	else
+		return "Ace";
+}
+
 void load_settings(struct state *state){
 	FILE *file=fopen(DATAPATH"/00","rb");
 
