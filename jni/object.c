@@ -319,6 +319,7 @@ void newformation(struct state *state){
 
 	struct formation *formation=malloc(sizeof(struct formation));
 	formation->base=base;
+	formation->yoffset=formation->base.y;
 	formation->next=state->formationlist;
 	state->formationlist=formation;
 }

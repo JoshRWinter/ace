@@ -260,6 +260,7 @@ struct largecloud{
 #define FORMATION_HEIGHT 2.85f
 struct formation{
 	struct base base;
+	float yoffset;
 	struct formation *next;
 };
 

@@ -61,6 +61,8 @@ int menu_main(struct state *state){
 			newformation(state);
 		for(struct formation *formation=state->formationlist,*prevformation=NULL;formation!=NULL;){
 			formation->base.x+=FORMATION_CRAWL;
+			if(transition)
+				formation->base.y=yoff+formation->yoffset;
 			if(formation->base.x+FORMATION_WIDTH<state->rect.left){
 				formation=deleteformation(state,formation,prevformation);
 				continue;
