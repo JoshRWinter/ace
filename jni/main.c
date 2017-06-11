@@ -3,6 +3,7 @@
 #include <android_native_app_glue.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include "defs.h"
 
 extern const char *vertexshader,*fragmentshader;
@@ -29,7 +30,7 @@ void init_display(struct state *state){
 	// texture packs
 	if(!loadpack(&state->assets,state->app->activity->assetManager,"assets",NULL))logcat("texture init error");
 	if(!loadpack(&state->uiassets,state->app->activity->assetManager,"uiassets",NULL))logcat("ui texture init error");
-	
+
 	// set up shaders
 	state->program=initshaders(vertexshader,fragmentshader);
 	glUseProgram(state->program);
@@ -44,7 +45,7 @@ void init_display(struct state *state){
 	float matrix[16];
 	initortho(matrix,state->rect.left,state->rect.right,state->rect.bottom,state->rect.top,-1.0f,1.0f);
 	glUniformMatrix4fv(state->uniform.projection,1,false,matrix);
-	
+
 	// VBOs and VAOs
 	glGenVertexArrays(1,&state->vao);
 	glGenBuffers(1,&state->vbo);
@@ -61,11 +62,11 @@ void init_display(struct state *state){
 
 	// set up sounds
 	loadapack(&state->aassets,state->app->activity->assetManager,"aassets");
-	state->soundengine=initOpenSL();
+	state->soundengine=initOpenSL(sound_config_fn);
 	if(state->music)
-		playsound(state->soundengine,state->aassets.sound+SID_THEME,true);
+		sl_play_loop(state->soundengine,state->aassets.sound+SID_THEME);
 	else
-		playsound(state->soundengine,state->aassets.sound+SID_SILENCE,true);
+		sl_play_loop(state->soundengine,state->aassets.sound+SID_SILENCE);
 
 	// set up fonts
 	set_ftfont_params(state->screen.w,state->screen.h,state->rect.right*2.0f,state->rect.bottom*2.0f,state->uniform.vector,state->uniform.size,state->uniform.texcoords);
@@ -76,9 +77,9 @@ void init_display(struct state *state){
 }
 
 void term_display(struct state *state){
-	if(state->player.engine){
-		stopsound(state->soundengine,state->player.engine);
-		state->player.engine=NULL;
+	if(state->player.engine!=0){
+		sl_stop(state->soundengine,state->player.engine);
+		state->player.engine=0;
 	}
 	termOpenSL(state->soundengine);
 	destroyapack(&state->aassets);
@@ -148,11 +149,32 @@ int process(struct android_app *app){
 	return true;
 }
 
+static const struct state *global_state;
+void sound_config_fn(const struct apacksound *sound,const struct sl_entity_position *listener,const struct sl_entity_position *source,float *stereo,float *intensity){
+	// set the stereo position
+	*stereo=(source->x-listener->x)/10.0f;
+
+	// set the intensity
+	float atten;
+	float d=distance(listener->x,source->x,listener->y,source->y);
+	if(sound==global_state->aassets.sound+SID_HUGEEXPLOSION)
+		atten=1.0f-(d/100.0f);
+	else
+		atten=1.0f-(d/15.0f);
+	// clamp
+	if(atten<0.0f)
+		atten=0.0f;
+	else if(atten>1.0f)
+		atten=1.0f;
+	*intensity=atten;
+}
+
 void android_main(struct android_app *app){
 	logcat("--- BEGIN NEW LOG ---");
 	app_dummy();
 	srand48(time(NULL));
 	struct state state;
+	global_state=&state;
 	state.running=false;
 	state.app=app;
 	app->userData=&state;

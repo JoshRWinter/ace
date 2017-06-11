@@ -109,7 +109,7 @@ struct button{
 #define PLAYER_TOLERANCE 0.2f // collision tolerance
 struct player{
 	struct base base;
-	struct audioplayer *engine;
+	int engine;
 	float targetrot;
 	float xv,yv;
 	float timer_bomb;
@@ -296,7 +296,7 @@ struct state{
 	struct{ftfont *main,*main_gothic,*button,*header;}font;
 	struct{int vector,size,texcoords,rot,rgba,projection;}uniform;
 	struct crosshair pointer[2];
-	
+
 	EGLSurface surface;
 	EGLContext context;
 	EGLDisplay display;
@@ -320,6 +320,7 @@ struct state{
 };
 
 int process(struct android_app*);
+void sound_config_fn(const struct apacksound*,const struct sl_entity_position*,const struct sl_entity_position*,float*,float*);
 int32_t inputproc(struct android_app*,AInputEvent*);
 void cmdproc(struct android_app*,int32_t);
 void init_display(struct state*);

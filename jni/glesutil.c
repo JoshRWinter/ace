@@ -9,8 +9,17 @@
 #include <ogg/ogg.h>
 #include <vorbis/vorbisfile.h>
 #include <unistd.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #define GLESUTIL_DEBUG
 #include "glesutil.h"
+
+#define true 1
+#define false 0
+
+PFNGLGENVERTEXARRAYSOESPROC glGenVertexArrays;
+PFNGLBINDVERTEXARRAYOESPROC glBindVertexArray;
+PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArrays;
 
 void initextensions(){
 	glGenVertexArrays=(PFNGLGENVERTEXARRAYSOESPROC)eglGetProcAddress("glGenVertexArraysOES");
@@ -277,7 +286,7 @@ static unsigned create_font_atlas(ftfont *font,struct AAssetManager *mgr,const c
 	unsigned char *chunk=malloc(filesize);
 	AAsset_read(asset,chunk,filesize);
 	AAsset_close(asset);
-	
+
 	int error;
 	FT_Library library;
 	error=FT_Init_FreeType(&library);
@@ -285,12 +294,12 @@ static unsigned create_font_atlas(ftfont *font,struct AAssetManager *mgr,const c
 		logcat("%s: error initializing freetype",__func__);
 		return 0;
 	}
-	
+
 	FT_Face face;
 	error=FT_New_Memory_Face(library,chunk,filesize,0,&face);
 	if(error){
 		logcat("%s: error creating face",__func__);
-		
+
 		return 0;
 	}
 	error=FT_Set_Pixel_Sizes(face,0,pixelsize);
@@ -299,7 +308,7 @@ static unsigned create_font_atlas(ftfont *font,struct AAssetManager *mgr,const c
 	}
 	int adjustedsize=roundf(((face->bbox.yMax-face->bbox.yMin)/2048.0f)*face->size->metrics.y_ppem);
 	font->fontsize=((float)adjustedsize/ftglobal_iscreenwidth)*ftglobal_fscreenwidth;
-	
+
 	unsigned char *bitmap=malloc(adjustedsize*adjustedsize*rows*cols*4);
 	if(bitmap==NULL){
 		logcat("%s: error 'malloc' no memory",__func__);
@@ -355,7 +364,7 @@ static unsigned create_font_atlas(ftfont *font,struct AAssetManager *mgr,const c
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,adjustedsize*cols,adjustedsize*rows,0,GL_RGBA,GL_UNSIGNED_BYTE,bitmap);
 	free(bitmap);
-	
+
 	FT_Done_Face(face);
 	free(chunk);
 	FT_Done_FreeType(library);
@@ -396,9 +405,9 @@ void drawtext(ftfont *font,float xpos,float ypos,const char *output){
 		const float xnormal=1.0f/cols,ynormal=1.0/rows;
 		float x=(float)((output[character]-32)%16)*xnormal;
 		float y=(float)((output[character]-32)/16)*ynormal;
-		glUniform2f(ftglobal_vector,alignx(xpos)+xoffset,aligny(ypos)+yoffset);
+		glUniform2f(ftglobal_vector,alignx(xpos)+alignx(xoffset),aligny(ypos)+aligny(yoffset));
 		glUniform4f(ftglobal_texcoords,x,x+xnormal,(1.0f-y-ynormal),1.0f-y);
-		
+
 		glDrawArrays(GL_TRIANGLE_STRIP,0,4);
 		xoffset+=alignx(((struct kernvector*)font->kern)[output[character]-32].advance)-bitmap_left;
 		character++;
@@ -432,9 +441,9 @@ void drawtextcentered(ftfont *font,float xpos,float ypos,const char *output){
 		const float xnormal=1.0f/cols,ynormal=1.0/rows;
 		float x=(float)((output[character]-32)%16)*xnormal;
 		float y=(float)((output[character]-32)/16)*ynormal;
-		glUniform2f(ftglobal_vector,alignx(adjustedxpos)+xoffset,aligny(ypos)+yoffset);
+		glUniform2f(ftglobal_vector,alignx(adjustedxpos)+alignx(xoffset),aligny(ypos)+aligny(yoffset));
 		glUniform4f(ftglobal_texcoords,x,x+xnormal,(1.0f-y-ynormal),1.0f-y);
-		
+
 		glDrawArrays(GL_TRIANGLE_STRIP,0,4);
 		xoffset+=alignx(((struct kernvector*)font->kern)[output[character]-32].advance)-bitmap_left;
 		character++;
@@ -625,7 +634,7 @@ static int decodeogg(char *encoded,int filesize,short **decoded,unsigned *size,u
 	long long samplecount;
 	unsigned index=filesize-1;
 	while(!(encoded[index]=='S'&&encoded[index-1]=='g'&&encoded[index-2]=='g'&&encoded[index-3]=='O'))index--;
-	
+
 	char array[8];
 	array[0]=encoded[index+3];
 	array[1]=encoded[index+4];
@@ -636,12 +645,12 @@ static int decodeogg(char *encoded,int filesize,short **decoded,unsigned *size,u
 	array[6]=encoded[index+9];
 	array[7]=encoded[index+10];
 	samplecount=*(long long*)array;
-	
+
 	//log("total samples = %lld",samplecount);
 	pthread_mutex_lock(&mutex);
 	*targetsize=samplecount*sizeof(short);
 	pthread_mutex_unlock(&mutex);
-	
+
 	ogg_sync_state state;
 	ogg_stream_state streamstate;
 	ogg_page page;
@@ -785,7 +794,7 @@ static int decodeogg(char *encoded,int filesize,short **decoded,unsigned *size,u
 	else{
 		logcat("corrupt header during playback init");
 	}
-	
+
 	ogg_stream_clear(&streamstate);
 	vorbis_comment_clear(&vorbiscomment);
 	vorbis_info_clear(&vorbisinfo);
@@ -793,6 +802,7 @@ static int decodeogg(char *encoded,int filesize,short **decoded,unsigned *size,u
 	free(convbuffer);
 	return true;
 }
+
 void playercallback(SLAndroidSimpleBufferQueueItf buffq,void *vcontext){
 	struct audioplayer *context=vcontext;
 	pthread_mutex_lock(&context->sound->parent->mutex);
@@ -816,83 +826,9 @@ void playercallback(SLAndroidSimpleBufferQueueItf buffq,void *vcontext){
 	}
 	context->destroy=true;
 }
-void disablesound(slesenv *engine){
-	engine->enabled=false;
-	for(struct audioplayer *ap=engine->audioplayerlist;ap!=NULL;ap=ap->next){
-		pthread_mutex_lock(&ap->sound->parent->mutex);
-		(*ap->volumeinterface)->SetVolumeLevel(ap->volumeinterface,SL_MILLIBEL_MIN);
-		pthread_mutex_unlock(&ap->sound->parent->mutex);
-	}
-}
-void enablesound(slesenv *engine){
-	engine->enabled=true;
-	for(struct audioplayer *ap=engine->audioplayerlist;ap!=NULL;ap=ap->next){
-		pthread_mutex_lock(&ap->sound->parent->mutex);
-		(*ap->volumeinterface)->SetVolumeLevel(ap->volumeinterface,0);// zero is max
-		pthread_mutex_unlock(&ap->sound->parent->mutex);
-	}
-}
-void stopsound(slesenv *engine,struct audioplayer *audioplayer){
-	pthread_mutex_lock(&audioplayer->sound->parent->mutex);
-	(*audioplayer->playerinterface)->SetPlayState(audioplayer->playerinterface,SL_PLAYSTATE_STOPPED);
-	audioplayer->loop=false;
-	audioplayer->destroy=true;
-	pthread_mutex_unlock(&audioplayer->sound->parent->mutex);
-}
-void stopallsounds(slesenv *soundengine){
-	for(struct audioplayer *audioplayer=soundengine->audioplayerlist;audioplayer!=NULL;){
-		(*audioplayer->playerobject)->Destroy(audioplayer->playerobject);
-		void *temp=audioplayer->next;
-		free(audioplayer);
-		audioplayer=temp;
-	}
-	soundengine->audioplayerlist=NULL;
-}
-struct audioplayer *playsound(slesenv *engine,struct apacksound *sound,int loop){
-	if(!engine->enabled)return NULL;
-	pthread_mutex_lock(&sound->parent->mutex);
-	unsigned size=sound->size,targetsize=sound->targetsize;
-	pthread_mutex_unlock(&sound->parent->mutex);
-	if(size==0){
-		if(!loop)return NULL;// don't care, non loops are usually not high-priority
-		while(size==0){
-			pthread_mutex_lock(&sound->parent->mutex);
-			size=sound->size;
-			targetsize=sound->targetsize;
-			pthread_mutex_unlock(&sound->parent->mutex);
-			usleep(10*1000);
-		}
-	}
-	struct audioplayer *audioplayer=malloc(sizeof(struct audioplayer));
-	
-	SLDataLocator_AndroidSimpleBufferQueue buffq={SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,2};
-	SLDataFormat_PCM format_pcm={SL_DATAFORMAT_PCM,1,SL_SAMPLINGRATE_44_1,SL_PCMSAMPLEFORMAT_FIXED_16,SL_PCMSAMPLEFORMAT_FIXED_16,SL_SPEAKER_FRONT_CENTER,SL_BYTEORDER_LITTLEENDIAN};
-	SLDataSource source={&buffq,&format_pcm};
-	SLDataLocator_OutputMix localoutputmix={SL_DATALOCATOR_OUTPUTMIX,engine->outputmix};
-	SLDataSink sink={&localoutputmix,NULL};
-	
-	(*engine->engineinterface)->CreateAudioPlayer(engine->engineinterface,&audioplayer->playerobject,&source,&sink,2,(SLInterfaceID[]){SL_IID_ANDROIDSIMPLEBUFFERQUEUE,SL_IID_VOLUME},(SLboolean[]){SL_BOOLEAN_TRUE,SL_BOOLEAN_TRUE});
-	(*audioplayer->playerobject)->Realize(audioplayer->playerobject,SL_BOOLEAN_FALSE);
-	(*audioplayer->playerobject)->GetInterface(audioplayer->playerobject,SL_IID_PLAY,&audioplayer->playerinterface);
-	(*audioplayer->playerobject)->GetInterface(audioplayer->playerobject,SL_IID_VOLUME,&audioplayer->volumeinterface);
-	(*audioplayer->playerobject)->GetInterface(audioplayer->playerobject,SL_IID_ANDROIDSIMPLEBUFFERQUEUE,&audioplayer->playerbufferqueue);
-	(*audioplayer->playerbufferqueue)->RegisterCallback(audioplayer->playerbufferqueue,playercallback,audioplayer);
-	(*audioplayer->playerinterface)->SetPlayState(audioplayer->playerinterface,SL_PLAYSTATE_PLAYING);
-	
-	//log("size: %d, targetsize: %d",size,targetsize);
-	audioplayer->initial=size;
-	(*audioplayer->playerbufferqueue)->Enqueue(audioplayer->playerbufferqueue,sound->buffer,size);
-	audioplayer->loop=loop;
-	audioplayer->engine=engine;
-	audioplayer->sound=sound;
-	audioplayer->destroy=false;
-	
-	audioplayer->next=engine->audioplayerlist;
-	engine->audioplayerlist=audioplayer;
-	//#define COUNT_OBJECTS
-	#ifdef COUNT_OBJECTS
-	int count=0;
-	#endif
+
+void clean_destroyed_sounds(slesenv *engine){
+	engine->sound_count=0;
 	for(struct audioplayer *ap=engine->audioplayerlist,*prevap=NULL;ap!=NULL;){
 		if(ap->destroy){
 			(*ap->playerobject)->Destroy(ap->playerobject);
@@ -903,18 +839,288 @@ struct audioplayer *playsound(slesenv *engine,struct apacksound *sound,int loop)
 			ap=temp;
 			continue;
 		}
-		#ifdef COUNT_OBJECTS
-		count++;
-		#endif
+		++engine->sound_count;
 		prevap=ap;
 		ap=ap->next;
 	}
-	#ifdef COUNT_OBJECTS
-	logcat("count: %d",count);
-	#endif
-	return audioplayer;
 }
-slesenv *initOpenSL(){
+
+static struct audioplayer *newsound(slesenv *engine,struct apacksound *sound,int loop,int *sound_size){
+	if(!engine->enabled)return NULL;
+	pthread_mutex_lock(&sound->parent->mutex);
+	unsigned size=sound->size,targetsize=sound->targetsize;
+	pthread_mutex_unlock(&sound->parent->mutex);
+	if(size==0){
+		if(!loop)return 0;// don't care, non loops are usually not high-priority
+		while(size==0){
+			pthread_mutex_lock(&sound->parent->mutex);
+			size=sound->size;
+			targetsize=sound->targetsize;
+			pthread_mutex_unlock(&sound->parent->mutex);
+			usleep(10*1000);
+		}
+	}
+
+	struct audioplayer *audioplayer=malloc(sizeof(struct audioplayer));
+
+	SLDataLocator_AndroidSimpleBufferQueue buffq={SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,2};
+	SLDataFormat_PCM format_pcm={SL_DATAFORMAT_PCM,1,SL_SAMPLINGRATE_44_1,SL_PCMSAMPLEFORMAT_FIXED_16,SL_PCMSAMPLEFORMAT_FIXED_16,SL_SPEAKER_FRONT_CENTER,SL_BYTEORDER_LITTLEENDIAN};
+	SLDataSource source={&buffq,&format_pcm};
+	SLDataLocator_OutputMix localoutputmix={SL_DATALOCATOR_OUTPUTMIX,engine->outputmix};
+	SLDataSink sink={&localoutputmix,NULL};
+
+	int result;
+	result=(*engine->engineinterface)->CreateAudioPlayer(engine->engineinterface,&audioplayer->playerobject,&source,&sink,2,(SLInterfaceID[]){SL_IID_ANDROIDSIMPLEBUFFERQUEUE,SL_IID_VOLUME},(SLboolean[]){SL_BOOLEAN_TRUE,SL_BOOLEAN_TRUE});
+	if(result!=0)
+		goto error_out_not_allocated;
+	result=(*audioplayer->playerobject)->Realize(audioplayer->playerobject,SL_BOOLEAN_FALSE);
+	if(result!=0)
+		goto error_out;
+	result=(*audioplayer->playerobject)->GetInterface(audioplayer->playerobject,SL_IID_PLAY,&audioplayer->playerinterface);
+	if(result!=0)
+		goto error_out;
+	result=(*audioplayer->playerobject)->GetInterface(audioplayer->playerobject,SL_IID_VOLUME,&audioplayer->volumeinterface);
+	if(result!=0)
+		goto error_out;
+	result=(*audioplayer->playerobject)->GetInterface(audioplayer->playerobject,SL_IID_ANDROIDSIMPLEBUFFERQUEUE,&audioplayer->playerbufferqueue);
+	if(result!=0)
+		goto error_out;
+	result=(*audioplayer->playerbufferqueue)->RegisterCallback(audioplayer->playerbufferqueue,playercallback,audioplayer);
+	if(result!=0)
+		goto error_out;
+	result=(*audioplayer->playerinterface)->SetPlayState(audioplayer->playerinterface,SL_PLAYSTATE_PLAYING);
+	if(result!=0)
+		goto error_out;
+
+	//log("size: %d, targetsize: %d",size,targetsize);
+	audioplayer->initial=size;
+	audioplayer->loop=loop;
+	audioplayer->engine=engine;
+	audioplayer->sound=sound;
+	audioplayer->destroy=false;
+	audioplayer->panning=false;
+	audioplayer->id=engine->last_id++;
+	audioplayer->source.x=0.0f;
+	audioplayer->source.y=0.0f;
+	*sound_size=size;
+
+	// add to the list
+	audioplayer->next=engine->audioplayerlist;
+	engine->audioplayerlist=audioplayer;
+
+	clean_destroyed_sounds(engine);
+
+	return audioplayer;
+
+	error_out:
+	// something bad happened, bail out
+	(*audioplayer->playerobject)->Destroy(audioplayer->playerobject);
+
+	error_out_not_allocated:
+	logcat("OpenSL error, bailing out (%d sounds)",engine->sound_count);
+	free(audioplayer);
+	clean_destroyed_sounds(engine);
+	return NULL;
+}
+
+static int float_to_millibel(float f){
+	return (int)(-2000.0f*log10f(1.0f/f));
+}
+
+static void executesound(struct audioplayer *player,int size){
+	(*player->playerbufferqueue)->Enqueue(player->playerbufferqueue,player->sound->buffer,size);
+}
+
+void sl_disable(slesenv *engine){
+	engine->enabled=false;
+}
+
+void sl_enable(slesenv *engine){
+	engine->enabled=true;
+}
+
+// return true if sound still playing
+int sl_check(slesenv *engine,int id){
+	struct audioplayer *current=engine->audioplayerlist;
+
+	while(current!=NULL){
+		if(current->destroy){
+			current=current->next;
+			continue;
+		}
+
+		if(current->id==id)
+			return true;
+
+		current=current->next;
+	}
+
+	return false;
+}
+
+void sl_stop_all(slesenv *soundengine){
+	for(struct audioplayer *audioplayer=soundengine->audioplayerlist;audioplayer!=NULL;){
+		if(!audioplayer->destroy)
+			(*audioplayer->playerobject)->Destroy(audioplayer->playerobject);
+		void *temp=audioplayer->next;
+		free(audioplayer);
+		audioplayer=temp;
+	}
+
+	soundengine->audioplayerlist=NULL;
+}
+
+static void enablepanning(struct audioplayer *player){
+	if(player->panning)
+		return;
+
+	int result=(*player->volumeinterface)->EnableStereoPosition(player->volumeinterface,true);
+	if(result==0)
+		player->panning=true;
+	else
+		logcat("Stereo positioning is not possible on this device");
+}
+
+static void configsound(slesenv *engine,struct audioplayer *player){
+	// call the user provided sound configuration function
+	float position,intensity;
+	engine->sound_config_fn(player->sound,&engine->listener,&player->source,&position,&intensity);
+
+	// set stereo position
+	if(position<-1.0f)
+		position=-1.0f;
+	else if(position>1.0f)
+		position=1.0f;
+	// make sure panning is enabled
+	if(player->panning)
+		(*player->volumeinterface)->SetStereoPosition(player->volumeinterface,position*1000.0f);
+
+	// set intensity (volume)
+	long millibel=float_to_millibel(intensity);
+	if(millibel>0)
+		millibel=0;
+	else if(millibel<SL_MILLIBEL_MIN)
+		millibel=SL_MILLIBEL_MIN;
+	(*player->volumeinterface)->SetVolumeLevel(player->volumeinterface,millibel);
+}
+
+void sl_set_source_position(slesenv *engine,int id,float x,float y){
+	struct audioplayer *current=engine->audioplayerlist;
+
+	while(current!=NULL){
+		if(current->id==id){
+			if(current->panning){
+				current->source.x=x;
+				current->source.y=y;
+				configsound(engine,current);
+			}
+			return;
+		}
+
+		current=current->next;
+	}
+}
+
+void sl_set_listener_position(slesenv *engine,float x,float y){
+	int update=false;
+	if(engine->listener.x!=x||engine->listener.y!=y)
+		update=true;
+
+	engine->listener.x=x;
+	engine->listener.y=y;
+
+	if(update){
+		struct audioplayer *current=engine->audioplayerlist;
+
+		while(current!=NULL){
+			if(current->panning)
+				configsound(engine,current);
+
+			current=current->next;
+		}
+	}
+}
+
+void sl_stop(slesenv *engine,int id){
+	struct audioplayer *current=engine->audioplayerlist;
+	while(current!=NULL){
+		if(current->id==id){
+			(*current->playerinterface)->SetPlayState(current->playerinterface,SL_PLAYSTATE_STOPPED);
+			current->loop=false;
+			current->destroy=true;
+			break;
+		}
+
+		current=current->next;
+	}
+}
+
+int sl_play(slesenv *engine,struct apacksound *sound){
+	int size;
+	struct audioplayer *player=newsound(engine,sound,false,&size);
+	if(player==NULL)
+		return 0;
+
+	int id=player->id;
+	executesound(player,size);
+
+	return id;
+}
+
+int sl_play_loop(slesenv *engine,struct apacksound *sound){
+	int size;
+	struct audioplayer *player=newsound(engine,sound,true,&size);
+	if(player==NULL)
+		return 0;
+
+	int id=player->id;
+	executesound(player,size);
+
+	return id;
+}
+
+int sl_play_stereo(slesenv *engine,struct apacksound *sound,float x,float y){
+	int size;
+	struct audioplayer *player=newsound(engine,sound,false,&size);
+	if(player==NULL)
+		return 0;
+
+	int id=player->id;
+	player->source.x=x;
+	player->source.y=y;
+	enablepanning(player);
+	configsound(engine,player);
+	executesound(player,size);
+
+	return id;
+}
+
+int sl_play_stereo_loop(slesenv *engine,struct apacksound *sound,float x,float y){
+	int size;
+	struct audioplayer *player=newsound(engine,sound,true,&size);
+	if(player==NULL)
+		return 0;
+
+	int id=player->id;
+	player->source.x=x;
+	player->source.y=y;
+	enablepanning(player);
+	configsound(engine,player);
+	executesound(player,size);
+
+	return id;
+}
+
+// default config function
+static void default_sound_config_fn(const struct apacksound *sound,const struct sl_entity_position *listener,const struct sl_entity_position *source,float *stereo,float *attenuation){
+	*stereo=0.0f;
+	*attenuation=1.0f;
+}
+
+slesenv *initOpenSL(SL_CONFIG_FN sound_config_fn){
+	if(sound_config_fn==NULL)
+		sound_config_fn=default_sound_config_fn;
+
 	slesenv *soundengine=malloc(sizeof(slesenv));
 	slCreateEngine(&soundengine->engine,0,NULL,0,NULL,NULL);
 	(*soundengine->engine)->Realize(soundengine->engine,SL_BOOLEAN_FALSE);
@@ -923,6 +1129,11 @@ slesenv *initOpenSL(){
 	(*soundengine->outputmix)->Realize(soundengine->outputmix,SL_BOOLEAN_FALSE);
 	soundengine->audioplayerlist=NULL;
 	soundengine->enabled=true;
+	soundengine->sound_count=0;
+	soundengine->last_id=1;
+	soundengine->sound_config_fn=sound_config_fn;
+	soundengine->listener.x=0.0f;
+	soundengine->listener.y=0.0f;
 	return soundengine;
 }
 void termOpenSL(slesenv *soundengine){
@@ -935,6 +1146,12 @@ void termOpenSL(slesenv *soundengine){
 	(*soundengine->outputmix)->Destroy(soundengine->outputmix);
 	(*soundengine->engine)->Destroy(soundengine->engine);
 	free(soundengine);
+}
+
+void get_nano_time(long long *lli){
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC,&ts);
+	*lli=((long long)ts.tv_sec*(long long)1000000000)+(long long)ts.tv_nsec;
 }
 
 void init_jni(struct android_app *app,struct jni_info *jni_info){
@@ -950,7 +1167,7 @@ void init_jni(struct android_app *app,struct jni_info *jni_info){
 	jni_info->hasvb=(*jni_info->env)->CallBooleanMethod(jni_info->env,jni_info->vb_svc,hasvbmethod);
 	if(!jni_info->hasvb)logcat("This device cannot vibrate");
 	else jni_info->vbmethod=(*jni_info->env)->GetMethodID(jni_info->env,vb,"vibrate","(J)V");
-	
+
 	jni_info-> MethodGetWindow = (*jni_info->env)->GetMethodID(jni_info->env,jni_info->sys_svc, "getWindow", "()Landroid/view/Window;");
 	jni_info-> lWindow = (*jni_info->env)->CallObjectMethod(jni_info->env,jni_info-> clazz, jni_info->MethodGetWindow);
 	jni_info-> cWindow = (*jni_info->env)->FindClass(jni_info->env,"android/view/Window");
@@ -958,7 +1175,7 @@ void init_jni(struct android_app *app,struct jni_info *jni_info){
 	jni_info-> MethodGetDecorView = (*jni_info->env)->GetMethodID(jni_info->env, jni_info->cWindow, "getDecorView", "()Landroid/view/View;");
 	jni_info-> lDecorView = (*jni_info->env)->CallObjectMethod(jni_info->env, jni_info->lWindow, jni_info->MethodGetDecorView);
 	jni_info-> MethodSetSystemUiVisibility = (*jni_info->env)->GetMethodID(jni_info->env,jni_info->cView, "setSystemUiVisibility", "(I)V");
-	
+
 	(*jni_info->env)->DeleteLocalRef(jni_info->env,mstr);
 	(*jni_info->env)->DeleteLocalRef(jni_info->env,vb);
 }
@@ -983,4 +1200,42 @@ void hidenavbars(struct jni_info *jni_info){
 	if((*jni_info->env)->ExceptionCheck){
 		(*jni_info->env)->ExceptionClear(jni_info->env);
 	}
+}
+
+void init_accel(struct android_app *app,struct accel_info *accel_info){
+	accel_info->app=app;
+	accel_info->manager=ASensorManager_getInstance();
+	accel_info->sensor=ASensorManager_getDefaultSensor(accel_info->manager,ASENSOR_TYPE_ACCELEROMETER);
+	accel_info->queue=ASensorManager_createEventQueue(accel_info->manager,app->looper,LOOPER_ID_USER,NULL,NULL);
+	accel_info->x=0.0f;
+	accel_info->y=0.0f;
+	accel_info->z=0.0f;
+}
+
+void handle_accel(struct accel_info *accel_info){
+	if(accel_info->manager!=NULL){
+		ASensorEvent event;
+		while(ASensorEventQueue_getEvents(accel_info->queue,&event,1)>0){
+			accel_info->x=event.acceleration.x;
+			accel_info->y=event.acceleration.y;
+			accel_info->z=event.acceleration.z;
+		}
+	}
+}
+
+void enable_accel(struct accel_info *accel_info){
+	if(accel_info->sensor!=NULL){
+		ASensorEventQueue_enableSensor(accel_info->queue,accel_info->sensor);
+		ASensorEventQueue_setEventRate(accel_info->queue,accel_info->sensor,(1000L/60*1000));
+	}
+}
+
+void disable_accel(struct accel_info *accel_info){
+	if(accel_info->sensor!=NULL){
+		ASensorEventQueue_disableSensor(accel_info->queue,accel_info->sensor);
+	}
+}
+
+void term_accel(struct accel_info *accel_info){
+	ASensorManager_destroyEventQueue(accel_info->manager,accel_info->queue);
 }
